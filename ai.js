@@ -102,7 +102,10 @@ class LuhanAI {
                 content: userMessage
             });
 
-            const response = await fetch(this.apiEndpoint, {
+            const proxyUrl = 'https://api.allorigins.win/raw?url=';
+            const fullUrl = proxyUrl + encodeURIComponent(this.apiEndpoint);
+            
+            const response = await fetch(fullUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
