@@ -13,7 +13,7 @@ class LuhanAI {
         };
         this.apiKey = "sk-aquiwkhudplnaduwqkbucygjyoaccqbxaixqxotctbugpkoj";
         this.modelId = "deepseek-ai/DeepSeek-V3.2";
-        this.apiEndpoint = "https://api.deepseek.com/v1/chat/completions";
+        this.apiEndpoint = "https://api.siliconflow.cn/v1/chat/completions";
     }
 
     // 生成回复
