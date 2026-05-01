@@ -102,8 +102,8 @@ class LuhanAI {
                 content: userMessage
             });
 
-            const proxyUrl = 'https://api.allorigins.win/raw?url=';
-            const fullUrl = proxyUrl + encodeURIComponent(this.apiEndpoint);
+            const proxyUrl = 'https://cors-anywhere.herokuapp.com/';
+            const fullUrl = proxyUrl + this.apiEndpoint;
             
             const response = await fetch(fullUrl, {
                 method: 'POST',
