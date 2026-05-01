@@ -169,18 +169,26 @@ function initBackgroundSelector() {
     }
     
     const backgrounds = {
-        'default': '#1a1a2e',
-        'crimson': '#0d0d0d',
-        'wine': '#1a1a1a',
-        'scarlet': '#121212',
-        'ember': '#0a0a0a'
+        'default': 'linear-gradient(180deg, #1a1a2e 0%, #0d0d1a 50%, #1a0a1a 100%)',
+        'crimson': 'linear-gradient(180deg, #2d0a0a 0%, #1a0a0a 50%, #0d0a0a 100%)',
+        'wine': 'linear-gradient(180deg, #2a1a2a 0%, #1a1020 50%, #100a15 100%)',
+        'scarlet': 'linear-gradient(180deg, #1a0a0a 0%, #100505 50%, #0a0303 100%)',
+        'ember': 'linear-gradient(180deg, #1a100a 0%, #100a05 50%, #0a0503 100%)'
     };
     
     bgOptions.forEach(option => {
         option.addEventListener('click', function() {
             const bgType = this.getAttribute('data-bg');
-            background.style.background = backgrounds[bgType];
+            if (bgType && backgrounds[bgType]) {
+                background.style.background = backgrounds[bgType];
+                background.style.backgroundSize = 'cover';
+                background.style.backgroundPosition = 'center';
+                
+                // 保存到本地存储
+                localStorage.setItem('lushun_bg', bgType);
+            }
             
+            // 更新选中状态
             bgOptions.forEach(opt => opt.classList.remove('active'));
             this.classList.add('active');
         });
@@ -193,9 +201,14 @@ function initBackgroundSelector() {
             const reader = new FileReader();
             reader.onload = function(e) {
                 background.style.background = "url('" + e.target.result + "') center/cover";
+                background.style.backgroundSize = 'cover';
+                background.style.backgroundPosition = 'center';
                 
                 // 移除所有背景选项的active状态
                 bgOptions.forEach(opt => opt.classList.remove('active'));
+                
+                // 保存到本地存储
+                localStorage.setItem('lushun_bg', 'custom');
             };
             reader.onerror = function() {
                 console.error('文件读取失败');
@@ -203,6 +216,16 @@ function initBackgroundSelector() {
             reader.readAsDataURL(file);
         }
     });
+    
+    // 加载保存的背景
+    const savedBg = localStorage.getItem('lushun_bg');
+    if (savedBg && savedBg !== 'custom') {
+        bgOptions.forEach(option => {
+            if (option.getAttribute('data-bg') === savedBg) {
+                option.click();
+            }
+        });
+    }
 }
 
 function initModeSelector() {
