@@ -4,6 +4,7 @@ window.onload = function() {
     initInteractionButtons();
     initAvatarSelector();
     initBackgroundSelector();
+    initModeSelector();
     initUserAvatarUpload();
     initMusicMode();
     initAutoGreetings();
@@ -205,6 +206,45 @@ function initBackgroundSelector() {
             };
             reader.readAsDataURL(file);
         }
+    });
+}
+
+function initModeSelector() {
+    const morningBtn = document.getElementById('morning-btn');
+    const nightBtn = document.getElementById('night-btn');
+    const body = document.body;
+    
+    if (!morningBtn || !nightBtn) {
+        console.error('模式切换按钮未找到');
+        return;
+    }
+    
+    // 默认设置为晚上模式
+    body.classList.add('night-mode');
+    body.classList.remove('morning-mode');
+    
+    morningBtn.addEventListener('click', function() {
+        body.classList.add('morning-mode');
+        body.classList.remove('night-mode');
+        morningBtn.classList.add('active');
+        nightBtn.classList.remove('active');
+        
+        // 陆沉的回应
+        setTimeout(() => {
+            addMessage('character', '新的一天开始了，我的小姑娘。早安。');
+        }, 500);
+    });
+    
+    nightBtn.addEventListener('click', function() {
+        body.classList.add('night-mode');
+        body.classList.remove('morning-mode');
+        nightBtn.classList.add('active');
+        morningBtn.classList.remove('active');
+        
+        // 陆沉的回应
+        setTimeout(() => {
+            addMessage('character', '夜色很美，就像你一样。');
+        }, 500);
     });
 }
 

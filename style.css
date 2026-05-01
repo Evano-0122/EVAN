@@ -75,6 +75,104 @@ body {
     z-index: -1;
 }
 
+/* 早上模式 */
+.morning-mode .background {
+    background: linear-gradient(180deg, #ffecd2 0%, #fcb69f 50%, #ffecd2 100%);
+}
+
+.morning-mode .background::before {
+    background: radial-gradient(ellipse at top, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
+}
+
+.morning-mode .chat-area {
+    background: rgba(255, 248, 240, 0.9);
+}
+
+.morning-mode .chat-header {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa07a 100%);
+}
+
+.morning-mode .message.character-message {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa07a 100%);
+    color: #fff;
+}
+
+.morning-mode .message.user-message {
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    border: 1px solid #ff6b6b;
+}
+
+.morning-mode .chat-input-area {
+    background: rgba(255, 248, 240, 0.95);
+}
+
+.morning-mode #message-input {
+    background: rgba(255, 255, 255, 0.8);
+    color: #333;
+}
+
+.morning-mode .interaction-area {
+    background: rgba(255, 248, 240, 0.9);
+}
+
+.morning-mode .interaction-btn {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa07a 100%);
+}
+
+.morning-mode .bg-option.morning {
+    background: linear-gradient(180deg, #ffecd2 0%, #fcb69f 50%, #ffecd2 100%);
+}
+
+/* 晚上模式（默认） */
+.night-mode .background {
+    background: linear-gradient(180deg, #0c0c1e 0%, #1a1a2e 50%, #0f0f23 100%);
+}
+
+.night-mode .background::before {
+    background: radial-gradient(ellipse at top, rgba(50, 50, 100, 0.2) 0%, transparent 70%);
+}
+
+.night-mode .chat-area {
+    background: rgba(20, 20, 40, 0.95);
+}
+
+.night-mode .chat-header {
+    background: linear-gradient(135deg, #B81124 0%, #8B0000 100%);
+}
+
+.night-mode .message.character-message {
+    background: linear-gradient(135deg, rgba(184, 17, 36, 0.8) 0%, rgba(139, 0, 0, 0.8) 100%);
+    color: #fff;
+}
+
+.night-mode .message.user-message {
+    background: rgba(30, 30, 60, 0.9);
+    color: #fff;
+    border: 1px solid rgba(184, 17, 36, 0.3);
+}
+
+.night-mode .chat-input-area {
+    background: rgba(10, 10, 30, 0.95);
+}
+
+.night-mode #message-input {
+    background: rgba(30, 30, 60, 0.8);
+    color: #fff;
+}
+
+.night-mode .interaction-area {
+    background: rgba(10, 10, 30, 0.9);
+}
+
+.night-mode .interaction-btn {
+    background: linear-gradient(135deg, #B81124 0%, #8B0000 100%);
+}
+
+.night-mode .bg-option.night {
+    background: linear-gradient(180deg, #0c0c1e 0%, #1a1a2e 50%, #0f0f23 100%);
+}
+
 .top-decoration {
     position: absolute;
     top: 0;
@@ -676,6 +774,48 @@ body {
 .emoji-item:hover {
     background: rgba(184, 17, 36, 0.2);
     transform: scale(1.2);
+}
+
+.mode-selector {
+    margin-bottom: 20px;
+}
+
+.mode-selector h4 {
+    color: #fff;
+    font-size: 14px;
+    margin-bottom: 10px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(184, 17, 36, 0.3);
+}
+
+.mode-options {
+    display: flex;
+    gap: 10px;
+}
+
+.mode-btn {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 15px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(184, 17, 36, 0.2);
+    color: #fff;
+}
+
+.mode-btn:hover {
+    background: rgba(184, 17, 36, 0.4);
+}
+
+.mode-btn.active {
+    background: linear-gradient(135deg, #B81124 0%, #8B0000 100%);
+    box-shadow: 0 5px 15px rgba(184, 17, 36, 0.4);
+}
+
+.mode-btn.morning.active {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ffa07a 100%);
 }
 
 .interaction-area {
