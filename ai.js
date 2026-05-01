@@ -102,102 +102,37 @@ class LuhanAI {
                 content: userMessage
             });
 
-            const proxyUrls = [
-                'https://api.allorigins.win/raw?url=',
-                'https://corsproxy.io/?url=',
-                'https://cors-anywhere.herokuapp.com/'
-            ];
+            console.log('正在调用SiliconFlow API...');
             
-            let response = null;
-            let data = null;
+            const response = await fetch(this.apiEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + this.apiKey
+                },
+                body: JSON.stringify({
+                    model: this.modelId,
+                    messages: messages,
+                    temperature: 0.7,
+                    max_tokens: 500
+                })
+            });
             
-            for (let i = 0; i < proxyUrls.length; i++) {
-                try {
-                    const proxyUrl = proxyUrls[i];
-                    let fullUrl;
-                    
-                    if (proxyUrl.includes('raw?url=') || proxyUrl.includes('corsproxy.io')) {
-                        fullUrl = proxyUrl + encodeURIComponent(this.apiEndpoint);
-                    } else {
-                        fullUrl = proxyUrl + this.apiEndpoint;
-                    }
-                    
-                    console.log(`尝试使用代理 ${i + 1}: ${proxyUrl}`);
-                    
-                    response = await fetch(fullUrl, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer ' + this.apiKey
-                        },
-                        body: JSON.stringify({
-                            model: this.modelId,
-                            messages: messages,
-                            temperature: 0.7,
-                            max_tokens: 500
-                        }),
-                        mode: 'cors',
-                        cache: 'no-cache'
-                    });
-                    
-                    if (response.ok) {
-                        data = await response.json();
-                        console.log('API调用成功');
-                        break;
-                    } else {
-                        console.error(`代理 ${i + 1} 失败: ${response.status}`);
-                    }
-                } catch (error) {
-                    console.error(`代理 ${i + 1} 异常:`, error.message);
-                    continue;
-                }
-            }
+            console.log('API响应状态:', response.status);
             
-            if (!response || !response.ok || !data) {
-                console.error('所有代理都失败了，尝试直接调用');
-                
-                // 最后尝试直接调用（不使用代理）
-                try {
-                    response = await fetch(this.apiEndpoint, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer ' + this.apiKey
-                        },
-                        body: JSON.stringify({
-                            model: this.modelId,
-                            messages: messages,
-                            temperature: 0.7,
-                            max_tokens: 500
-                        })
-                    });
-                    
-                    if (response.ok) {
-                        data = await response.json();
-                    }
-                } catch (error) {
-                    console.error('直接调用也失败:', error.message);
-                }
-            }
-
-            if (data && data.choices && data.choices.length > 0) {
+            if (response.ok) {
+                const data = await response.json();
                 console.log('API响应数据:', data);
-                return data.choices[0].message.content;
-            } else if (response && !response.ok) {
-                console.error('API请求失败:', response.status, response.statusText);
-                try {
-                    const errorText = await response.text();
-                    console.error('错误详情:', errorText);
-                } catch (e) {
-                    console.error('无法获取错误详情');
+                if (data.choices && data.choices.length > 0) {
+                    return data.choices[0].message.content;
                 }
             } else {
-                console.error('API响应数据为空或格式错误');
+                console.error('API请求失败:', response.status, response.statusText);
+                const errorText = await response.text();
+                console.error('错误详情:', errorText);
             }
         } catch (error) {
             console.error('API调用失败:', error);
-            console.error('错误类型:', error.name);
-            console.error('错误消息:', error.message);
         }
 
         return null;

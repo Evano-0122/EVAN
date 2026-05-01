@@ -584,6 +584,11 @@ async function sendMessage() {
             try {
                 const response = await luhanAI.generateResponse(message);
                 addMessage('character', response);
+                
+                // 回复后有30%概率发送随机问候
+                if (window.sendRandomGreetingAfterReply) {
+                    window.sendRandomGreetingAfterReply();
+                }
             } catch (error) {
                 console.error('生成回复失败:', error);
                 addMessage('character', '我的小姑娘，我有点累了，让我休息一下好吗？');
@@ -723,37 +728,30 @@ function initAutoGreetings() {
         return nextTime.getTime() - now.getTime();
     };
     
-    // 发送时间相关问候
+    // 发送时间相关问候（仅在页面加载时发送一次）
     const sendTimeBasedGreeting = () => {
         const timeSlot = getCurrentTimeSlot();
         const greetings = timeBasedGreetings[timeSlot];
         const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
         addMessage('character', randomGreeting);
-        
-        // 计算到下一个时间段的时间
-        const nextTimeSlotDelay = getNextTimeSlotTime();
-        setTimeout(sendTimeBasedGreeting, nextTimeSlotDelay);
     };
     
-    // 随机时间间隔（10-30分钟）
-    const getRandomInterval = () => {
-        return Math.floor(Math.random() * 1200000) + 600000; // 10-30分钟
+    // 用户对话后随机发送问候（30%概率）
+    const sendRandomGreetingAfterReply = () => {
+        // 30%概率发送随机问候
+        if (Math.random() > 0.7) {
+            const randomGreeting = randomGreetings[Math.floor(Math.random() * randomGreetings.length)];
+            setTimeout(() => {
+                addMessage('character', randomGreeting);
+            }, 3000); // 延迟3秒发送
+        }
     };
     
-    // 发送随机问候
-    const sendRandomGreeting = () => {
-        const randomGreeting = randomGreetings[Math.floor(Math.random() * randomGreetings.length)];
-        addMessage('character', randomGreeting);
-        
-        // 设置下一次随机问候的时间
-        setTimeout(sendRandomGreeting, getRandomInterval());
-    };
-    
-    // 启动时间问候
+    // 页面加载时发送一次时间问候
     sendTimeBasedGreeting();
     
-    // 启动随机问候
-    setTimeout(sendRandomGreeting, getRandomInterval());
+    // 暴露函数供外部调用
+    window.sendRandomGreetingAfterReply = sendRandomGreetingAfterReply;
 }
 
 // 初始化AI实例
