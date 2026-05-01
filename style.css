@@ -952,10 +952,10 @@ body {
     }
 }
 
-/* 手机端适配 - 乙游传讯风格 */
+/* 手机端适配 - 传讯风格 */
 @media (max-width: 768px) {
     body {
-        background: #0d0d1a;
+        background: transparent;
         min-height: 100vh;
     }
     
@@ -963,7 +963,6 @@ body {
         padding: 0;
         flex-direction: column;
         height: 100vh;
-        background: linear-gradient(180deg, #1a1a2e 0%, #0d0d1a 50%, #1a0a1a 100%);
     }
     
     /* 顶部装饰 */
