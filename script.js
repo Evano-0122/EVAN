@@ -18,10 +18,6 @@ window.onload = function() {
     });
     
     document.getElementById('emoji-button').addEventListener('click', toggleEmojiPicker);
-    
-    showWelcomeMessage();
-    
-    setInterval(luhanAutoPoke, 30000);
 };
 
 function initEmojiPicker() {
@@ -589,6 +585,14 @@ async function sendMessage() {
                 if (window.sendRandomGreetingAfterReply) {
                     window.sendRandomGreetingAfterReply();
                 }
+                
+                // 根据对话内容智能触发互动动作（20%概率）
+                if (Math.random() < 0.2) {
+                    const smartPoke = getSmartPoke(message);
+                    setTimeout(() => {
+                        addCharacterActionMessage(smartPoke);
+                    }, 1500);
+                }
             } catch (error) {
                 console.error('生成回复失败:', error);
                 addMessage('character', '我的小姑娘，我有点累了，让我休息一下好吗？');
@@ -604,6 +608,37 @@ function addMessage(type, content) {
     messageDiv.textContent = content;
     chatMessages.appendChild(messageDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function getSmartPoke(message) {
+    const pokes = characterData.customPokes;
+    
+    // 根据关键词选择合适的互动动作
+    const keywordsMap = {
+        '累': ['帮你拂去肩上的发丝', '递来一杯温热的茶', '递来一张温暖的毛毯', '为你披上外套'],
+        '冷': ['为你披上外套', '递来一张温暖的毛毯', '帮你拢了拢外套'],
+        '饿': ['递上一块温热的点心', '递来一份温热的早餐', '为你倒了杯热水'],
+        '困': ['轻轻拍了拍你的肩', '为你掖了掖被角', '递来一杯温热的茶'],
+        '难过': ['温柔地看着你笑了笑', '轻轻牵起你的手', '轻轻拍了拍你的肩'],
+        '开心': ['温柔地看着你笑了笑', '轻轻牵起你的手', '轻轻揉了揉你的头发'],
+        '想你': ['轻轻牵起你的手', '温柔地看着你笑了笑', '悄悄为你准备了小礼物'],
+        '晚安': ['为你掖了掖被角', '为你留了一盏灯', '帮你拂去肩上的发丝'],
+        '早安': ['递来一份温热的早餐', '递来一杯温热的茶', '轻轻揉了揉你的头发'],
+        '下雨': ['为你撑开了伞', '为你披上外套', '帮你拂去肩头的落叶'],
+        '走路': ['轻轻扶了你一把', '轻轻牵起你的手', '帮你拂去肩上的发丝'],
+        '头发': ['帮你理了理耳边的碎发', '轻轻揉了揉你的头发', '帮你拂去肩上的发丝'],
+        '衣服': ['帮你整理了一下围巾', '为你披上外套', '替你拢了拢外套']
+    };
+    
+    // 检查消息中是否有关键词
+    for (const [keyword, actions] of Object.entries(keywordsMap)) {
+        if (message.includes(keyword)) {
+            return actions[Math.floor(Math.random() * actions.length)];
+        }
+    }
+    
+    // 如果没有匹配的关键词，随机选择一个
+    return pokes[Math.floor(Math.random() * pokes.length)];
 }
 
 function luhanAutoPoke() {
