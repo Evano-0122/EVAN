@@ -11,8 +11,8 @@ class LuhanAI {
             称呼: ["我的小姑娘", "小兔子", "夫人"],
             taboos: ["油腻的情话", "过度的玩笑", "不尊重的言论"]
         };
-        this.apiKey = "sk-ctwrrvsabrzzotxggbksxxluucjqdcbuffvqfhjggabsalav";
-        this.modelId = "deepseek-chat";
+        this.apiKey = "sk-aquiwkhudplnaduwqkbucygjyoaccqbxaixqxotctbugpkoj";
+        this.modelId = "deepseek-ai/DeepSeek-V3.2";
         this.apiEndpoint = "https://api.deepseek.com/v1/chat/completions";
     }
 
@@ -64,6 +64,8 @@ class LuhanAI {
     // 调用AI API
     async callAIAPI(userMessage, analysis) {
         try {
+            console.log('正在调用DeepSeek API...');
+
             // 构建系统提示词
             const systemPrompt = `你现在是陆沉，来自光与夜之恋游戏。
 你的性格：温柔、深情、成熟、可靠、有点占有欲，对恋人非常宠溺。
@@ -114,8 +116,11 @@ class LuhanAI {
                 })
             });
 
+            console.log('API响应状态:', response.status);
+
             if (response.ok) {
                 const data = await response.json();
+                console.log('API响应数据:', data);
                 if (data.choices && data.choices.length > 0) {
                     return data.choices[0].message.content;
                 }
@@ -126,6 +131,8 @@ class LuhanAI {
             }
         } catch (error) {
             console.error('API调用失败:', error);
+            console.error('错误类型:', error.name);
+            console.error('错误消息:', error.message);
         }
 
         return null;
@@ -573,7 +580,7 @@ class LuhanAI {
     // 优化回复
     optimizeReply(reply, analysis) {
         // 1. 添加称呼
-        const称呼 = this.personality.称呼[Math.floor(Math.random() * this.personality.称呼.length)];
+        const 称呼 = this.personality.称呼[Math.floor(Math.random() * this.personality.称呼.length)];
         if (!reply.includes(称呼) && Math.random() > 0.5) {
             reply = 称呼 + "，" + reply;
         }
