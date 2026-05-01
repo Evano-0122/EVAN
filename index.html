@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#1a1a2e">
+    <title>EVAN</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 背景区域 -->
+        <div class="background" id="background"></div>
+
+        <!-- 顶部装饰 -->
+        <div class="top-decoration">
+            <div class="stars"></div>
+        </div>
+
+        <!-- 角色区域 -->
+        <div class="character-area">
+            <div class="avatar-container">
+                <img id="character-image" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSIyNSIgZmlsbD0iI2UwZTBlMCIvPjxjaXJjbGUgY3g9IjUwIiBjeT0iNDQiIHI9IjE1IiBmaWxsPSIjYzBjMGZmIi8+PHBhdGggZD0iTTI1IDY1IEEyMCAyMCAwIDExIDY1IDY1IDk1IDk1IDAgMCAxIDI1IDY1IiBmaWxsPSIjZmZmIi8+PC9zdmc+" alt="陆沉">
+                <div class="character-status">
+                    <span id="status-text">在线</span>
+                </div>
+                <button class="change-avatar-btn" onclick="toggleAvatarSelector()">更换头像</button>
+                <div class="avatar-selector" id="avatar-selector">
+                    <div class="avatar-option" data-avatar="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSIyNSIgZmlsbD0iI2UwZTBlMCIvPjxjaXJjbGUgY3g9IjUwIiBjeT0iNDQiIHI9IjE1IiBmaWxsPSIjYzBjMGZmIi8+PHBhdGggZD0iTTI1IDY1IEEyMCAyMCAwIDExIDY1IDY1IDk1IDk1IDAgMCAxIDI1IDY1IiBmaWxsPSIjZmZmIi8+PC9zdmc+">默认</div>
+                    <div class="avatar-option" data-avatar="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Lu%20Chen%20from%20Twilight%20of%20the%20Love%2C%20evening%20suit%2C%20moonlight%2C%20red%20eyes%2C%20mysterious%20atmosphere&image_size=portrait_4_3">月光</div>
+                    <div class="avatar-option" data-avatar="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Lu%20Chen%20from%20Twilight%20of%20the%20Love%2C%20casual%20style%2C%20red%20sweater%2C%20warm%20lighting%2C%20gentle%20expression&image_size=portrait_4_3">暖阳</div>
+                    <div class="avatar-option" data-avatar="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Lu%20Chen%20from%20Twilight%20of%20the%20Love%2C%20formal%20suit%2C%20red%20tie%2C%20business%20setting%2C%20confident%20pose&image_size=portrait_4_3">商务</div>
+                    <div class="avatar-upload">
+                        <input type="file" id="avatar-upload-input" accept="image/*" style="display: none;">
+                        <button class="upload-btn" onclick="document.getElementById('avatar-upload-input').click()">自定义上传</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 对话区域 -->
+        <div class="chat-area">
+            <div class="chat-header">
+                <div class="header-content">
+                    <h2>陆沉</h2>
+                    <div class="motto" id="motto">有你的地方，才是我的归处</div>
+                </div>
+                <div class="user-avatar-container">
+                    <img id="user-avatar" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSIyNSIgZmlsbD0iI2UwZTBlMCIvPjxjaXJjbGUgY3g9IjUwIiBjeT0iNDQiIHI9IjE1IiBmaWxsPSIjYzBjMGZmIi8+PHBhdGggZD0iTTI1IDY1IEEyMCAyMCAwIDExIDY1IDY1IDk1IDk1IDAgMCAxIDI1IDY1IiBmaWxsPSIjZmZmIi8+PC9zdmc+" alt="用户头像" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(184, 17, 36, 0.6);">
+                    <input type="file" id="user-avatar-upload" accept="image/*" style="display: none;">
+                    <button class="change-user-avatar-btn" onclick="document.getElementById('user-avatar-upload').click()" style="margin-left: 10px; padding: 4px 8px; font-size: 10px; background: rgba(184, 17, 36, 0.8); color: white; border: none; border-radius: 10px; cursor: pointer;">更换</button>
+                </div>
+                <div class="header-decoration"></div>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <!-- 对话消息将在这里动态生成 -->
+            </div>
+
+            <!-- 输入区域 -->
+            <div class="chat-input-area">
+                <div class="emoji-picker" id="emoji-picker">
+                    <!-- 表情将在这里动态生成 -->
+                </div>
+                <input type="text" id="message-input" placeholder="输入消息...">
+                <button id="emoji-button">✨</button>
+                <button id="send-button">发送</button>
+            </div>
+        </div>
+
+        <!-- 互动区域 -->
+        <div class="interaction-area">
+            <div class="interaction-header">
+                <h3>互动</h3>
+                <div class="header-decoration"></div>
+            </div>
+            <div class="interaction-buttons">
+                <button class="interaction-btn" id="poke-btn">戳一戳</button>
+                <button class="interaction-btn" id="hug-btn">抱抱</button>
+                <button class="interaction-btn" id="kiss-btn">亲亲</button>
+                <button class="interaction-btn" id="pat-btn">摸头</button>
+            </div>
+
+            <!-- 背景选择 -->
+            <div class="background-selector">
+                <h4>背景</h4>
+                <div class="background-options">
+                    <div class="bg-option active" data-bg="default" style="background: #1a1a2e;"></div>
+                    <div class="bg-option" data-bg="crimson" style="background: #0d0d0d;"></div>
+                    <div class="bg-option" data-bg="wine" style="background: #1a1a1a;"></div>
+                    <div class="bg-option" data-bg="scarlet" style="background: #121212;"></div>
+                    <div class="bg-option" data-bg="ember" style="background: #0a0a0a;"></div>
+                    <div class="bg-upload">
+                        <input type="file" id="bg-upload-input" accept="image/*" style="display: none;">
+                        <button class="upload-btn" onclick="document.getElementById('bg-upload-input').click()">自定义上传</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 一起听歌模式 -->
+            <div class="music-mode">
+                <h4>一起听歌</h4>
+                <button class="music-toggle-btn" id="music-toggle-btn">开启听歌模式</button>
+                <div class="music-player" id="music-player" style="display: none;">
+                    <div class="music-info">
+                        <div class="music-title" id="music-title">未选择歌曲</div>
+                        <div class="music-controls">
+                            <button class="music-btn" id="music-prev">⏮</button>
+                            <button class="music-btn" id="music-play-pause">▶</button>
+                            <button class="music-btn" id="music-next">⏭</button>
+                        </div>
+                        <div class="music-progress">
+                            <div class="progress-bar" id="progress-bar">
+                                <div class="progress-fill" id="progress-fill"></div>
+                            </div>
+                            <div class="music-time">
+                                <span id="current-time">0:00</span>
+                                <span id="total-time">0:00</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="music-list" id="music-list">
+                        <!-- 歌曲列表将在这里动态生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="new-data.js"></script>
+    <script src="ai.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
