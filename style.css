@@ -1221,10 +1221,6 @@ body {
         height: 60px;
     }
 
-    .change-user-avatar-btn {
-        display: none;
-    }
-
     .user-avatar-container {
         display: none;
     }
