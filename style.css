@@ -1071,16 +1071,211 @@ body {
 
     .chat-area {
         width: 100%;
-        height: 100vh;
+        height: 65vh;
         margin: 0;
-        border-radius: 0;
-        background: #fff;
+        border-radius: 20px 20px 0 0;
+        background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(15px);
         border: none;
-        box-shadow: none;
+        box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.15);
         overflow: hidden;
         display: flex;
         flex-direction: column;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 10;
+    }
+
+    /* 手机端互动区域 */
+    .interaction-area {
+        width: 100%;
+        height: 35vh;
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        background: rgba(30, 20, 20, 0.95);
+        backdrop-filter: blur(20px);
+        border-radius: 0;
+        border: none;
+        overflow-y: auto;
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 5;
+    }
+
+    .interaction-buttons {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
+        margin-bottom: 15px;
+    }
+
+    .interaction-btn {
+        padding: 10px 8px;
+        background: rgba(184, 17, 36, 0.2);
+        border: 1px solid rgba(184, 17, 36, 0.3);
+        border-radius: 12px;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .interaction-btn:hover {
+        background: rgba(184, 17, 36, 0.3);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(184, 17, 36, 0.3);
+        color: #fff;
+    }
+
+    .interaction-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(184, 17, 36, 0.2);
+    }
+
+    .interaction-header h3 {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 16px;
+        font-weight: 400;
+        letter-spacing: 1px;
+    }
+
+    .background-selector {
+        margin-top: 10px;
+    }
+
+    .background-selector h4 {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 13px;
+        font-weight: 400;
+        margin-bottom: 10px;
+        letter-spacing: 1px;
+    }
+
+    .background-options {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 8px;
+    }
+
+    .bg-option {
+        width: 100%;
+        height: 35px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .bg-option:hover {
+        transform: scale(1.05);
+        border-color: rgba(184, 17, 36, 0.5);
+    }
+
+    .bg-option.active {
+        border-color: rgba(184, 17, 36, 0.8);
+        box-shadow: 0 0 10px rgba(184, 17, 36, 0.3);
+    }
+
+    .upload-btn {
+        width: 100%;
+        padding: 10px;
+        background: rgba(184, 17, 36, 0.15);
+        border: 1px dashed rgba(184, 17, 36, 0.4);
+        border-radius: 12px;
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    .upload-btn:hover {
+        background: rgba(184, 17, 36, 0.25);
+        border-color: rgba(184, 17, 36, 0.6);
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .avatar-selector, .mode-selector, .music-toggle-container {
+        margin-top: 10px;
+    }
+
+    .avatar-selector h4, .mode-selector h4, .music-toggle-container h4 {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 13px;
+        font-weight: 400;
+        margin-bottom: 10px;
+        letter-spacing: 1px;
+    }
+
+    .avatar-options, .mode-options {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .avatar-option, .mode-option {
+        padding: 8px 12px;
+        background: rgba(184, 17, 36, 0.15);
+        border: 1px solid rgba(184, 17, 36, 0.2);
+        border-radius: 10px;
+        color: rgba(255, 255, 255, 0.8);
+        font-size: 11px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .avatar-option:hover, .mode-option:hover {
+        background: rgba(184, 17, 36, 0.25);
+        color: #fff;
+    }
+
+    .avatar-option.active, .mode-option.active {
+        background: rgba(184, 17, 36, 0.35);
+        border-color: rgba(184, 17, 36, 0.5);
+        color: #fff;
+    }
+
+    .music-toggle-container {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    #music-toggle-btn {
+        padding: 10px 15px;
+        background: rgba(184, 17, 36, 0.2);
+        border: 1px solid rgba(184, 17, 36, 0.3);
+        border-radius: 12px;
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    #music-toggle-btn:hover {
+        background: rgba(184, 17, 36, 0.3);
+        color: #fff;
+    }
+
+    .music-player {
+        width: 100%;
+        margin-top: 10px;
+        padding: 12px;
+        background: rgba(184, 17, 36, 0.15);
+        border-radius: 12px;
+        border: 1px solid rgba(184, 17, 36, 0.2);
     }
 
     /* 对话框头部 - 简约风格 */

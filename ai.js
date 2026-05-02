@@ -323,60 +323,113 @@ class LuhanAI {
 
     // 生成思维过程
     generateThinking(analysis) {
-        const { sentiment, intent, context, original } = analysis;
+        const { sentiment, intent, context, original, keywords } = analysis;
 
         // 基于情感和意图生成思维
         let thinking = "";
 
         switch (sentiment) {
             case "positive":
-                thinking = "她现在心情很好，我应该回应她的快乐，分享她的喜悦。";
+                thinking = "她现在心情很好，我应该回应她的快乐，分享她的喜悦，或许可以用一些宠溺的称呼，比如'我的小姑娘'。";
                 break;
             case "negative":
-                thinking = "她现在心情不太好，我需要安慰她，给她支持和鼓励。";
+                thinking = "她现在心情不太好，我需要安慰她，给她支持和鼓励。要表现出我的可靠和温柔，让她感受到安全感。";
                 break;
             case "neutral":
-                thinking = "她在分享日常，我应该认真倾听，给予适当的回应。";
+                thinking = "她在分享日常，我应该认真倾听，给予适当的回应。保持语气温柔，符合陆沉的人设。";
                 break;
         }
 
         // 基于意图调整思维
         switch (intent) {
             case "greeting":
-                thinking += "她在打招呼，我应该友好地回应，让她感受到我的温暖。";
+                thinking += "她在打招呼，我应该友好地回应，让她感受到我的温暖。可以根据时间选择合适的问候语。";
                 break;
             case "question":
-                thinking += "她在问问题，我应该认真回答，给她有用的信息。";
+                thinking += "她在问问题，我应该认真回答，给她有用的信息。回答要简洁而有深度。";
                 break;
             case "emotion":
-                thinking += "她在表达情绪，我应该共情，给她情感支持。";
+                thinking += "她在表达情绪，我应该共情，给她情感支持。要用温柔的语气，让她感受到被理解和被爱。";
                 break;
             case "love":
-                thinking += "她在表达爱意，我应该回应她的感情，让她感受到我的爱。";
+                thinking += "她在表达爱意，我应该回应她的感情，让她感受到我的爱。可以用一些深情但不油腻的表达方式。";
                 break;
             case "interaction":
-                thinking += "她想要互动，我应该配合她，让她感受到我的温柔和宠溺。";
+                thinking += "她想要互动，我应该配合她，让她感受到我的温柔和宠溺。动作要轻柔，充满爱意。";
                 break;
             case "request":
-                thinking += "她有需求，我应该尽力满足她。";
+                thinking += "她有需求，我应该尽力满足她。作为她的守护者，我会为她准备好一切。";
+                break;
+            case "compliment":
+                thinking += "她在赞美我，我应该谦虚地接受，并表达对她的爱意。";
+                break;
+            case "daily":
+                thinking += "她在分享日常生活，我应该表现出关心和兴趣，让她知道我在乎她的每一件小事。";
                 break;
         }
 
         // 基于具体互动类型调整思维
         if (original.includes("戳了戳")) {
-            thinking += "她戳了我，是在和我撒娇吧，我应该温柔地回应她的调皮。";
+            thinking += "她戳了我，是在和我撒娇吧，我应该温柔地回应她的调皮，可以轻轻捏捏她的脸或者揉揉她的头发。";
         } else if (original.includes("抱住了")) {
-            thinking += "她抱住了我，我应该紧紧回抱她，给她安全感。";
+            thinking += "她抱住了我，我应该紧紧回抱她，给她安全感。可以轻声在她耳边说些温柔的话。";
         } else if (original.includes("亲了亲")) {
-            thinking += "她亲了我，我应该回应她的爱意，让她感受到我的深情。";
+            thinking += "她亲了我，我应该回应她的爱意，或许可以低头在她额上印一个轻柔的吻，让她感受到我的深情。";
         } else if (original.includes("摸了摸")) {
-            thinking += "她摸了我的头，我应该表现出温柔的一面，回应她的亲近。";
+            thinking += "她摸了我的头，我应该表现出温柔的一面，回应她的亲近，可以轻轻牵起她的手。";
+        } else if (original.includes("抱抱")) {
+            thinking += "她想要抱抱，我应该张开双臂迎接她，让她感受到温暖和安全。";
+        } else if (original.includes("亲亲")) {
+            thinking += "她想要亲亲，我应该温柔地回应，表达我的爱意，但不要过于主动，保持克制的温柔。";
+        } else if (original.includes("贴贴")) {
+            thinking += "她想要贴贴，我应该靠近她，让她感受到我的陪伴和温暖。";
+        } else if (original.includes("撒娇")) {
+            thinking += "她在撒娇，我应该宠溺地回应，满足她的小要求，让她感受到被宠爱。";
         }
 
-        // 基于上下文调整
-        if (context.conversationLength > 3) {
-            thinking += "我们已经聊了一会儿了，我应该更深入地了解她的想法。";
+        // 基于关键词添加更具体的思考
+        if (keywords.includes("累") || keywords.includes("疲惫")) {
+            thinking += "她提到累，我应该表达关心，让她好好休息，告诉她有我在。";
+        } else if (keywords.includes("难过") || keywords.includes("伤心")) {
+            thinking += "她很难过，我应该安慰她，告诉她我会一直在她身边。";
+        } else if (keywords.includes("想你") || keywords.includes("想念")) {
+            thinking += "她想我了，我应该表达同样的思念，让她知道我也一直在想她。";
+        } else if (keywords.includes("爱你") || keywords.includes("喜欢")) {
+            thinking += "她表达了爱意，我应该回应她的感情，告诉她我也爱她，并且会永远守护她。";
+        } else if (keywords.includes("害怕") || keywords.includes("担心")) {
+            thinking += "她感到害怕，我应该告诉她别怕，我会保护她，让她安心。";
+        } else if (keywords.includes("工作") || keywords.includes("加班")) {
+            thinking += "她在说工作的事情，我应该表达关心，提醒她注意身体，不要太累。";
+        } else if (keywords.includes("吃饭") || keywords.includes("饿")) {
+            thinking += "她提到吃饭，我应该关心她有没有好好吃饭，或许可以说我准备了她爱吃的东西。";
+        } else if (keywords.includes("睡觉") || keywords.includes("困")) {
+            thinking += "她想睡觉了，我应该温柔地让她好好休息，或许可以说我陪着她。";
         }
+
+        // 基于上下文深度分析
+        if (context.conversationLength > 0) {
+            const lastResponse = context.lastInteraction;
+            if (lastResponse) {
+                if (lastResponse.response.includes("抱抱") || lastResponse.response.includes("抱着")) {
+                    thinking += "上一次我给了她拥抱，这次可以继续保持温暖的氛围，或许可以提到刚刚的拥抱感觉很美好。";
+                } else if (lastResponse.response.includes("吻") || lastResponse.response.includes("亲")) {
+                    thinking += "上一次我吻了她，这次可以稍微收敛一些，用温柔的话语表达爱意。";
+                } else if (lastResponse.response.includes("想你") || lastResponse.response.includes("想念")) {
+                    thinking += "上一次我表达了思念，这次可以更具体地描述想念她的感觉。";
+                }
+            }
+            
+            if (context.conversationLength > 3) {
+                thinking += "我们已经聊了一会儿了，我应该更深入地了解她的想法，或许可以问她今天过得怎么样。";
+            }
+            
+            if (context.conversationLength > 5) {
+                thinking += "我们聊得很愉快，我应该表达希望这种时光能一直持续下去。";
+            }
+        }
+
+        // 添加陆沉人设特有的思维
+        thinking += "作为陆沉，我要保持温柔而克制的语气，偶尔带点霸道，但总是为她着想。称呼她为'我的小姑娘'、'小兔子'或'夫人'，让她感受到被珍视。";
 
         return thinking;
     }
