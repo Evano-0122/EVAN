@@ -112,11 +112,27 @@ function initAvatarSelector() {
     const avatarSelector = document.getElementById('avatar-selector');
     const avatarOptions = document.querySelectorAll('.avatar-option');
     const characterImage = document.getElementById('character-image');
+    const mobileCharacterAvatar = document.getElementById('mobile-character-avatar');
     const avatarUploadInput = document.getElementById('avatar-upload-input');
     
     if (!changeAvatarBtn || !avatarSelector || !characterImage || !avatarUploadInput) {
         console.error('头像选择器元素未找到');
         return;
+    }
+    
+    const updateAllCharacterAvatars = function(src) {
+        characterImage.src = src;
+        if (mobileCharacterAvatar) {
+            mobileCharacterAvatar.src = src;
+        }
+    };
+    
+    // 手机端角色头像点击事件
+    if (mobileCharacterAvatar) {
+        mobileCharacterAvatar.addEventListener('click', function(e) {
+            e.stopPropagation();
+            avatarSelector.classList.toggle('show');
+        });
     }
     
     changeAvatarBtn.addEventListener('click', function(e) {
@@ -127,7 +143,7 @@ function initAvatarSelector() {
     avatarOptions.forEach(option => {
         option.addEventListener('click', function() {
             const newSrc = this.getAttribute('data-avatar');
-            characterImage.src = newSrc;
+            updateAllCharacterAvatars(newSrc);
             avatarSelector.classList.remove('show');
             
             avatarOptions.forEach(opt => opt.style.borderColor = 'transparent');
@@ -141,7 +157,7 @@ function initAvatarSelector() {
         if (file) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                characterImage.src = e.target.result;
+                updateAllCharacterAvatars(e.target.result);
                 avatarSelector.classList.remove('show');
             };
             reader.onerror = function() {
@@ -183,6 +199,7 @@ function initBackgroundSelector() {
                 background.style.background = backgrounds[bgType];
                 background.style.backgroundSize = 'cover';
                 background.style.backgroundPosition = 'center';
+                background.classList.remove('no-pattern');
                 
                 // 保存到本地存储
                 localStorage.setItem('lushun_bg', bgType);
@@ -203,6 +220,7 @@ function initBackgroundSelector() {
                 background.style.background = "url('" + e.target.result + "') center/cover";
                 background.style.backgroundSize = 'cover';
                 background.style.backgroundPosition = 'center';
+                background.classList.add('no-pattern');
                 
                 // 移除所有背景选项的active状态
                 bgOptions.forEach(opt => opt.classList.remove('active'));
@@ -269,11 +287,26 @@ function initModeSelector() {
 
 function initUserAvatarUpload() {
     const userAvatarUpload = document.getElementById('user-avatar-upload');
-    const userAvatar = document.getElementById('user-avatar');
+    const userAvatarDesktop = document.getElementById('user-avatar-desktop');
+    const userAvatarMobile = document.getElementById('user-avatar-mobile');
     
-    if (!userAvatarUpload || !userAvatar) {
+    if (!userAvatarUpload || !userAvatarDesktop) {
         console.error('用户头像上传元素未找到');
         return;
+    }
+    
+    const updateAllUserAvatars = function(src) {
+        userAvatarDesktop.src = src;
+        if (userAvatarMobile) {
+            userAvatarMobile.src = src;
+        }
+    };
+    
+    // 手机端用户头像点击触发上传
+    if (userAvatarMobile) {
+        userAvatarMobile.addEventListener('click', function() {
+            userAvatarUpload.click();
+        });
     }
     
     // 自定义用户头像上传
@@ -282,7 +315,7 @@ function initUserAvatarUpload() {
         if (file) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                userAvatar.src = e.target.result;
+                updateAllUserAvatars(e.target.result);
             };
             reader.onerror = function() {
                 console.error('文件读取失败');
@@ -653,7 +686,42 @@ function addMessage(type, content) {
     const chatMessages = document.getElementById('chat-messages');
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${type}-message`;
-    messageDiv.textContent = content;
+    
+    // 创建头像元素
+    const avatarImg = document.createElement('img');
+    avatarImg.className = 'avatar';
+    
+    if (type === 'character') {
+        const characterImage = document.getElementById('character-image');
+        avatarImg.src = characterImage ? characterImage.src : 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"%3E%3Ccircle cx="20" cy="20" r="18" fill="%232a2a4a" stroke="%23B81124" stroke-width="1"/%3E%3Ccircle cx="20" cy="18" r="8" fill="%23c9b896"/%3E%3Ccircle cx="16" cy="16" r="1.5" fill="%232a2a4a"/%3E%3Ccircle cx="24" cy="16" r="1.5" fill="%232a2a4a"/%3E%3Cpath d="M17 22 Q20 25 23 22" fill="none" stroke="%238b5a4a" stroke-width="1.5"/%3E%3C/svg%3E';
+        // 点击角色头像打开头像选择器
+        avatarImg.addEventListener('click', () => {
+            const avatarSelector = document.getElementById('avatar-selector');
+            if (avatarSelector) {
+                avatarSelector.classList.toggle('show');
+            }
+        });
+    } else {
+        const userAvatar = document.getElementById('user-avatar-desktop') || document.getElementById('user-avatar-mobile');
+        avatarImg.src = userAvatar ? userAvatar.src : 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40"%3E%3Ccircle cx="20" cy="20" r="18" fill="%23e8dcc4" stroke="%23B81124" stroke-width="1"/%3E%3Ccircle cx="20" cy="18" r="7" fill="%23d4c4a8"/%3E%3Ccircle cx="17" cy="16" r="1.2" fill="%232a2a4a"/%3E%3Ccircle cx="23" cy="16" r="1.2" fill="%232a2a4a"/%3E%3Cpath d="M18 21 Q20 23 22 21" fill="none" stroke="%238b5a4a" stroke-width="1.2"/%3E%3C/svg%3E';
+        // 点击用户头像打开用户头像上传
+        avatarImg.addEventListener('click', () => {
+            const userAvatarUpload = document.getElementById('user-avatar-upload');
+            if (userAvatarUpload) {
+                userAvatarUpload.click();
+            }
+        });
+    }
+    
+    // 创建内容元素
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'content';
+    contentDiv.textContent = content;
+    
+    // 添加到消息容器
+    messageDiv.appendChild(avatarImg);
+    messageDiv.appendChild(contentDiv);
+    
     chatMessages.appendChild(messageDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
