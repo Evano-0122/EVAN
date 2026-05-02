@@ -294,20 +294,14 @@ function initUserAvatarUpload() {
 
 function initMusicMode() {
     // 歌曲列表
-    let songs = [
-        { id: 1, title: '光与夜之恋 - 陆沉角色曲' },
-        { id: 2, title: '浪漫之夜' },
-        { id: 3, title: '心跳旋律' },
-        { id: 4, title: '星空下的约定' },
-        { id: 5, title: '温柔的守护' }
-    ];
+    let songs = [];
     
     let currentSongIndex = 0;
     let isPlaying = false;
     let audioElement = new Audio(); // 真实音频元素
     let musicUrl = '';
     
-    // 从本地存储加载歌曲列表
+    // 从本地存储加载歌曲列表（可选，用户可以自己上传）
     const savedSongs = localStorage.getItem('lushun_songs');
     if (savedSongs) {
         songs = JSON.parse(savedSongs);
@@ -359,17 +353,24 @@ function initMusicMode() {
     // 初始化歌曲列表
     function initSongList() {
         musicList.innerHTML = '';
-        songs.forEach((song, index) => {
-            const listItem = document.createElement('div');
-            listItem.className = `music-list-item ${index === currentSongIndex ? 'active' : ''}`;
-            listItem.textContent = song.title;
-            listItem.addEventListener('click', () => {
-                currentSongIndex = index;
-                updateSongListActive();
-                playSong();
+        if (songs.length === 0) {
+            const emptyTip = document.createElement('div');
+            emptyTip.style.cssText = 'color: rgba(255,255,255,0.6); text-align: center; padding: 20px; font-size: 14px;';
+            emptyTip.textContent = '暂无歌曲，点击上方按钮上传音乐';
+            musicList.appendChild(emptyTip);
+        } else {
+            songs.forEach((song, index) => {
+                const listItem = document.createElement('div');
+                listItem.className = `music-list-item ${index === currentSongIndex ? 'active' : ''}`;
+                listItem.textContent = song.title;
+                listItem.addEventListener('click', () => {
+                    currentSongIndex = index;
+                    updateSongListActive();
+                    playSong();
+                });
+                musicList.appendChild(listItem);
             });
-            musicList.appendChild(listItem);
-        });
+        }
     }
     
     // 更新歌曲列表的活跃状态
@@ -393,8 +394,20 @@ function initMusicMode() {
     
     // 播放歌曲
     function playSong() {
+        if (songs.length === 0) {
+            musicTitle.textContent = '未选择歌曲';
+            return;
+        }
+        
         const currentSong = songs[currentSongIndex];
         musicTitle.textContent = currentSong.title;
+        
+        // 清理之前的模拟播放
+        if (audioElement._simInterval) {
+            clearInterval(audioElement._simInterval);
+            audioElement._simInterval = null;
+        }
+        audioElement._simCurrentTime = 0;
         
         if (currentSong.url) {
             audioElement.src = currentSong.url;
@@ -403,11 +416,9 @@ function initMusicMode() {
             musicPlayPauseBtn.textContent = '⏸';
         } else {
             // 没有音频文件，模拟播放
-            if (!audioElement.src || audioElement.src === '') {
+            if (audioElement.src && audioElement.src !== '') {
                 audioElement.removeAttribute('src');
             }
-            audioElement.currentTime = 0;
-            audioElement.duration = 180;
             simulatePlayback();
         }
         
@@ -429,8 +440,15 @@ function initMusicMode() {
     function simulatePlayback() {
         isPlaying = true;
         musicPlayPauseBtn.textContent = '⏸';
-        let currentTime = 0;
-        const duration = 180;
+        
+        // 如果之前有模拟播放的进度，从那个点继续
+        let currentTime = audioElement._simCurrentTime || 0;
+        const duration = audioElement._simDuration || 180;
+        
+        // 清理之前的定时器
+        if (audioElement._simInterval) {
+            clearInterval(audioElement._simInterval);
+        }
         
         audioElement.pause();
         
@@ -442,17 +460,19 @@ function initMusicMode() {
             }
             
             currentTime += 0.5;
+            audioElement._simCurrentTime = currentTime;
             updateProgressManual(currentTime, duration);
             
             if (currentTime >= duration) {
                 clearInterval(interval);
+                audioElement._simInterval = null;
+                audioElement._simCurrentTime = 0;
                 nextSong();
             }
         }, 500);
         
         // 保存模拟播放的引用
         audioElement._simInterval = interval;
-        audioElement._simCurrentTime = currentTime;
         audioElement._simDuration = duration;
     }
     
@@ -519,6 +539,7 @@ function initMusicMode() {
                 audioElement.pause();
             } else if (audioElement._simInterval) {
                 clearInterval(audioElement._simInterval);
+                audioElement._simInterval = null;
             }
             isPlaying = false;
             musicPlayPauseBtn.textContent = '▶';
@@ -535,11 +556,21 @@ function initMusicMode() {
     
     // 进度条点击事件
     progressBar.addEventListener('click', function(e) {
+        if (!audioElement) return;
+        
         const rect = this.getBoundingClientRect();
         const percent = (e.clientX - rect.left) / rect.width;
         
         if (audioElement.src && audioElement.src !== '') {
-            audioElement.currentTime = percent * audioElement.duration;
+            // 真实音频播放
+            if (!isNaN(audioElement.duration)) {
+                audioElement.currentTime = percent * audioElement.duration;
+            }
+        } else if (audioElement._simInterval) {
+            // 模拟播放
+            const duration = audioElement._simDuration || 180;
+            audioElement._simCurrentTime = percent * duration;
+            updateProgressManual(audioElement._simCurrentTime, duration);
         }
     });
     
@@ -560,6 +591,10 @@ function initMusicMode() {
             musicToggleBtn.textContent = '开启听歌模式';
             
             // 停止播放
+            if (audioElement._simInterval) {
+                clearInterval(audioElement._simInterval);
+                audioElement._simInterval = null;
+            }
             audioElement.pause();
             isPlaying = false;
         }
@@ -573,16 +608,6 @@ function initMusicMode() {
     
     // 下一曲按钮
     musicNextBtn.addEventListener('click', nextSong);
-    
-    // 进度条点击
-    progressBar.addEventListener('click', function(e) {
-        if (!audioElement) return;
-        
-        const rect = this.getBoundingClientRect();
-        const progress = (e.clientX - rect.left) / rect.width;
-        audioElement.currentTime = progress * audioElement.duration;
-        updateProgress();
-    });
 }
 
 function toggleEmojiPicker() {
