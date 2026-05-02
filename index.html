@@ -42,6 +42,17 @@
 
         <!-- 对话区域 -->
         <div class="chat-area">
+            <!-- 头像选择器（手机端显示在聊天框顶部） -->
+            <div class="avatar-selector" id="avatar-selector-mobile">
+                <div class="avatar-option" data-avatar="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSIyNSIgZmlsbD0iI2UwZTBlMCIvPjxjaXJjbGUgY3g9IjUwIiBjeT0iNDQiIHI9IjE1IiBmaWxsPSIjYzBjMGZmIi8+PHBhdGggZD0iTTI1IDY1IEEyMCAyMCAwIDExIDY1IDY1IDk1IDk1IDAgMCAxIDI1IDY1IiBmaWxsPSIjZmZmIi8+PC9zdmc+">默认</div>
+                <div class="avatar-option" data-avatar="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Lu%20Chen%20from%20Twilight%20of%20the%20Love%2C%20evening%20suit%2C%20moonlight%2C%20red%20eyes%2C%20mysterious%20atmosphere&image_size=portrait_4_3">月光</div>
+                <div class="avatar-option" data-avatar="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Lu%20Chen%20from%20Twilight%20of%20the%20Love%2C%20casual%20style%2C%20red%20sweater%2C%20warm%20lighting%2C%20gentle%20expression&image_size=portrait_4_3">暖阳</div>
+                <div class="avatar-option" data-avatar="https://trae-api-cn.mchost.guru/api/ide/v1/text_to_image?prompt=Lu%20Chen%20from%20Twilight%20of%20the%20Love%2C%20formal%20suit%2C%20red%20tie%2C%20business%20setting%2C%20confident%20pose&image_size=portrait_4_3">商务</div>
+                <div class="avatar-upload">
+                    <input type="file" id="avatar-upload-input-mobile" accept="image/*" style="display: none;">
+                    <button class="upload-btn" onclick="document.getElementById('avatar-upload-input-mobile').click()">自定义上传</button>
+                </div>
+            </div>
             <div class="chat-header">
                 <div class="mobile-character-avatar">
                     <img id="mobile-character-avatar" class="mobile-avatar" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSIyNSIgZmlsbD0iI2UwZTBlMCIvPjxjaXJjbGUgY3g9IjUwIiBjeT0iNDQiIHI9IjE1IiBmaWxsPSIjYzBjMGZmIi8+PHBhdGggZD0iTTI1IDY1IEEyMCAyMCAwIDExIDY1IDY1IDk1IDk1IDAgMCAxIDI1IDY1IiBmaWxsPSIjZmZmIi8+PC9zdmc+" alt="角色头像">

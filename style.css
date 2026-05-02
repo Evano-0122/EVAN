@@ -1192,6 +1192,35 @@ body {
         margin-right: 50px;
     }
 
+    #avatar-selector-mobile {
+        display: none;
+        position: absolute;
+        top: 60px;
+        left: 10px;
+        right: 10px;
+        background: rgba(20, 20, 40, 0.98);
+        border: 1px solid rgba(184, 17, 36, 0.3);
+        border-radius: 15px;
+        padding: 15px;
+        z-index: 1000;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+
+    #avatar-selector-mobile.show {
+        display: grid;
+    }
+
+    #avatar-selector-mobile .avatar-option {
+        width: 60px;
+        height: 60px;
+    }
+
+    #avatar-selector-mobile .avatar-upload {
+        width: 60px;
+        height: 60px;
+    }
+
     .change-user-avatar-btn {
         display: none;
     }

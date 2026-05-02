@@ -131,8 +131,57 @@ function initAvatarSelector() {
     if (mobileCharacterAvatar) {
         mobileCharacterAvatar.addEventListener('click', function(e) {
             e.stopPropagation();
-            avatarSelector.classList.toggle('show');
+            const mobileAvatarSelector = document.getElementById('avatar-selector-mobile');
+            if (mobileAvatarSelector) {
+                mobileAvatarSelector.classList.toggle('show');
+            }
         });
+    }
+    
+    // 手机端头像选择器选项点击事件
+    const mobileAvatarSelector = document.getElementById('avatar-selector-mobile');
+    if (mobileAvatarSelector) {
+        const mobileAvatarOptions = mobileAvatarSelector.querySelectorAll('.avatar-option');
+        const mobileAvatarUploadInput = document.getElementById('avatar-upload-input-mobile');
+        
+        mobileAvatarOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                const newSrc = this.getAttribute('data-avatar');
+                updateAllCharacterAvatars(newSrc);
+                mobileAvatarSelector.classList.remove('show');
+                
+                mobileAvatarOptions.forEach(opt => opt.style.borderColor = 'transparent');
+                this.style.borderColor = 'rgba(184, 17, 36, 0.8)';
+                
+                // 同步到桌面端头像选择器
+                const desktopAvatarSelector = document.getElementById('avatar-selector');
+                if (desktopAvatarSelector) {
+                    const desktopOptions = desktopAvatarSelector.querySelectorAll('.avatar-option');
+                    desktopOptions.forEach(opt => {
+                        if (opt.getAttribute('data-avatar') === newSrc) {
+                            opt.style.borderColor = 'rgba(184, 17, 36, 0.8)';
+                        } else {
+                            opt.style.borderColor = 'transparent';
+                        }
+                    });
+                }
+            });
+        });
+        
+        // 手机端自定义头像上传
+        if (mobileAvatarUploadInput) {
+            mobileAvatarUploadInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        updateAllCharacterAvatars(e.target.result);
+                        mobileAvatarSelector.classList.remove('show');
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
     }
     
     changeAvatarBtn.addEventListener('click', function(e) {
@@ -148,6 +197,18 @@ function initAvatarSelector() {
             
             avatarOptions.forEach(opt => opt.style.borderColor = 'transparent');
             this.style.borderColor = 'rgba(184, 17, 36, 0.8)';
+            
+            // 同步到手机端头像选择器
+            if (mobileAvatarSelector) {
+                const mobileOptions = mobileAvatarSelector.querySelectorAll('.avatar-option');
+                mobileOptions.forEach(opt => {
+                    if (opt.getAttribute('data-avatar') === newSrc) {
+                        opt.style.borderColor = 'rgba(184, 17, 36, 0.8)';
+                    } else {
+                        opt.style.borderColor = 'transparent';
+                    }
+                });
+            }
         });
     });
     
