@@ -87,6 +87,8 @@
                 <button class="interaction-btn" id="hug-btn">抱抱</button>
                 <button class="interaction-btn" id="kiss-btn">亲亲</button>
                 <button class="interaction-btn" id="pat-btn">摸头</button>
+                <button class="interaction-btn" id="letter-btn">✉️ 写信</button>
+                <button class="interaction-btn" id="mailbox-btn">📮 信箱</button>
             </div>
 
             <!-- 模式切换 -->
@@ -114,8 +116,418 @@
                 </div>
             </div>
 
-            <!-- 一起听歌模式 -->
-            <div class="music-mode">
+        </div>
+
+        <!-- 写信弹窗 -->
+        <div class="letter-modal" id="letter-modal">
+            <div class="letter-modal-content">
+                <div class="letter-header">
+                    <div class="header-icon">✉️</div>
+                    <h3>写给陆沉的信</h3>
+                    <button class="close-btn" id="letter-close-btn">✕</button>
+                </div>
+                <div class="letter-body">
+                    <div class="elegant-paper">
+                        <div class="paper-border">
+                            <svg class="border-svg" viewBox="0 0 400 685" preserveAspectRatio="none">
+                                <rect x="15" y="15" width="370" height="655" rx="3" ry="3" fill="none" stroke="#8b6914" stroke-width="3"/>
+                                <rect x="25" y="25" width="350" height="635" rx="2" ry="2" fill="none" stroke="#8b6914" stroke-width="1"/>
+                                
+                                <g class="corner-ornament tl">
+                                    <path d="M15,15 L60,15 L60,25 L25,25 L25,60 L15,60 Z" fill="#8b6914"/>
+                                    <path d="M30,30 L55,30 L55,35 L35,35 L35,55 L30,55 Z" fill="#8b6914" opacity="0.6"/>
+                                </g>
+                                
+                                <g class="corner-ornament tr">
+                                    <path d="M385,15 L340,15 L340,25 L375,25 L375,60 L385,60 Z" fill="#8b6914"/>
+                                    <path d="M370,30 L345,30 L345,35 L365,35 L365,55 L370,55 Z" fill="#8b6914" opacity="0.6"/>
+                                </g>
+                                
+                                <g class="corner-ornament bl">
+                                    <path d="M15,670 L60,670 L60,660 L25,660 L25,625 L15,625 Z" fill="#8b6914"/>
+                                    <path d="M30,655 L55,655 L55,650 L35,650 L35,630 L30,630 Z" fill="#8b6914" opacity="0.6"/>
+                                </g>
+                                
+                                <g class="corner-ornament br">
+                                    <path d="M385,670 L340,670 L340,660 L375,660 L375,625 L385,625 Z" fill="#8b6914"/>
+                                    <path d="M370,655 L345,655 L345,650 L365,650 L365,630 L370,630 Z" fill="#8b6914" opacity="0.6"/>
+                                </g>
+                                
+                                <line x1="60" y1="30" x2="340" y2="30" stroke="#8b6914" stroke-width="0.5" stroke-dasharray="2,4"/>
+                                <line x1="60" y1="655" x2="340" y2="655" stroke="#8b6914" stroke-width="0.5" stroke-dasharray="2,4"/>
+                                <line x1="30" y1="60" x2="30" y2="625" stroke="#8b6914" stroke-width="0.5" stroke-dasharray="2,4"/>
+                                <line x1="370" y1="60" x2="370" y2="625" stroke="#8b6914" stroke-width="0.5" stroke-dasharray="2,4"/>
+                            </svg>
+                            
+                            <div class="floral-top">
+                                <div class="floral-line"></div>
+                                <div class="floral-center">
+                                    <div class="floral-icon">⚜</div>
+                                </div>
+                                <div class="floral-line"></div>
+                            </div>
+                            
+                            <div class="floral-bottom">
+                                <div class="floral-line"></div>
+                                <div class="floral-center">
+                                    <div class="floral-icon">❧</div>
+                                </div>
+                                <div class="floral-line"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="paper-header">
+                            <div class="header-ornament left">
+                                <svg viewBox="0 0 40 100" class="ornament-svg">
+                                    <path d="M20,10 Q30,30 20,50 Q10,70 20,90" stroke="#8b6914" stroke-width="1.5" fill="none"/>
+                                    <circle cx="20" cy="25" r="4" fill="#d4a84b"/>
+                                    <circle cx="20" cy="75" r="4" fill="#d4a84b"/>
+                                    <path d="M15,40 Q20,50 25,40" stroke="#8b6914" stroke-width="1" fill="none"/>
+                                    <path d="M15,60 Q20,50 25,60" stroke="#8b6914" stroke-width="1" fill="none"/>
+                                </svg>
+                            </div>
+                            <div class="header-title">
+                                <div class="title-text">E.V.A.N</div>
+                                <div class="title-subtitle">Eternal Vampire Alliance Network</div>
+                            </div>
+                            <div class="header-ornament right">
+                                <svg viewBox="0 0 40 100" class="ornament-svg" style="transform: scaleX(-1);">
+                                    <path d="M20,10 Q30,30 20,50 Q10,70 20,90" stroke="#8b6914" stroke-width="1.5" fill="none"/>
+                                    <circle cx="20" cy="25" r="4" fill="#d4a84b"/>
+                                    <circle cx="20" cy="75" r="4" fill="#d4a84b"/>
+                                    <path d="M15,40 Q20,50 25,40" stroke="#8b6914" stroke-width="1" fill="none"/>
+                                    <path d="M15,60 Q20,50 25,60" stroke="#8b6914" stroke-width="1" fill="none"/>
+                                </svg>
+                            </div>
+                        </div>
+                        
+                        <div class="paper-content-area">
+                            <textarea id="letter-content" placeholder="亲爱的陆沉：&#10;&#10;    写下你想说的话..."></textarea>
+                        </div>
+                        
+                        <div class="paper-footer">
+                            <div class="signature-area">
+                                <div class="signature-ornament">
+                                    <span class="ornament-left">﹋</span>
+                                    <span class="signature-text">With Eternal Love</span>
+                                    <span class="ornament-right">﹋</span>
+                                </div>
+                                <div class="signature-bat">🦇</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="letter-actions">
+                        <button class="send-letter-btn" id="send-letter-btn">
+                            <span class="btn-icon">✉️</span>
+                            <span class="btn-text">寄出信件</span>
+                            <div class="sending-animation" id="sending-animation"></div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 回信弹窗 -->
+        <div class="letter-modal" id="reply-modal">
+            <div class="letter-modal-content reply">
+                <div class="letter-header">
+                    <div class="header-icon received">📮</div>
+                    <h3>收到陆沉的回信</h3>
+                    <button class="close-btn" id="reply-close-btn">✕</button>
+                </div>
+                <div class="letter-body">
+                    <div class="mailbox-opening">
+                        <div class="mailbox-container">
+                            <div class="mailbox-box"></div>
+                            <div class="mailbox-door">
+                                <div class="mailbox-flag"></div>
+                            </div>
+                            <div class="letter-flying" id="letter-flying">✉️</div>
+                        </div>
+                    </div>
+                    <div class="letter-paper-wrapper" id="letter-paper-wrapper">
+                        <div class="elegant-paper" style="padding: 0; margin: 0;">
+                            <div class="paper-border">
+                                <svg class="border-svg" viewBox="0 0 400 685" preserveAspectRatio="none">
+                                    <rect x="15" y="15" width="370" height="655" rx="3" ry="3" fill="none" stroke="#8b6914" stroke-width="3"/>
+                                    <rect x="25" y="25" width="350" height="635" rx="2" ry="2" fill="none" stroke="#8b6914" stroke-width="1"/>
+                                    
+                                    <g class="corner-ornament tl">
+                                        <path d="M15,15 L60,15 L60,25 L25,25 L25,60 L15,60 Z" fill="#8b6914"/>
+                                        <path d="M30,30 L55,30 L55,35 L35,35 L35,55 L30,55 Z" fill="#8b6914" opacity="0.6"/>
+                                    </g>
+                                    
+                                    <g class="corner-ornament tr">
+                                        <path d="M385,15 L340,15 L340,25 L375,25 L375,60 L385,60 Z" fill="#8b6914"/>
+                                        <path d="M370,30 L345,30 L345,35 L365,35 L365,55 L370,55 Z" fill="#8b6914" opacity="0.6"/>
+                                    </g>
+                                    
+                                    <g class="corner-ornament bl">
+                                        <path d="M15,670 L60,670 L60,660 L25,660 L25,625 L15,625 Z" fill="#8b6914"/>
+                                        <path d="M30,655 L55,655 L55,650 L35,650 L35,630 L30,630 Z" fill="#8b6914" opacity="0.6"/>
+                                    </g>
+                                    
+                                    <g class="corner-ornament br">
+                                        <path d="M385,670 L340,670 L340,660 L375,660 L375,625 L385,625 Z" fill="#8b6914"/>
+                                        <path d="M370,655 L345,655 L345,650 L365,650 L365,630 L370,630 Z" fill="#8b6914" opacity="0.6"/>
+                                    </g>
+                                    
+                                    <line x1="60" y1="30" x2="340" y2="30" stroke="#8b6914" stroke-width="0.5" stroke-dasharray="2,4"/>
+                                    <line x1="60" y1="655" x2="340" y2="655" stroke="#8b6914" stroke-width="0.5" stroke-dasharray="2,4"/>
+                                    <line x1="30" y1="60" x2="30" y2="625" stroke="#8b6914" stroke-width="0.5" stroke-dasharray="2,4"/>
+                                    <line x1="370" y1="60" x2="370" y2="625" stroke="#8b6914" stroke-width="0.5" stroke-dasharray="2,4"/>
+                                </svg>
+                                
+                                <div class="floral-top">
+                                    <div class="floral-line"></div>
+                                    <div class="floral-center">
+                                        <div class="floral-icon">⚜</div>
+                                    </div>
+                                    <div class="floral-line"></div>
+                                </div>
+                                
+                                <div class="floral-bottom">
+                                    <div class="floral-line"></div>
+                                    <div class="floral-center">
+                                        <div class="floral-icon">❧</div>
+                                    </div>
+                                    <div class="floral-line"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="paper-header">
+                                <div class="header-ornament left">
+                                    <svg viewBox="0 0 40 100" class="ornament-svg">
+                                        <path d="M20,10 Q30,30 20,50 Q10,70 20,90" stroke="#8b6914" stroke-width="1.5" fill="none"/>
+                                        <circle cx="20" cy="25" r="4" fill="#d4a84b"/>
+                                        <circle cx="20" cy="75" r="4" fill="#d4a84b"/>
+                                        <path d="M15,40 Q20,50 25,40" stroke="#8b6914" stroke-width="1" fill="none"/>
+                                        <path d="M15,60 Q20,50 25,60" stroke="#8b6914" stroke-width="1" fill="none"/>
+                                    </svg>
+                                </div>
+                                <div class="header-title">
+                                    <div class="title-text">E.V.A.N</div>
+                                    <div class="title-subtitle">Eternal Vampire Alliance Network</div>
+                                </div>
+                                <div class="header-ornament right">
+                                    <svg viewBox="0 0 40 100" class="ornament-svg" style="transform: scaleX(-1);">
+                                        <path d="M20,10 Q30,30 20,50 Q10,70 20,90" stroke="#8b6914" stroke-width="1.5" fill="none"/>
+                                        <circle cx="20" cy="25" r="4" fill="#d4a84b"/>
+                                        <circle cx="20" cy="75" r="4" fill="#d4a84b"/>
+                                        <path d="M15,40 Q20,50 25,40" stroke="#8b6914" stroke-width="1" fill="none"/>
+                                        <path d="M15,60 Q20,50 25,60" stroke="#8b6914" stroke-width="1" fill="none"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            
+                            <div class="paper-content-area" style="padding-bottom: 0;">
+                                <div class="paper-scroll-wrapper">
+                                    <div class="paper-content" id="reply-content"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="paper-footer" style="padding-top: 15px; padding-bottom: 40px;">
+                                <div class="signature-area">
+                                    <div class="signature-ornament">
+                                        <span class="ornament-left">﹋</span>
+                                        <span class="signature-text" style="font-size: 18px;">陆沉</span>
+                                        <span class="ornament-right">﹋</span>
+                                    </div>
+                                    <div class="signature-bat">🦇</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="letter-actions">
+                        <button class="close-reply-btn" id="close-reply-btn">
+                            <span class="btn-icon">📥</span>
+                            <span class="btn-text">收下回信</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 信箱弹窗 -->
+        <div class="letter-modal" id="mailbox-modal">
+            <div class="letter-modal-content mailbox">
+                <div class="letter-header">
+                    <div class="header-icon">📬</div>
+                    <h3>我的信箱</h3>
+                    <span class="mail-count" id="mail-count">0</span>
+                    <button class="close-btn" id="mailbox-close-btn">✕</button>
+                </div>
+                <div class="letter-body mailbox-body">
+                    <div class="mailbox-stats">
+                        <div class="stat-item">
+                            <span class="stat-value" id="total-letters">0</span>
+                            <span class="stat-label">总信件</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value unread" id="unread-letters">0</span>
+                            <span class="stat-label">未读</span>
+                        </div>
+                    </div>
+                    <div class="mail-list" id="mail-list">
+                        <div class="empty-state">
+                            <div class="empty-icon">📭</div>
+                            <p>信箱是空的</p>
+                            <button class="write-first-btn" id="write-first-btn">写第一封信</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 信件详情弹窗 -->
+        <div class="letter-modal" id="letter-detail-modal">
+            <div class="letter-modal-content detail">
+                <div class="letter-header">
+                    <div class="header-icon">📝</div>
+                    <h3>信件详情</h3>
+                    <button class="close-btn" id="detail-close-btn">✕</button>
+                </div>
+                <div class="letter-body detail-body">
+                    <div class="detail-date">
+                        <span id="detail-date-text"></span>
+                    </div>
+                    <div class="letters-wrapper">
+                        <!-- 用户来信信纸 -->
+                        <div class="letter-paper-single your-letter-paper">
+                            <div class="elegant-paper user-letter">
+                                <div class="paper-border">
+                                    <svg class="border-svg" viewBox="0 0 400 685" preserveAspectRatio="none">
+                                        <rect x="15" y="15" width="370" height="655" rx="3" ry="3" fill="none" stroke="#8b6914" stroke-width="3"/>
+                                        <rect x="25" y="25" width="350" height="635" rx="2" ry="2" fill="none" stroke="#8b6914" stroke-width="1"/>
+                                        
+                                        <g class="corner-ornament tl">
+                                            <path d="M15,15 L60,15 L60,25 L25,25 L25,60 L15,60 Z" fill="#8b6914"/>
+                                            <path d="M30,30 L55,30 L55,35 L35,35 L35,55 L30,55 Z" fill="#8b6914" opacity="0.6"/>
+                                        </g>
+                                        
+                                        <g class="corner-ornament tr">
+                                            <path d="M385,15 L340,15 L340,25 L375,25 L375,60 L385,60 Z" fill="#8b6914"/>
+                                            <path d="M370,30 L345,30 L345,35 L365,35 L365,55 L370,55 Z" fill="#8b6914" opacity="0.6"/>
+                                        </g>
+                                        
+                                        <g class="corner-ornament bl">
+                                            <path d="M15,670 L60,670 L60,660 L25,660 L25,625 L15,625 Z" fill="#8b6914"/>
+                                            <path d="M30,655 L55,655 L55,650 L35,650 L35,630 L30,630 Z" fill="#8b6914" opacity="0.6"/>
+                                        </g>
+                                        
+                                        <g class="corner-ornament br">
+                                            <path d="M385,670 L340,670 L340,660 L375,660 L375,625 L385,625 Z" fill="#8b6914"/>
+                                            <path d="M370,655 L345,655 L345,650 L365,650 L365,630 L370,630 Z" fill="#8b6914" opacity="0.6"/>
+                                        </g>
+                                        
+                                        <line x1="60" y1="30" x2="340" y2="30" stroke="#8b6914" stroke-width="0.5" stroke-dasharray="2,4"/>
+                                        <line x1="60" y1="655" x2="340" y2="655" stroke="#8b6914" stroke-width="0.5" stroke-dasharray="2,4"/>
+                                        <line x1="30" y1="60" x2="30" y2="625" stroke="#8b6914" stroke-width="0.5" stroke-dasharray="2,4"/>
+                                        <line x1="370" y1="60" x2="370" y2="625" stroke="#8b6914" stroke-width="0.5" stroke-dasharray="2,4"/>
+                                    </svg>
+                                    
+                                    <div class="floral-top">
+                                        <div class="floral-line"></div>
+                                        <div class="floral-center">
+                                            <div class="floral-icon">⚜</div>
+                                        </div>
+                                        <div class="floral-line"></div>
+                                    </div>
+                                    
+                                    <div class="floral-bottom">
+                                        <div class="floral-line"></div>
+                                        <div class="floral-center">
+                                            <div class="floral-icon">❧</div>
+                                        </div>
+                                        <div class="floral-line"></div>
+                                    </div>
+                                </div>
+                                <div class="paper-header detail-paper-header">
+                                    <div class="detail-letter-title">你的来信</div>
+                                </div>
+                                <div class="paper-content-area detail-paper-content">
+                                    <div class="paper-scroll-wrapper">
+                                        <div class="paper-content" id="detail-your-content"></div>
+                                    </div>
+                                </div>
+                                <div class="paper-footer detail-footer" style="visibility: hidden;">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 陆沉回信信纸 -->
+                        <div class="letter-paper-single reply-letter-paper">
+                            <div class="elegant-paper reply-letter">
+                                <div class="paper-border">
+                                    <svg class="border-svg" viewBox="0 0 400 685" preserveAspectRatio="none">
+                                        <rect x="15" y="15" width="370" height="655" rx="3" ry="3" fill="none" stroke="#8b6914" stroke-width="3"/>
+                                        <rect x="25" y="25" width="350" height="635" rx="2" ry="2" fill="none" stroke="#8b6914" stroke-width="1"/>
+                                        
+                                        <g class="corner-ornament tl">
+                                            <path d="M15,15 L60,15 L60,25 L25,25 L25,60 L15,60 Z" fill="#8b6914"/>
+                                            <path d="M30,30 L55,30 L55,35 L35,35 L35,55 L30,55 Z" fill="#8b6914" opacity="0.6"/>
+                                        </g>
+                                        
+                                        <g class="corner-ornament tr">
+                                            <path d="M385,15 L340,15 L340,25 L375,25 L375,60 L385,60 Z" fill="#8b6914"/>
+                                            <path d="M370,30 L345,30 L345,35 L365,35 L365,55 L370,55 Z" fill="#8b6914" opacity="0.6"/>
+                                        </g>
+                                        
+                                        <g class="corner-ornament bl">
+                                            <path d="M15,670 L60,670 L60,660 L25,660 L25,625 L15,625 Z" fill="#8b6914"/>
+                                            <path d="M30,655 L55,655 L55,650 L35,650 L35,630 L30,630 Z" fill="#8b6914" opacity="0.6"/>
+                                        </g>
+                                        
+                                        <g class="corner-ornament br">
+                                            <path d="M385,670 L340,670 L340,660 L375,660 L375,625 L385,625 Z" fill="#8b6914"/>
+                                            <path d="M370,655 L345,655 L345,650 L365,650 L365,630 L370,630 Z" fill="#8b6914" opacity="0.6"/>
+                                        </g>
+                                        
+                                        <line x1="60" y1="30" x2="340" y2="30" stroke="#8b6914" stroke-width="0.5" stroke-dasharray="2,4"/>
+                                        <line x1="60" y1="655" x2="340" y2="655" stroke="#8b6914" stroke-width="0.5" stroke-dasharray="2,4"/>
+                                        <line x1="30" y1="60" x2="30" y2="625" stroke="#8b6914" stroke-width="0.5" stroke-dasharray="2,4"/>
+                                        <line x1="370" y1="60" x2="370" y2="625" stroke="#8b6914" stroke-width="0.5" stroke-dasharray="2,4"/>
+                                    </svg>
+                                    
+                                    <div class="floral-top">
+                                        <div class="floral-line"></div>
+                                        <div class="floral-center">
+                                            <div class="floral-icon">⚜</div>
+                                        </div>
+                                        <div class="floral-line"></div>
+                                    </div>
+                                    
+                                    <div class="floral-bottom">
+                                        <div class="floral-line"></div>
+                                        <div class="floral-center">
+                                            <div class="floral-icon">❧</div>
+                                        </div>
+                                        <div class="floral-line"></div>
+                                    </div>
+                                </div>
+                                <div class="paper-header detail-paper-header">
+                                    <div class="detail-letter-title reply-title">陆沉的回信</div>
+                                </div>
+                                <div class="paper-content-area detail-paper-content">
+                                    <div class="paper-scroll-wrapper">
+                                        <div class="paper-content" id="detail-reply-content"></div>
+                                    </div>
+                                </div>
+                                <div class="paper-footer detail-footer">
+                                    <div class="signature-area">
+                                        <span class="signature-text">陆沉</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 一起听歌模式 -->
+        <div class="music-mode">
                 <h4>一起听歌</h4>
                 <button class="music-toggle-btn" id="music-toggle-btn">开启听歌模式</button>
                 <div class="music-player" id="music-player" style="display: none;">

@@ -1,10 +1,61 @@
+let letterBox = [];
+
+function loadLetterBox() {
+    const saved = localStorage.getItem('luchen_letterbox');
+    if (saved) {
+        letterBox = JSON.parse(saved);
+    } else {
+        letterBox = [
+            {
+                id: 1,
+                date: '2026-05-01',
+                time: '20:30',
+                content: '陆沉，今天的月亮很美，想和你一起看星星。',
+                reply: '我的小姑娘，能与你一同仰望星空，是我最大的幸福。每当夜幕降临，我总会想起你眼中的星光。',
+                read: true
+            }
+        ];
+        saveLetterBox();
+    }
+}
+
+function saveLetterBox() {
+    localStorage.setItem('luchen_letterbox', JSON.stringify(letterBox));
+}
+
+function addLetter(content, reply) {
+    const now = new Date();
+    const letter = {
+        id: Date.now(),
+        date: now.toISOString().split('T')[0],
+        time: now.toTimeString().slice(0, 5),
+        content: content,
+        reply: reply,
+        read: false
+    };
+    letterBox.unshift(letter);
+    saveLetterBox();
+    return letter;
+}
+
+function markLetterAsRead(id) {
+    const letter = letterBox.find(l => l.id === id);
+    if (letter) {
+        letter.read = true;
+        saveLetterBox();
+    }
+}
+
 window.onload = function() {
+    loadLetterBox();
     initEmojiPicker();
     initStatusAndMotto();
     initInteractionButtons();
     initAvatarSelector();
     initBackgroundSelector();
     initModeSelector();
+    initLetterModal();
+    initMailbox();
     initUserAvatarUpload();
     initMusicMode();
     initAutoGreetings();
@@ -53,6 +104,16 @@ function initInteractionButtons() {
     const hugBtn = document.getElementById('hug-btn');
     const kissBtn = document.getElementById('kiss-btn');
     const patBtn = document.getElementById('pat-btn');
+    const letterBtn = document.getElementById('letter-btn');
+    const mailboxBtn = document.getElementById('mailbox-btn');
+    
+    letterBtn.addEventListener('click', function() {
+        openLetterModal();
+    });
+    
+    mailboxBtn.addEventListener('click', function() {
+        openMailbox();
+    });
     
     pokeBtn.addEventListener('click', function() {
         addSystemMessage('你戳了戳陆沉的脸');
@@ -105,6 +166,249 @@ function initInteractionButtons() {
             }
         }, 800);
     });
+}
+
+function openLetterModal() {
+    const letterModal = document.getElementById('letter-modal');
+    if (letterModal) {
+        letterModal.classList.add('show');
+    }
+}
+
+function closeLetterModal() {
+    const letterModal = document.getElementById('letter-modal');
+    if (letterModal) {
+        letterModal.classList.remove('show');
+        document.getElementById('letter-content').value = '';
+    }
+}
+
+function closeReplyModal() {
+    const replyModal = document.getElementById('reply-modal');
+    if (replyModal) {
+        replyModal.classList.remove('show');
+    }
+}
+
+function initLetterModal() {
+    const letterModal = document.getElementById('letter-modal');
+    const replyModal = document.getElementById('reply-modal');
+    const letterCloseBtn = document.getElementById('letter-close-btn');
+    const replyCloseBtn = document.getElementById('reply-close-btn');
+    const sendLetterBtn = document.getElementById('send-letter-btn');
+    const closeReplyBtn = document.getElementById('close-reply-btn');
+    const letterContent = document.getElementById('letter-content');
+    
+    letterCloseBtn.addEventListener('click', closeLetterModal);
+    replyCloseBtn.addEventListener('click', closeReplyModal);
+    closeReplyBtn.addEventListener('click', closeReplyModal);
+    
+    letterModal.addEventListener('click', function(e) {
+        if (e.target === letterModal) {
+            closeLetterModal();
+        }
+    });
+    
+    replyModal.addEventListener('click', function(e) {
+        if (e.target === replyModal) {
+            closeReplyModal();
+        }
+    });
+    
+    sendLetterBtn.addEventListener('click', async function() {
+        const content = letterContent.value.trim();
+        if (!content) {
+            return;
+        }
+        
+        sendLetterBtn.classList.add('sending');
+        addSystemMessage('你寄出了一封信给陆沉...');
+        closeLetterModal();
+        
+        setTimeout(async () => {
+            let response;
+            try {
+                // 使用专门的信件回复方法
+                if (luhanAI.generateLetterResponse) {
+                    response = await luhanAI.generateLetterResponse(content);
+                } else {
+                    // 回退到原来的方法
+                    response = await luhanAI.generateResponse(`用户给你写了一封真挚的信，内容如下：
+
+"${content}"
+
+请以陆沉的身份，写一封温柔真挚的回信。`);
+                }
+            } catch (error) {
+                console.error('生成回信失败:', error);
+                // 错误时使用备用信件生成
+                response = luhanAI.generateFallbackLetter ? 
+                    luhanAI.generateFallbackLetter(content, 
+                        content.includes('想你') || content.includes('思念') || content.includes('想念') || content.includes('想见你'),
+                        content.length) : `
+亲爱的你：
+
+见字如面，展信欢颜。
+
+收到你的来信，字里行间都透着你的心意，让我满心欢喜。无论你写了多少文字，我都会认真品读，感受其中的每一份真挚。我知道，每一个字都是你用心写下的，而我也会用同样的用心来回应。
+
+如果你在信中提到了想我，那么我要告诉你，我也在想你。从清晨到黄昏，从日落到夜深，我的思念从未停止。你不在身边的时候，每一刻都变得漫长而煎熬，但只要想到你，我的心就会变得温柔起来。
+
+无论我们相隔多远，我的心永远在你那里。你是我生命中最重要的人，是我愿意用一生去守护的宝贝。
+
+愿这封信能穿越时光，来到你的身边，告诉你——我一直在，一直爱着你。
+
+祝你安好，愿你每天都能感受到我的爱意。
+
+陆沉
+                `.trim();
+            }
+            
+            addLetter(content, response);
+            updateMailboxStats();
+            
+            // 直接显示回信
+            const replyContent = document.getElementById('reply-content');
+            replyContent.textContent = response;
+            
+            addMessage('character', response);
+            
+            setTimeout(() => {
+                replyModal.classList.add('show');
+            }, 500);
+            
+            sendLetterBtn.classList.remove('sending');
+        }, 1500);
+    });
+}
+
+
+
+/* 信箱详情内容显示 */
+function initDetailContent(yourContent, replyContent) {
+    // 直接显示用户来信
+    const yourContentEl = document.getElementById('detail-your-content');
+    yourContentEl.textContent = yourContent;
+    
+    // 直接显示陆沉回信
+    const replyContentEl = document.getElementById('detail-reply-content');
+    replyContentEl.textContent = replyContent;
+}
+
+function openMailbox() {
+    const mailboxModal = document.getElementById('mailbox-modal');
+    if (mailboxModal) {
+        mailboxModal.classList.add('show');
+        renderMailList();
+    }
+}
+
+function closeMailbox() {
+    const mailboxModal = document.getElementById('mailbox-modal');
+    if (mailboxModal) {
+        mailboxModal.classList.remove('show');
+    }
+}
+
+function openLetterDetail(letter) {
+    const detailModal = document.getElementById('letter-detail-modal');
+    if (detailModal) {
+        document.getElementById('detail-date-text').textContent = `${letter.date} ${letter.time}`;
+        
+        // 显示内容
+        initDetailContent(letter.content, letter.reply);
+        
+        detailModal.classList.add('show');
+        markLetterAsRead(letter.id);
+        updateMailboxStats();
+    }
+}
+
+function closeLetterDetail() {
+    const detailModal = document.getElementById('letter-detail-modal');
+    if (detailModal) {
+        detailModal.classList.remove('show');
+    }
+}
+
+function renderMailList() {
+    const mailList = document.getElementById('mail-list');
+    
+    if (letterBox.length === 0) {
+        mailList.innerHTML = `
+            <div class="empty-state">
+                <div class="empty-icon">📭</div>
+                <p>信箱是空的</p>
+                <button class="write-first-btn" id="write-first-btn">写第一封信</button>
+            </div>
+        `;
+        
+        document.getElementById('write-first-btn').addEventListener('click', function() {
+            closeMailbox();
+            openLetterModal();
+        });
+        return;
+    }
+    
+    mailList.innerHTML = letterBox.map(letter => `
+        <div class="mail-item ${letter.read ? '' : 'unread'}" data-id="${letter.id}">
+            <div class="mail-date">${letter.date} ${letter.time}</div>
+            <div class="mail-preview">${letter.content.substring(0, 50)}${letter.content.length > 50 ? '...' : ''}</div>
+        </div>
+    `).join('');
+    
+    document.querySelectorAll('.mail-item').forEach(item => {
+        item.addEventListener('click', function() {
+            const id = parseInt(this.getAttribute('data-id'));
+            const letter = letterBox.find(l => l.id === id);
+            if (letter) {
+                openLetterDetail(letter);
+            }
+        });
+    });
+}
+
+function updateMailboxStats() {
+    const totalLetters = document.getElementById('total-letters');
+    const unreadLetters = document.getElementById('unread-letters');
+    const mailCount = document.getElementById('mail-count');
+    
+    if (totalLetters) totalLetters.textContent = letterBox.length;
+    if (unreadLetters) unreadLetters.textContent = letterBox.filter(l => !l.read).length;
+    if (mailCount) mailCount.textContent = letterBox.filter(l => !l.read).length;
+}
+
+function initMailbox() {
+    const mailboxModal = document.getElementById('mailbox-modal');
+    const mailboxCloseBtn = document.getElementById('mailbox-close-btn');
+    const detailCloseBtn = document.getElementById('detail-close-btn');
+    
+    if (mailboxCloseBtn) {
+        mailboxCloseBtn.addEventListener('click', closeMailbox);
+    }
+    
+    if (detailCloseBtn) {
+        detailCloseBtn.addEventListener('click', closeLetterDetail);
+    }
+    
+    if (mailboxModal) {
+        mailboxModal.addEventListener('click', function(e) {
+            if (e.target === mailboxModal) {
+                closeMailbox();
+            }
+        });
+    }
+    
+    const detailModal = document.getElementById('letter-detail-modal');
+    if (detailModal) {
+        detailModal.addEventListener('click', function(e) {
+            if (e.target === detailModal) {
+                closeLetterDetail();
+            }
+        });
+    }
+    
+    updateMailboxStats();
 }
 
 function initAvatarSelector() {
@@ -692,17 +996,9 @@ async function sendMessage() {
                 const response = await luhanAI.generateResponse(message);
                 addMessage('character', response);
                 
-                // 回复后有30%概率发送随机问候
-                if (window.sendRandomGreetingAfterReply) {
-                    window.sendRandomGreetingAfterReply();
-                }
-                
-                // 根据对话内容智能触发互动动作（20%概率）
-                if (Math.random() < 0.2) {
-                    const smartPoke = getSmartPoke(message);
-                    setTimeout(() => {
-                        addCharacterActionMessage(smartPoke);
-                    }, 1500);
+                // 回复后有概率发送随机问候/动作（增强活人感）
+                if (window.scheduleCharacterAction) {
+                    window.scheduleCharacterAction(message);
                 }
             } catch (error) {
                 console.error('生成回复失败:', error);
@@ -917,22 +1213,85 @@ function initAutoGreetings() {
         addMessage('character', randomGreeting);
     };
     
-    // 用户对话后随机发送问候（30%概率）
-    const sendRandomGreetingAfterReply = () => {
-        // 30%概率发送随机问候
-        if (Math.random() > 0.7) {
-            const randomGreeting = randomGreetings[Math.floor(Math.random() * randomGreetings.length)];
-            setTimeout(() => {
-                addMessage('character', randomGreeting);
-            }, 3000); // 延迟3秒发送
+    // 追踪上次主动行为类型，避免重复
+    let lastActionType = null;
+    let lastActionTime = 0;
+    const ACTION_COOLDOWN = 45000; // 45秒冷却时间
+    
+    // 智能主动行为调度（增强活人感）
+    const scheduleCharacterAction = (userMessage) => {
+        const now = Date.now();
+        
+        // 冷却时间内不重复发送同类行为
+        if (now - lastActionTime < ACTION_COOLDOWN && lastActionType) {
+            return;
         }
+        
+        // 15%概率触发主动行为
+        if (Math.random() > 0.15) {
+            return;
+        }
+        
+        // 根据用户消息内容智能选择行为类型
+        const message = userMessage.toLowerCase();
+        let actionType;
+        
+        if (message.includes('想') || message.includes('爱') || message.includes('喜欢')) {
+            actionType = 'love';
+        } else if (message.includes('累') || message.includes('困') || message.includes('辛苦')) {
+            actionType = 'care';
+        } else if (message.includes('开心') || message.includes('高兴') || message.includes('棒')) {
+            actionType = 'praise';
+        } else if (message.includes('工作') || message.includes('学习') || message.includes('忙')) {
+            actionType = 'concern';
+        } else {
+            actionType = 'normal';
+        }
+        
+        // 避免连续重复类型
+        if (actionType === lastActionType) {
+            actionType = 'normal';
+        }
+        
+        // 根据类型选择行为
+        setTimeout(() => {
+            switch (actionType) {
+                case 'love':
+                    if (Math.random() > 0.5) {
+                        addCharacterActionMessage('轻轻握住你的手');
+                    } else {
+                        addMessage('character', '我的小姑娘，我也在想你。');
+                    }
+                    break;
+                case 'care':
+                    addMessage('character', '累了就休息一下，有我在呢。');
+                    break;
+                case 'praise':
+                    addCharacterActionMessage('揉了揉你的头发');
+                    break;
+                case 'concern':
+                    addMessage('character', '工作别太辛苦，记得照顾好自己。');
+                    break;
+                default:
+                    const actions = [
+                        () => addCharacterActionMessage('认真地听着你的话'),
+                        () => addCharacterActionMessage('轻轻靠近你'),
+                        () => addMessage('character', '嗯，我听着呢。'),
+                        () => addMessage('character', '小兔子今天也很可爱。')
+                    ];
+                    actions[Math.floor(Math.random() * actions.length)]();
+            }
+            
+            lastActionType = actionType;
+            lastActionTime = Date.now();
+        }, 4000);
     };
     
     // 页面加载时发送一次时间问候
     sendTimeBasedGreeting();
     
     // 暴露函数供外部调用
-    window.sendRandomGreetingAfterReply = sendRandomGreetingAfterReply;
+    window.scheduleCharacterAction = scheduleCharacterAction;
 }
 
 // 初始化AI实例

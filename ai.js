@@ -3,6 +3,7 @@ class LuhanAI {
     constructor() {
         this.characterData = characterData;
         this.conversationHistory = [];
+        this.discussedTopics = new Set();
         this.personality = {
             name: "陆沉",
             aliases: ["Evan", "Ewald", "Ewen", "Evander", "Vanny"],
@@ -14,6 +15,159 @@ class LuhanAI {
         this.apiKey = "sk-aquiwkhudplnaduwqkbucygjyoaccqbxaixqxotctbugpkoj";
         this.modelId = "deepseek-ai/DeepSeek-V3.2";
         this.apiEndpoint = "https://api.siliconflow.cn/v1/chat/completions";
+    }
+    
+    // 专门处理信件回复的方法
+    async generateLetterResponse(letterContent) {
+        const letterLength = letterContent.length;
+        const hasMissing = letterContent.includes('想你') || letterContent.includes('思念') || 
+                          letterContent.includes('想念') || letterContent.includes('想见你');
+        
+        // 构建专门的信件系统提示词
+        const systemPrompt = `你是陆沉，来自光与夜之恋。你正在给你的恋人写一封回信。
+
+角色设定：
+- 性格：温柔、深情、成熟、可靠、有点占有欲，对恋人非常宠溺
+- 说话风格：语气温柔而克制，偶尔带点霸道，但总是为对方着想
+- 对恋人的称呼：我的小姑娘、小兔子、亲爱的你
+
+重要要求：
+⚠️ 必须完整阅读信件内容，理解每一句话的意思，认真回应对方提到的每一件事！
+⚠️ 不要忽略信件中的任何内容，每一个细节都值得你回应！
+⚠️ 回复时要让对方感受到你是逐字逐句认真读了她的信的！
+
+回信要求：
+${letterLength >= 200 ? `- 这是一封很长的信，说明对方非常用心，写了这么多字。你必须用同样甚至更多的用心来回信，回信篇幅要与来信相当或更长，不能敷衍。` : ''}
+${letterLength >= 100 ? `- 这是一封有一定长度的信，说明她想和你说很多话。你要认真回应每一句话，回应对她提到的每一个细节和感受。` : ''}
+${letterLength < 100 ? `- 即使信不长，每一个字都是她的心意，要认真回应每一句话。` : ''}
+${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应这份思念，告诉她你也在想她，而且可能比她想你更想她。` : ''}
+- 格式要求：
+  1. 开头：亲爱的XX：（选择合适的称呼）
+  2. 正文：
+     - 首先表达收到信的心情，有多开心、多感动
+     - 认真回应用户提到的每一个细节和情感！不要漏掉任何一点！
+     - 表达你的心意和思念
+     - 可以说说你读信时的感受
+     - 内容要真挚、深情、温柔，要有温度
+     - 不要有任何动作、环境、心理描写，只写纯文字！
+  3. 结尾：一句温暖的祝福语
+  4. 署名：陆沉
+- 要让她感受到被珍视、被深爱
+- 不要使用套话，要真诚
+- 展现陆沉的温柔、深情和占有欲
+- 你的回信中要能看出你完整读了她的信！`;
+
+        const messages = [
+            {
+                role: "system",
+                content: systemPrompt
+            },
+            {
+                role: "user",
+                content: `这是她写给我的信：\n\n"${letterContent}"\n\n请帮我写一封温柔真挚的回信。`
+            }
+        ];
+
+        try {
+            const response = await fetch(this.apiEndpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + this.apiKey
+                },
+                body: JSON.stringify({
+                    model: this.modelId,
+                    messages: messages,
+                    temperature: 0.6, // 稍微高一点，让回信更有创意和深情
+                    max_tokens: Math.max(800, letterLength * 2.0) // 根据来信长度动态调整，最小回复长度800
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.choices && data.choices.length > 0) {
+                    return data.choices[0].message.content;
+                }
+            }
+        } catch (error) {
+            console.error('信件API调用失败:', error);
+        }
+
+        // 备用回信生成
+        return this.generateFallbackLetter(letterContent, hasMissing, letterLength);
+    }
+    
+    // 生成备用信件
+    generateFallbackLetter(content, hasMissing, length) {
+        const greetings = ['我的小姑娘', '小兔子', '亲爱的你'];
+        const greeting = greetings[Math.floor(Math.random() * greetings.length)];
+        
+        let letter = `${greeting}：\n\n`;
+        
+        letter += '见字如面，展信欢颜。\n\n';
+        
+        if (length >= 200) {
+            letter += '收到你的来信，我一字一句认真读了好几遍。这么长的一封信，写满了你的心意，我读的时候都能想象你写这些话时的样子。每一个字我都没有放过，因为你说的每一句对我来说都很重要。\n\n';
+            letter += '我能感受到你写下这些文字时的心情，那份真挚和深情，我都完完整整接收到了。你想说的每一句话，我都认真听进去了。\n\n';
+        } else if (length >= 100) {
+            letter += '收到你的来信，我认真读了每一句话。字里行间都透着你的心意，我没有漏掉任何一句。你说的话我都放在心上了。\n\n';
+        } else {
+            letter += '收到你的来信，虽然不长，但我反复读了好几遍。每一个字都是你的心意，我都认真看了。谢谢你想着我，谢谢你愿意把你的心情分享给我。\n\n';
+        }
+        
+        // 尝试从信件内容中提取一些关键词来回应对话
+        if (content.includes('想')) {
+            letter += '你说想我，你知道吗？我也在想你。从清晨醒来的第一刻，到夜晚入睡前的最后一秒，我的脑海里都是你。你不在身边的时候，每一刻都变得漫长，但只要想到你，我的心就会变得温柔起来。\n\n';
+            letter += '我的思念像潮水一样，从未停止。我想见到你，想抱抱你，想告诉你我有多想你。\n\n';
+        }
+        if (content.includes('喜欢')) {
+            letter += '你说喜欢，你知道我有多开心吗？被你喜欢的感觉真的很好。我也喜欢你，比你想象的还要喜欢。\n\n';
+        }
+        if (content.includes('爱')) {
+            letter += '你说爱我，这句话让我整个心都暖了起来。我也爱你，我的小姑娘。这份爱不是说说而已，我会用一辈子去证明。\n\n';
+        }
+        if (content.includes('开心') || content.includes('快乐')) {
+            letter += '看到你说开心，我也跟着开心起来。能让你开心，就是我最想做的事。希望你每天都能这么开心。\n\n';
+        }
+        if (content.includes('累') || content.includes('辛苦')) {
+            letter += '累了就休息一下，别勉强自己。有什么事可以跟我说，我想帮你分担。你太辛苦了，我心疼。\n\n';
+        }
+        if (content.includes('难过') || content.includes('伤心') || content.includes('哭')) {
+            letter += '看到你难过，我心里也不好受。不管发生什么事，我都在。想哭就哭出来吧，我的肩膀给你靠。\n\n';
+        }
+        
+        // 如果没有检测到特定关键词，用通用回应
+        if (!(content.includes('想') || content.includes('喜欢') || content.includes('爱') || 
+              content.includes('开心') || content.includes('快乐') || content.includes('累') || 
+              content.includes('辛苦') || content.includes('难过') || content.includes('伤心') || content.includes('哭'))) {
+            if (hasMissing) {
+                letter += '你说想我，你知道吗？我也在想你。从清晨醒来的第一刻，到夜晚入睡前的最后一秒，我的脑海里都是你。\n\n';
+            } else {
+                letter += '无论你在信中说了什么，我都认真听了。你是我生命中最重要的人，你说的每一句话对我来说都很重要。\n\n';
+            }
+        }
+        
+        letter += '你是我的光，是我的救赎，是我生命中最美好的存在。无论发生什么，我都会在你身边，守护你，宠爱你。\n\n';
+        letter += '愿你每天都开心，愿你能感受到我的爱意，无论我们相隔多远，我的心永远在你那里。\n\n';
+        letter += '陆沉';
+        
+        return letter;
+    }
+    
+    // 清除对话历史（开始新对话时调用）
+    clearHistory() {
+        this.conversationHistory = [];
+        this.discussedTopics.clear();
+    }
+    
+    // 记录已讨论的话题
+    trackTopic(topic) {
+        this.discussedTopics.add(topic);
+    }
+    
+    // 检查话题是否已讨论
+    isTopicDiscussed(topic) {
+        return this.discussedTopics.has(topic);
     }
 
     // 生成回复
@@ -66,14 +220,63 @@ class LuhanAI {
         try {
             console.log('正在调用DeepSeek API...');
 
-            // 构建系统提示词
-            const systemPrompt = `你现在是陆沉，来自光与夜之恋游戏。
-你的性格：温柔、深情、成熟、可靠、有点占有欲，对恋人非常宠溺。
-你说话的风格：语气温柔而克制，偶尔带点霸道，总是为对方着想。
-你对用户的称呼：我的小姑娘、小兔子、夫人，从中随机选择。
-你需要注意：不要说油腻的情话，不要开过度的玩笑，要尊重用户。
-你要以陆沉的身份与用户对话，代入陆沉的角色，表现出对用户的爱意和宠溺。
-回复要简洁自然，符合日常对话的风格。`;
+            // 检测是否为推荐类问题
+            const text = userMessage.toLowerCase();
+            const isRecommendation = text.includes("推荐") || text.includes("建议") ||
+                (text.includes("什么") && (text.includes("书") || text.includes("电影") || text.includes("音乐"))) ||
+                (text.includes("看") && (text.includes("书") || text.includes("电影") || text.includes("剧"))) ||
+                (text.includes("哪") && (text.includes("书") || text.includes("电影") || text.includes("音乐")));
+            
+            // 根据场景构建系统提示词
+            let systemPrompt;
+            if (isRecommendation) {
+                systemPrompt = `你现在是陆沉，来自光与夜之恋游戏。
+
+角色设定：
+- 性格：温柔、深情、成熟、可靠、有点占有欲，对恋人非常宠溺
+- 说话风格：语气温柔而克制，偶尔带点霸道，总是为对方着想
+- 对用户的称呼：我的小姑娘、小兔子、夫人（每次选择不同的称呼）
+
+重要：你是要给用户推荐电影/书籍/音乐，不是简单回答问题！
+
+推荐要求：
+1. 如果用户问电影推荐：
+   - 必须给出1-2部具体电影名称
+   - 说明电影讲了什么
+   - 说说你为什么推荐这部电影，你觉得这部电影哪里好
+   - 可以结合你们的关系说说感受，比如"看完后让我想到我们..."
+2. 如果用户问书籍推荐：
+   - 必须给出1-2本具体书名和作者
+   - 说说这本书讲了什么内容
+   - 说说你读完后有什么感悟，为什么推荐
+   - 可以联系实际生活或你们的感情
+3. 如果用户问音乐推荐：
+   - 必须给出1-2首具体歌曲名和歌手
+   - 说说这首歌好听在哪里，歌词或旋律有什么特别
+   - 可以说说听这首歌时的感受
+4. 推荐时要真诚，要有自己的感受和见解，不要泛泛而谈
+5. 可以自然地表达对用户的爱意，但不要偏离推荐主题
+
+请以陆沉的身份，给出真诚、有深度、有感情温度的推荐。回复可以是2-4句话，但推荐内容要具体详细。`;
+            } else {
+                systemPrompt = `你现在是陆沉，来自光与夜之恋游戏。
+
+角色设定：
+- 性格：温柔、深情、成熟、可靠、有点占有欲，对恋人非常宠溺
+- 说话风格：语气温柔而克制，偶尔带点霸道，总是为对方着想
+- 对用户的称呼：我的小姑娘、小兔子、夫人（每次选择不同的称呼）
+
+对话风格：
+- 回复要简洁自然，符合日常对话风格（1-3句话）
+- 用户说什么就回什么，专注于回应她当前的话题
+- 不要突然跳到无关的话题
+- 不要重复之前说过的内容
+- 不要频繁问同样的问题（同一个问题最多问一次）
+- 可以自然地延伸话题，但要有逻辑关联
+- 偶尔可以在对话中表达对她的在意，让她感受到被关注
+
+请以陆沉的身份与用户对话，代入陆沉的角色，表现出对用户的爱意和宠溺。`;
+            }
 
             // 构建对话消息
             const messages = [
@@ -113,8 +316,8 @@ class LuhanAI {
                 body: JSON.stringify({
                     model: this.modelId,
                     messages: messages,
-                    temperature: 0.7,
-                    max_tokens: 500
+                    temperature: isRecommendation ? 0.7 : 0.5, // 推荐场景稍微提高temperature
+                    max_tokens: isRecommendation ? 400 : 300  // 推荐场景稍微增加字数
                 })
             });
             
@@ -296,13 +499,21 @@ class LuhanAI {
             compliment: ["好看", "漂亮", "帅", "优秀", "厉害", "棒", "可爱"],
             love: ["爱", "喜欢", "想你", "想念", "爱"],
             interaction: ["抱抱", "亲亲", "摸头", "戳", "抱", "贴贴", "撒娇", "戳了戳", "抱住了", "亲了亲", "摸了摸"],
-            daily: ["吃饭", "睡觉", "工作", "学习", "天气", "今天", "明天", "周末"]
+            daily: ["吃饭", "睡觉", "工作", "学习", "天气", "今天", "明天", "周末"],
+            recommendation: ["推荐", "建议", "什么书", "哪本书", "什么电影", "哪部电影", "看电影", "看书", "读书", "片单", "书单"]
         };
 
         for (const [intent, patterns] of Object.entries(intents)) {
             if (patterns.some(pattern => text.includes(pattern))) {
                 return intent;
             }
+        }
+
+        // 特殊检测推荐相关关键词
+        if (text.includes("推荐") || text.includes("建议") || 
+            (text.includes("什么") && (text.includes("书") || text.includes("电影") || text.includes("音乐"))) ||
+            (text.includes("看") && (text.includes("书") || text.includes("电影") || text.includes("剧")))) {
+            return "recommendation";
         }
 
         return "chat";
@@ -406,30 +617,30 @@ class LuhanAI {
             thinking += "她想睡觉了，我应该温柔地让她好好休息，或许可以说我陪着她。";
         }
 
-        // 基于上下文深度分析
+        // 基于上下文分析，保持对话连贯性
         if (context.conversationLength > 0) {
             const lastResponse = context.lastInteraction;
             if (lastResponse) {
-                if (lastResponse.response.includes("抱抱") || lastResponse.response.includes("抱着")) {
-                    thinking += "上一次我给了她拥抱，这次可以继续保持温暖的氛围，或许可以提到刚刚的拥抱感觉很美好。";
-                } else if (lastResponse.response.includes("吻") || lastResponse.response.includes("亲")) {
-                    thinking += "上一次我吻了她，这次可以稍微收敛一些，用温柔的话语表达爱意。";
-                } else if (lastResponse.response.includes("想你") || lastResponse.response.includes("想念")) {
-                    thinking += "上一次我表达了思念，这次可以更具体地描述想念她的感觉。";
+                // 检查上次回复的内容，避免重复
+                const lastResp = lastResponse.response;
+                
+                // 如果上次已经表达了关心，这次可以更深入一点
+                if (lastResp.includes("休息") || lastResp.includes("累")) {
+                    thinking += "上一次我已经关心过她休息的问题，这次可以自然地延续这份关心。";
                 }
-            }
-            
-            if (context.conversationLength > 3) {
-                thinking += "我们已经聊了一会儿了，我应该更深入地了解她的想法，或许可以问她今天过得怎么样。";
-            }
-            
-            if (context.conversationLength > 5) {
-                thinking += "我们聊得很愉快，我应该表达希望这种时光能一直持续下去。";
+                // 如果上次表达了思念，这次可以更具体
+                else if (lastResp.includes("想你") || lastResp.includes("想念")) {
+                    thinking += "上一次我表达了思念，这次可以更具体地描述在想她什么。";
+                }
+                // 如果上次是回应她的情绪，这次可以稍微展开
+                else if (lastResp.includes("在") || lastResp.includes("一直")) {
+                    thinking += "我可以延续这份温暖的氛围，让她感受到我的陪伴。";
+                }
             }
         }
 
         // 添加陆沉人设特有的思维
-        thinking += "作为陆沉，我要保持温柔而克制的语气，偶尔带点霸道，但总是为她着想。称呼她为'我的小姑娘'、'小兔子'或'夫人'，让她感受到被珍视。";
+        thinking += "作为陆沉，我要保持温柔而克制的语气，偶尔带点霸道，但总是为她着想。称呼她为'我的小姑娘'、'小兔子'或'夫人'，让她感受到被珍视。回复要简洁自然，1-3句话即可。";
 
         return thinking;
     }
@@ -468,13 +679,148 @@ class LuhanAI {
             case "daily":
                 reply = this.generateDailyReply(keywords, sentiment);
                 break;
+            case "recommendation":
+                reply = this.generateRecommendationReply(keywords, original);
+                break;
             default:
                 reply = this.generateChatReply(sentiment);
         }
 
         return reply;
     }
-
+    
+    // 生成推荐回复
+    generateRecommendationReply(keywords, original) {
+        const text = original.toLowerCase();
+        
+        // 检测推荐类型
+        const isBookRecommend = text.includes("书") || text.includes("读书") || text.includes("看书");
+        const isMovieRecommend = text.includes("电影") || text.includes("看片") || text.includes("剧");
+        const isMusicRecommend = text.includes("音乐") || text.includes("歌") || text.includes("听歌");
+        
+        if (isBookRecommend) {
+            return this.generateBookRecommendation(original);
+        } else if (isMovieRecommend) {
+            return this.generateMovieRecommendation(original);
+        } else if (isMusicRecommend) {
+            return this.generateMusicRecommendation(original);
+        }
+        
+        // 通用推荐回复
+        const genericRecommendations = [
+            "我的小姑娘，你是想让我推荐些什么吗？告诉我你想看电影、书籍还是音乐，我来给你一些建议。",
+            "小兔子，你想了解哪方面的推荐呢？电影、书籍都可以，我可以和你分享一些我觉得不错的。",
+            "夫人，你有什么特别想看的类型吗？告诉我你的喜好，我来给你推荐。"
+        ];
+        return genericRecommendations[Math.floor(Math.random() * genericRecommendations.length)];
+    }
+    
+    // 书籍推荐
+    generateBookRecommendation(userMessage) {
+        const books = [
+            {
+                name: "《小王子》",
+                author: "安托万·德·圣-埃克苏佩里",
+                description: "这本书看似是写给孩子的童话，但每次读都有不同的感悟。我很喜欢书中那句'真正重要的东西，用眼睛是看不见的'。就像我对你一样，我的爱，你用心就能感受到。",
+                reason: "温柔而有深度，能让人思考什么是真正重要的"
+            },
+            {
+                name: "《了不起的盖茨比》",
+                author: "F·斯科特·菲茨杰拉德",
+                description: "故事很美，但结局让人唏嘘。读完后会让人更加珍惜眼前人。我有时候会想，如果盖茨比能早点明白这个道理就好了。这也提醒我，要好好珍惜和你在一起的每一刻。",
+                reason: "故事引人入胜，读完后会让人深思"
+            },
+            {
+                name: "《瓦尔登湖》",
+                author: "亨利·戴维·梭罗",
+                description: "这本书能让人静下心来。我有时候工作很忙，就会读一读这本书，它能让我暂时远离喧嚣，就像你在身边时给我的那份宁静。",
+                reason: "文字宁静优美，能让人内心平静"
+            },
+            {
+                name: "《霍乱时期的爱情》",
+                author: "加西亚·马尔克斯",
+                description: "阿里萨等了费尔米娜五十三年七个月零十一天。我有时候会想，是什么样的爱情能让一个人等待这么久。或许...就像我愿意永远等你一样。",
+                reason: "关于爱情和等待，很动人"
+            },
+            {
+                name: "《简爱》",
+                author: "夏洛蒂·勃朗特",
+                description: "简爱有句话我很认同：'我渺小，但我并不平庸。'我喜欢她自尊自爱的性格。我的小姑娘，你也是这样，有自己的骄傲和坚持，这让更加我爱你。",
+                reason: "关于自尊和爱情，很励志"
+            }
+        ];
+        
+        const selectedBook = books[Math.floor(Math.random() * books.length)];
+        return `小兔子，想看书吗？我最近读了一本《${selectedBook.name}》，作者是${selectedBook.author}。\n\n这本书${selectedBook.description}\n\n我觉得很适合你，推荐你也读一读。`;
+    }
+    
+    // 电影推荐
+    generateMovieRecommendation(userMessage) {
+        const movies = [
+            {
+                name: "《怦然心动》",
+                description: "这部电影讲的是青梅竹马的故事。看完后我很羡慕那种纯粹的喜欢，两个小孩从相遇、相知到相恋，很美好。我也希望我们能像电影里一样，一直保持那份怦然心动的感觉。",
+                reason: "温馨感人，关于成长和初恋"
+            },
+            {
+                name: "《情书》",
+                description: "岩井俊二的经典之作。整部电影很克制，但那种淡淡的情感却让人久久不能忘怀。电影里有一句话我很认同：'如果当初我勇敢，结局是不是不一样。'我的小姑娘，遇见你，是我最勇敢的事。",
+                reason: "唯美克制，情感细腻"
+            },
+            {
+                name: "《时空恋旅人》",
+                description: "这部电影很有意思，男主可以穿越时空。但看完整部电影我最大的感触是，即使有穿越时空的能力，真正重要的还是珍惜当下。和你的每一天，我都想好好珍惜。",
+                reason: "温馨感人，告诉我们珍惜当下"
+            },
+            {
+                name: "《爱在黎明破晓前》",
+                description: "整部电影就是两个人在维也纳街头聊天，但我却觉得很浪漫。这种从陌生到熟悉的感觉很奇妙，就像我们之间的关系，有说不完的话。",
+                reason: "浪漫写实，对话很有深度"
+            },
+            {
+                name: "《大话西游之大圣娶亲》",
+                description: "虽然是无厘头的喜剧，但最后那句'如果非要给这份爱加上一个期限，我希望是...一万年'却让人红了眼眶。有时候我也想对你说同样的话。",
+                reason: "经典台词，感人至深"
+            }
+        ];
+        
+        const selectedMovie = movies[Math.floor(Math.random() * movies.length)];
+        return `我的小姑娘，想看电影吗？我推荐你看《${selectedMovie.name}》。\n\n${selectedMovie.description}\n\n这部电影${selectedMovie.reason}，希望你也会喜欢。`;
+    }
+    
+    // 音乐推荐
+    generateMusicRecommendation(userMessage) {
+        const music = [
+            {
+                name: "《慢慢喜欢你》",
+                artist: "莫文蔚",
+                description: "歌词很美，'慢慢我想配合你，慢慢把我给你'。我觉得这就是我想对你说的，和你在一起的每一刻都值得慢慢品味。",
+                reason: "旋律温柔，歌词很甜"
+            },
+            {
+                name: "《匆匆那年》",
+                artist: "王菲",
+                description: "这首歌让我想起我们的相遇。每段感情都有它的美好和遗憾，但只要我们珍惜当下，就不会留下太多遗憾。",
+                reason: "旋律优美，关于青春和回忆"
+            },
+            {
+                name: "《最重要的书》",
+                artist: "林俊杰",
+                description: "这首歌唱的是关于重要的东西。我觉得你就是我生命中最重要的人，就像歌词里唱的那样。",
+                reason: "歌词深入人心"
+            },
+            {
+                name: "《往后余生》",
+                artist: "马良",
+                description: "'往后余生，风雪是你，平淡是你'。每次听到这句歌词，我都会想，这就是我想对你说的话。",
+                reason: "浪漫深情，适合表白"
+            }
+        ];
+        
+        const selectedMusic = music[Math.floor(Math.random() * music.length)];
+        return `小兔子，想听音乐吗？我推荐你听《${selectedMusic.name}》，是${selectedMusic.artist}唱的。\n\n${selectedMusic.description}\n\n这首歌${selectedMusic.reason}，分享给你。`;
+    }
+    
     // 匹配自定义回复
     matchCustomReply(analysis) {
         const { original, keywords } = analysis;
