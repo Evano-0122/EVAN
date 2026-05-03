@@ -2282,11 +2282,11 @@ body {
 }
 
 .paper-scroll-wrapper {
-    max-height: 515px;
-    overflow-y: auto;
-    position: relative;
-    padding-right: 8px;
-}
+        max-height: 515px;
+        overflow-y: auto;
+        position: relative;
+        padding-right: 8px;
+    }
 
 .paper-scroll-wrapper::-webkit-scrollbar {
     width: 6px;
@@ -2397,11 +2397,11 @@ body {
         padding: 10px 38px 15px;
         position: relative;
         z-index: 1;
-        min-height: 260px;
+        min-height: 430px;
     }
     
     .detail-paper-content .paper-scroll-wrapper {
-        max-height: 340px;
+        max-height: 530px;
         overflow-y: auto;
         padding-right: 8px;
     }
@@ -2512,7 +2512,7 @@ body {
     }
     
     .paper-content-area .paper-scroll-wrapper {
-        max-height: 320px;
+        max-height: 200px;
     }
     
     .paper-header {
