@@ -2397,11 +2397,11 @@ body {
         padding: 10px 38px 15px;
         position: relative;
         z-index: 1;
-        min-height: 430px;
+        min-height: 260px;
     }
     
     .detail-paper-content .paper-scroll-wrapper {
-        max-height: 530px;
+        max-height: 340px;
         overflow-y: auto;
         padding-right: 8px;
     }
@@ -2451,13 +2451,13 @@ body {
     .letter-modal-content.detail {
         max-width: 95%;
         width: 95%;
-        margin: 5px;
-        max-height: 95vh;
+        margin: 10px auto;
+        max-height: 90vh;
     }
     
     .detail-body {
-        padding: 15px 10px;
-        max-height: 88vh;
+        padding: 15px 12px;
+        max-height: 85vh;
         overflow-y: auto;
     }
     
@@ -2483,36 +2483,44 @@ body {
     }
     
     .detail-paper-content {
-        padding: 8px 18px 10px;
+        padding: 10px 20px 12px;
     }
     
     .detail-paper-content .paper-scroll-wrapper {
-        max-height: 280px;
+        max-height: 200px;
     }
     
     .detail-footer {
-        padding: 8px 20px 18px;
+        padding: 10px 22px 20px;
     }
     
     .detail-footer .signature-text {
-        font-size: 16px;
+        font-size: 15px;
     }
     
     /* 调整回信弹窗的手机端样式 */
     .letter-modal-content.reply .letter-body {
-        padding: 15px;
+        padding: 12px;
+    }
+    
+    .letter-modal-content.reply {
+        max-height: 90vh;
+    }
+    
+    .letter-modal-content.reply .elegant-paper {
+        max-height: 70vh;
     }
     
     .paper-content-area .paper-scroll-wrapper {
-        max-height: 400px;
+        max-height: 320px;
     }
     
     .paper-header {
-        padding: 20px 20px 12px;
+        padding: 18px 18px 10px;
     }
     
     .paper-content-area {
-        padding: 12px 25px;
+        padding: 10px 22px;
     }
     
     .paper-content {
@@ -2521,7 +2529,21 @@ body {
     }
     
     .paper-footer {
-        padding: 12px 20px 30px;
+        padding: 10px 20px 25px;
+    }
+    
+    /* 信箱卡片优化 */
+    .mail-item {
+        padding: 15px;
+    }
+    
+    .mail-date {
+        font-size: 11px;
+        margin-bottom: 5px;
+    }
+    
+    .mail-preview {
+        font-size: 13px;
     }
     
     /* 信箱弹窗手机端优化 */
