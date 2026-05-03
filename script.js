@@ -5,16 +5,7 @@ function loadLetterBox() {
     if (saved) {
         letterBox = JSON.parse(saved);
     } else {
-        letterBox = [
-            {
-                id: 1,
-                date: '2026-05-01',
-                time: '20:30',
-                content: '陆沉，今天的月亮很美，想和你一起看星星。',
-                reply: '我的小姑娘，能与你一同仰望星空，是我最大的幸福。每当夜幕降临，我总会想起你眼中的星光。',
-                read: true
-            }
-        ];
+        letterBox = [];
         saveLetterBox();
     }
 }
