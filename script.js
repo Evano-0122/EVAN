@@ -277,13 +277,13 @@ function initLetterModal() {
 
 /* 信箱详情内容显示 */
 function initDetailContent(yourContent, replyContent) {
-    // 直接显示用户来信
+    // 显示用户来信，支持段落显示
     const yourContentEl = document.getElementById('detail-your-content');
-    yourContentEl.textContent = yourContent;
+    yourContentEl.innerHTML = yourContent.replace(/\n/g, '<br>');
     
-    // 直接显示陆沉回信
+    // 显示陆沉回信，支持段落显示
     const replyContentEl = document.getElementById('detail-reply-content');
-    replyContentEl.textContent = replyContent;
+    replyContentEl.innerHTML = replyContent.replace(/\n/g, '<br>');
 }
 
 function openMailbox() {
