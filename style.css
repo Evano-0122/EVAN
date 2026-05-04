@@ -2462,13 +2462,7 @@ body {
 /* 回信首段样式 */
 .first-paragraph {
     color: #5a3d2b;
-    font-weight: 500;
-    border-left: 3px solid #a85a5a;
-    padding-left: 12px;
-    text-indent: 0;
-    background: linear-gradient(90deg, rgba(168, 90, 90, 0.05) 0%, transparent 100%);
-    padding: 8px 12px;
-    border-radius: 0 4px 4px 0;
+    text-indent: 2em;
 }
 
 /* 回信其他段落样式 */
