@@ -2652,12 +2652,12 @@ body {
         font-size: 14px;
         line-height: 1.7;
         text-indent: 1.5em;
-        margin-bottom: 1.2em;
+        margin-bottom: 1em;
+        word-break: break-all;
     }
     
     .first-paragraph {
-        padding: 6px 10px;
-        border-left-width: 2px;
+        padding: 0;
     }
     
     .detail-footer {
@@ -2690,12 +2690,16 @@ body {
     }
     
     .paper-content-area {
-        padding: 10px 22px;
+        padding: 10px 15px;
     }
     
     .paper-content {
         font-size: 14px;
         line-height: 1.8;
+    }
+    
+    .detail-paper-content {
+        padding: 8px 12px;
     }
     
     .paper-footer {
