@@ -2436,6 +2436,54 @@ body {
     font-weight: normal;
 }
 
+/* 信件段落样式 */
+.letter-paragraph {
+    margin: 0 0 1.5em 0;
+    text-align: justify;
+    text-indent: 2em;
+    line-height: 1.8;
+    font-size: 15px;
+}
+
+.letter-paragraph:first-child {
+    margin-top: 0;
+}
+
+.letter-paragraph:last-child {
+    margin-bottom: 0;
+}
+
+/* 用户来信段落样式 */
+.user-paragraph {
+    color: #4a3728;
+    font-style: normal;
+}
+
+/* 回信首段样式 */
+.first-paragraph {
+    color: #5a3d2b;
+    font-weight: 500;
+    border-left: 3px solid #a85a5a;
+    padding-left: 12px;
+    text-indent: 0;
+    background: linear-gradient(90deg, rgba(168, 90, 90, 0.05) 0%, transparent 100%);
+    padding: 8px 12px;
+    border-radius: 0 4px 4px 0;
+}
+
+/* 回信其他段落样式 */
+.reply-paragraph {
+    color: #5a3d2b;
+    text-indent: 2em;
+    position: relative;
+}
+
+.reply-paragraph::first-letter {
+    font-size: 1.2em;
+    color: #a85a5a;
+    font-weight: 600;
+}
+
 .paper-content.fade-out {
     opacity: 0;
     transform: translateY(10px);
@@ -2610,6 +2658,23 @@ body {
     
     .detail-paper-content .paper-scroll-wrapper {
         max-height: 200px;
+    }
+    
+    /* 手机端段落样式适配 */
+    .letter-paragraph {
+        font-size: 14px;
+        line-height: 1.7;
+        text-indent: 1.5em;
+        margin-bottom: 1.2em;
+    }
+    
+    .first-paragraph {
+        padding: 6px 10px;
+        border-left-width: 2px;
+    }
+    
+    .reply-paragraph::first-letter {
+        font-size: 1.1em;
     }
     
     .detail-footer {

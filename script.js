@@ -279,11 +279,32 @@ function initLetterModal() {
 function initDetailContent(yourContent, replyContent) {
     // 显示用户来信，支持段落显示
     const yourContentEl = document.getElementById('detail-your-content');
-    yourContentEl.innerHTML = yourContent.replace(/\n/g, '<br>');
+    yourContentEl.innerHTML = formatLetterContent(yourContent, 'user');
     
     // 显示陆沉回信，支持段落显示
     const replyContentEl = document.getElementById('detail-reply-content');
-    replyContentEl.innerHTML = replyContent.replace(/\n/g, '<br>');
+    replyContentEl.innerHTML = formatLetterContent(replyContent, 'reply');
+}
+
+/* 格式化信件内容，添加更好的排版 */
+function formatLetterContent(content, type) {
+    // 按空行分割段落
+    const paragraphs = content.split(/\n\n+/).filter(p => p.trim());
+    
+    // 根据类型添加不同的排版样式
+    return paragraphs.map((paragraph, index) => {
+        // 首段添加特殊样式
+        if (index === 0 && type === 'reply') {
+            // 回信首段添加缩进和特殊格式
+            return `<p class="letter-paragraph first-paragraph">${paragraph}</p>`;
+        } else if (type === 'reply') {
+            // 回信其他段落
+            return `<p class="letter-paragraph reply-paragraph">${paragraph}</p>`;
+        } else {
+            // 用户来信段落
+            return `<p class="letter-paragraph user-paragraph">${paragraph}</p>`;
+        }
+    }).join('');
 }
 
 function openMailbox() {
