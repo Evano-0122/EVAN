@@ -1029,8 +1029,17 @@ async function sendMessage() {
         setTimeout(async () => {
             try {
                 const response = await luhanAI.generateResponse(message);
-                addMessage('character', response);
-                
+
+                // 处理连续台词（数组形式）的情况
+                if (Array.isArray(response)) {
+                    for (let i = 0; i < response.length; i++) {
+                        await new Promise(resolve => setTimeout(resolve, 800));
+                        addMessage('character', response[i]);
+                    }
+                } else {
+                    addMessage('character', response);
+                }
+
                 // 回复后有概率发送随机问候/动作（增强活人感）
                 if (window.scheduleCharacterAction) {
                     window.scheduleCharacterAction(message);
