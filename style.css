@@ -2682,7 +2682,7 @@ body {
     }
     
     .paper-content-area .paper-scroll-wrapper {
-        max-height: 400px;
+        max-height: 440px;
     }
     
     .paper-header {
@@ -2700,11 +2700,11 @@ body {
     
     .detail-paper-content {
         padding: 8px 12px;
-        min-height: 350px;
+        min-height: 390px;
     }
     
     .detail-paper-content .paper-scroll-wrapper {
-        max-height: 380px;
+        max-height: 420px;
     }
     
     .paper-footer {
