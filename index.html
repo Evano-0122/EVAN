@@ -116,6 +116,34 @@
                 </div>
             </div>
 
+            <!-- 一起听歌模式 -->
+            <div class="music-mode">
+                <h4>一起听歌</h4>
+                <button class="music-toggle-btn" id="music-toggle-btn">开启听歌模式</button>
+                <div class="music-player" id="music-player" style="display: none;">
+                    <div class="music-info">
+                        <div class="music-title" id="music-title">未选择歌曲</div>
+                        <div class="music-controls">
+                            <button class="music-btn" id="music-prev">⏮</button>
+                            <button class="music-btn" id="music-play-pause">▶</button>
+                            <button class="music-btn" id="music-next">⏭</button>
+                        </div>
+                        <div class="music-progress">
+                            <div class="progress-bar" id="progress-bar">
+                                <div class="progress-fill" id="progress-fill"></div>
+                            </div>
+                            <div class="music-time">
+                                <span id="current-time">0:00</span>
+                                <span id="total-time">0:00</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="music-list" id="music-list">
+                        <!-- 歌曲列表将在这里动态生成 -->
+                    </div>
+                </div>
+            </div>
+
         </div>
 
         <!-- 写信弹窗 -->
@@ -521,35 +549,6 @@
                             </div>
                         </div>
                     </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 一起听歌模式 -->
-        <div class="music-mode">
-                <h4>一起听歌</h4>
-                <button class="music-toggle-btn" id="music-toggle-btn">开启听歌模式</button>
-                <div class="music-player" id="music-player" style="display: none;">
-                    <div class="music-info">
-                        <div class="music-title" id="music-title">未选择歌曲</div>
-                        <div class="music-controls">
-                            <button class="music-btn" id="music-prev">⏮</button>
-                            <button class="music-btn" id="music-play-pause">▶</button>
-                            <button class="music-btn" id="music-next">⏭</button>
-                        </div>
-                        <div class="music-progress">
-                            <div class="progress-bar" id="progress-bar">
-                                <div class="progress-fill" id="progress-fill"></div>
-                            </div>
-                            <div class="music-time">
-                                <span id="current-time">0:00</span>
-                                <span id="total-time">0:00</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="music-list" id="music-list">
-                        <!-- 歌曲列表将在这里动态生成 -->
                     </div>
                 </div>
             </div>

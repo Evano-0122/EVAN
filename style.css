@@ -583,6 +583,46 @@ body {
     background: rgba(184, 17, 36, 0.6);
 }
 
+/* 拖拽上传区域样式 */
+.music-dropzone {
+    border: 2px dashed rgba(184, 17, 36, 0.4);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: rgba(184, 17, 36, 0.05);
+}
+
+.music-dropzone:hover {
+    border-color: rgba(184, 17, 36, 0.6);
+    background: rgba(184, 17, 36, 0.1);
+}
+
+.music-dropzone.dragover {
+    border-color: rgba(184, 17, 36, 1);
+    background: rgba(184, 17, 36, 0.15);
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(184, 17, 36, 0.3);
+}
+
+.dropzone-icon {
+    font-size: 32px;
+    margin-bottom: 10px;
+    animation: float 2s ease-in-out infinite;
+}
+
+.dropzone-text {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.dropzone-hint {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 12px;
+}
+
 .chat-area {
     width: 50%;
     height: 100%;
@@ -1517,6 +1557,88 @@ body {
     .interaction-area::-webkit-scrollbar-thumb {
         background: rgba(184, 17, 36, 0.4);
         border-radius: 2px;
+    }
+
+    /* 手机端音乐模式适配 */
+    .music-mode {
+        margin-top: 15px;
+        padding: 12px;
+        background: rgba(15, 15, 40, 0.6);
+        border-radius: 12px;
+        border: 1px solid rgba(184, 17, 36, 0.2);
+        flex-shrink: 0;
+    }
+
+    .music-mode h4 {
+        font-size: 13px;
+        margin-bottom: 8px;
+    }
+
+    .music-toggle-btn {
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+
+    .music-player {
+        max-height: 120px;
+        overflow-y: auto;
+    }
+
+    .music-info {
+        padding: 8px;
+    }
+
+    .music-title {
+        font-size: 12px;
+    }
+
+    .music-controls {
+        gap: 8px;
+    }
+
+    .music-btn {
+        width: 28px;
+        height: 28px;
+        font-size: 11px;
+    }
+
+    .music-progress {
+        margin-top: 8px;
+    }
+
+    .progress-bar {
+        height: 3px;
+    }
+
+    .music-time {
+        font-size: 10px;
+    }
+
+    .music-list {
+        max-height: 80px;
+        overflow-y: auto;
+    }
+
+    .music-list-item {
+        padding: 8px 10px;
+        font-size: 12px;
+    }
+    
+    /* 手机端拖拽上传区域样式 */
+    .music-dropzone {
+        padding: 15px;
+    }
+    
+    .dropzone-icon {
+        font-size: 28px;
+    }
+    
+    .dropzone-text {
+        font-size: 13px;
+    }
+    
+    .dropzone-hint {
+        font-size: 11px;
     }
 }
 

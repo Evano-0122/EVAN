@@ -683,29 +683,73 @@ function initMusicMode() {
         const uploadDiv = document.createElement('div');
         uploadDiv.style.cssText = 'margin-bottom: 15px; text-align: center;';
         uploadDiv.innerHTML = `
-            <input type="file" id="music-file-input" accept="audio/*" style="display: none;">
-            <button id="upload-music-btn" style="background: linear-gradient(135deg, #B81124 0%, #9E0D20 100%); color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-size: 13px; transition: all 0.3s ease; width: 100%;">📁 上传音乐</button>
+            <input type="file" id="music-file-input" accept="audio/*" multiple style="display: none;">
+            <div id="upload-music-dropzone" class="music-dropzone">
+                <div class="dropzone-icon">🎵</div>
+                <div class="dropzone-text">拖拽音乐文件到这里，或点击上传</div>
+                <div class="dropzone-hint">支持 .mp3, .wav, .flac, .ogg 等格式</div>
+            </div>
         `;
         musicPlayer.insertBefore(uploadDiv, musicPlayer.firstChild);
         
         // 绑定上传事件
-        const uploadBtn = document.getElementById('upload-music-btn');
+        const dropzone = document.getElementById('upload-music-dropzone');
         const fileInput = document.getElementById('music-file-input');
         
-        uploadBtn.addEventListener('click', () => fileInput.click());
+        // 点击上传
+        dropzone.addEventListener('click', () => fileInput.click());
         
+        // 拖拽事件
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        // 拖拽进入和悬停效果
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropzone.addEventListener(eventName, () => {
+                dropzone.classList.add('dragover');
+            }, false);
+        });
+        
+        // 拖拽离开效果
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, () => {
+                dropzone.classList.remove('dragover');
+            }, false);
+        });
+        
+        // 处理拖拽上传
+        dropzone.addEventListener('drop', (e) => {
+            const files = e.dataTransfer.files;
+            handleFiles(files);
+        }, false);
+        
+        // 处理点击上传
         fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const url = URL.createObjectURL(file);
-                const title = file.name.replace(/\.[^/.]+$/, ''); // 移除扩展名
-                songs.push({ id: Date.now(), title: title, url: url });
-                localStorage.setItem('lushun_songs', JSON.stringify(songs));
-                initSongList();
+            handleFiles(e.target.files);
+        });
+        
+        // 处理上传的文件
+        function handleFiles(files) {
+            Array.from(files).forEach(file => {
+                if (file.type.startsWith('audio/')) {
+                    const url = URL.createObjectURL(file);
+                    const title = file.name.replace(/\.[^/.]+$/, ''); // 移除扩展名
+                    songs.push({ id: Date.now() + Math.random(), title: title, url: url });
+                }
+            });
+            localStorage.setItem('lushun_songs', JSON.stringify(songs));
+            initSongList();
+            if (songs.length > 0) {
                 currentSongIndex = songs.length - 1;
                 playSong();
             }
-        });
+        }
     };
     
     // 初始化歌曲列表
