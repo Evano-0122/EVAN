@@ -2469,13 +2469,6 @@ body {
 .reply-paragraph {
     color: #5a3d2b;
     text-indent: 2em;
-    position: relative;
-}
-
-.reply-paragraph::first-letter {
-    font-size: 1.2em;
-    color: #a85a5a;
-    font-weight: 600;
 }
 
 .paper-content.fade-out {
@@ -2665,10 +2658,6 @@ body {
     .first-paragraph {
         padding: 6px 10px;
         border-left-width: 2px;
-    }
-    
-    .reply-paragraph::first-letter {
-        font-size: 1.1em;
     }
     
     .detail-footer {
