@@ -49,17 +49,40 @@
                 </div>
                 <div class="crop-content">
                     <div class="crop-area" id="crop-area">
+                        <div class="crop-grid"></div>
                         <img id="crop-preview-image" src="" alt="裁切预览">
-                        <div class="crop-overlay" id="crop-overlay"></div>
                         <div class="crop-selection" id="crop-selection">
+                            <div class="selection-ring"></div>
+                            <div class="selection-inner"></div>
                             <div class="crop-handle top-left"></div>
                             <div class="crop-handle top-right"></div>
                             <div class="crop-handle bottom-left"></div>
                             <div class="crop-handle bottom-right"></div>
+                            <div class="crop-handle top"></div>
+                            <div class="crop-handle bottom"></div>
+                            <div class="crop-handle left"></div>
+                            <div class="crop-handle right"></div>
                         </div>
                     </div>
                 </div>
-                <div class="crop-hint">拖动选区调整头像显示范围</div>
+                <div class="crop-preview-section">
+                    <div class="preview-label">头像预览</div>
+                    <div class="preview-sizes">
+                        <div class="preview-item">
+                            <div class="preview-avatar small" id="preview-small"></div>
+                            <span>36×36</span>
+                        </div>
+                        <div class="preview-item">
+                            <div class="preview-avatar medium" id="preview-medium"></div>
+                            <span>64×64</span>
+                        </div>
+                        <div class="preview-item">
+                            <div class="preview-avatar large" id="preview-large"></div>
+                            <span>100×100</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="crop-hint">拖动图片调整位置，拖动边缘调整大小</div>
                 <div class="crop-actions">
                     <button class="crop-cancel-btn" onclick="closeAvatarCrop()">取消</button>
                     <button class="crop-confirm-btn" onclick="confirmAvatarCrop()">确认</button>
@@ -79,9 +102,9 @@
                     <div class="motto" id="motto">有你的地方，才是我的归处</div>
                 </div>
                 <div class="user-avatar-container">
-                    <img id="user-avatar-desktop" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSIyNSIgZmlsbD0iI2UwZTBlMCIvPjxjaXJjbGUgY3g9IjUwIiBjeT0iNDQiIHI9IjE1IiBmaWxsPSIjYzBjMGZmIi8+PHBhdGggZD0iTTI1IDY1IEEyMCAyMCAwIDExIDY1IDY1IDk1IDk1IDAgMCAxIDI1IDY1IiBmaWxsPSIjZmZmIi8+PC9zdmc+" alt="用户头像" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(184, 17, 36, 0.6);">
+                    <img id="user-avatar-desktop" class="desktop-user-avatar" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSIyNSIgZmlsbD0iI2UwZTBlMCIvPjxjaXJjbGUgY3g9IjUwIiBjeT0iNDQiIHI9IjE1IiBmaWxsPSIjYzBjMGZmIi8+PHBhdGggZD0iTTI1IDY1IEEyMCAyMCAwIDExIDY1IDY1IDk1IDk1IDAgMCAxIDI1IDY1IiBmaWxsPSIjZmZmIi8+PC9zdmc+" alt="用户头像">
                     <input type="file" id="user-avatar-upload" accept="image/*" style="display: none;">
-                    <button class="change-user-avatar-btn" onclick="document.getElementById('user-avatar-upload').click()" style="margin-left: 10px; padding: 4px 8px; font-size: 10px; background: rgba(184, 17, 36, 0.8); color: white; border: none; border-radius: 10px; cursor: pointer;">更换</button>
+                    <button class="change-user-avatar-btn" onclick="document.getElementById('user-avatar-upload').click()">更换</button>
                 </div>
                 <div class="mobile-user-avatar">
                     <img id="user-avatar-mobile" class="mobile-avatar" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSIyNSIgZmlsbD0iI2UwZTBlMCIvPjxjaXJjbGUgY3g9IjUwIiBjeT0iNDQiIHI9IjE1IiBmaWxsPSIjYzBjMGZmIi8+PHBhdGggZD0iTTI1IDY1IEEyMCAyMCAwIDExIDY1IDY1IDk1IDk1IDAgMCAxIDI1IDY1IiBmaWxsPSIjZmZmIi8+PC9zdmc+" alt="用户头像">
