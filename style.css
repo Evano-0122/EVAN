@@ -304,10 +304,10 @@ body {
 
 #character-image {
     max-width: 260px;
-    max-height: 260px;
+    max-height: 360px;
     width: auto;
     height: auto;
-    border-radius: 50%;
+    border-radius: 12px;
     box-shadow: 
         0 0 0 3px rgba(255, 255, 255, 0.15),
         0 0 0 6px rgba(184, 17, 36, 0.3),
@@ -325,13 +325,13 @@ body {
     left: -8px;
     right: -8px;
     bottom: -8px;
-    border-radius: 50%;
+    border-radius: 16px;
     background: linear-gradient(135deg, rgba(184, 17, 36, 0.4) 0%, rgba(139, 0, 0, 0.2) 50%, rgba(184, 17, 36, 0.4) 100%);
     z-index: -1;
 }
 
 #character-image:hover {
-    transform: scale(1.04);
+    transform: scale(1.02);
     box-shadow: 
         0 0 0 3px rgba(255, 255, 255, 0.2),
         0 0 0 6px rgba(184, 17, 36, 0.5),
