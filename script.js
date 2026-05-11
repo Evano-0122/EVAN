@@ -441,7 +441,15 @@ function initAvatarSelector() {
         if (mobileCharacterAvatar) {
             mobileCharacterAvatar.src = src;
         }
+        // 保存到本地存储
+        localStorage.setItem('luchen_character_avatar', src);
     };
+    
+    // 初始化时从本地存储加载头像
+    const savedAvatar = localStorage.getItem('luchen_character_avatar');
+    if (savedAvatar) {
+        updateAllCharacterAvatars(savedAvatar);
+    }
     
     // 手机端角色头像点击事件 - 直接上传
     if (mobileCharacterAvatar) {
@@ -646,7 +654,15 @@ function initUserAvatarUpload() {
         if (userAvatarMobile) {
             userAvatarMobile.src = src;
         }
+        // 保存到本地存储
+        localStorage.setItem('luchen_user_avatar', src);
     };
+    
+    // 初始化时从本地存储加载头像
+    const savedUserAvatar = localStorage.getItem('luchen_user_avatar');
+    if (savedUserAvatar) {
+        updateAllUserAvatars(savedUserAvatar);
+    }
     
     // 手机端用户头像点击触发上传
     if (userAvatarMobile) {
