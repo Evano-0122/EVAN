@@ -982,6 +982,8 @@ body {
 .desktop-user-avatar {
     width: 40px;
     height: 40px;
+    min-width: 40px;
+    min-height: 40px;
     border-radius: 50%;
     object-fit: cover;
     border: 2px solid rgba(255, 255, 255, 0.85);
@@ -990,6 +992,7 @@ body {
         0 2px 8px rgba(0, 0, 0, 0.25);
     cursor: pointer;
     transition: all 0.25s ease;
+    background-color: rgba(184, 17, 36, 0.2);
 }
 
 .desktop-user-avatar:hover {
@@ -1094,10 +1097,10 @@ body {
 }
 
 .message .avatar {
-    max-width: 44px;
-    max-height: 44px;
-    width: auto;
-    height: auto;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    min-height: 44px;
     border-radius: 50%;
     flex-shrink: 0;
     border: 2px solid rgba(255, 255, 255, 0.8);
@@ -1107,6 +1110,7 @@ body {
     cursor: pointer;
     object-fit: cover;
     transition: all 0.25s ease;
+    background-color: rgba(184, 17, 36, 0.2);
 }
 
 .message .avatar:hover {
@@ -1126,6 +1130,8 @@ body {
 .user-message {
     align-self: flex-end;
     flex-direction: row-reverse;
+    display: flex;
+    align-items: flex-start;
 }
 
 .user-message .content {
@@ -1133,10 +1139,15 @@ body {
     color: rgba(0, 0, 0, 0.85);
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 18px 18px 6px 18px;
+    min-width: 60px;
+    max-width: 100%;
+    flex-shrink: 0;
 }
 
 .character-message {
     align-self: flex-start;
+    display: flex;
+    align-items: flex-start;
 }
 
 .character-message .content {
@@ -1144,6 +1155,9 @@ body {
     color: rgba(255, 255, 255, 0.95);
     border-radius: 18px 18px 18px 6px;
     border: 1px solid rgba(255, 255, 255, 0.1);
+    min-width: 60px;
+    max-width: 100%;
+    flex-shrink: 0;
 }
 
 .character-action-message {
@@ -1584,10 +1598,10 @@ body {
 
     .mobile-avatar {
         display: block;
-        max-width: 40px;
-        max-height: 40px;
-        width: auto;
-        height: auto;
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        min-height: 40px;
         border-radius: 50%;
         border: 2px solid rgba(255, 255, 255, 0.85);
         box-shadow: 
@@ -1597,6 +1611,7 @@ body {
         flex-shrink: 0;
         object-fit: cover;
         transition: all 0.25s ease;
+        background-color: rgba(184, 17, 36, 0.2);
     }
 
     .mobile-avatar:hover {
@@ -1672,7 +1687,9 @@ body {
     }
 
     .user-message {
+        display: flex;
         flex-direction: row-reverse;
+        align-items: flex-start;
     }
 
     .character-message .content {
@@ -1687,6 +1704,9 @@ body {
         color: rgba(0, 0, 0, 0.85);
         border: 1px solid rgba(255, 255, 255, 0.2);
         border-radius: 18px 18px 6px 18px;
+        min-width: 50px;
+        max-width: 100%;
+        flex-shrink: 0;
     }
 
     .character-action-message {
