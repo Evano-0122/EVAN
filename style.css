@@ -303,11 +303,11 @@ body {
 }
 
 #character-image {
-    width: 260px;
-    height: 360px;
-    border-radius: 20px;
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
     box-shadow: 0 10px 40px rgba(184, 17, 36, 0.3);
-    border: 2px solid rgba(184, 17, 36, 0.5);
+    border: 3px solid rgba(184, 17, 36, 0.5);
     transition: all 0.3s ease;
     object-fit: cover;
     animation: glow 3s ease-in-out infinite;
@@ -922,6 +922,7 @@ body {
     flex-shrink: 0;
     border: 2px solid rgba(184, 17, 36, 0.4);
     cursor: pointer;
+    object-fit: cover;
 }
 
 .message .content {
@@ -1396,6 +1397,7 @@ body {
         border: 2px solid rgba(184, 17, 36, 0.4);
         cursor: pointer;
         flex-shrink: 0;
+        object-fit: cover;
     }
 
     .mobile-character-avatar {
