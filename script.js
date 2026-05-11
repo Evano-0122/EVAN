@@ -470,7 +470,8 @@ function initAvatarSelector() {
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    updateAllCharacterAvatars(e.target.result);
+                    // 打开裁切模态框
+                    openAvatarCrop(e.target.result, 'character');
                 };
                 reader.readAsDataURL(file);
             }
@@ -511,7 +512,8 @@ function initAvatarSelector() {
         if (file) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                updateAllCharacterAvatars(e.target.result);
+                // 打开裁切模态框
+                openAvatarCrop(e.target.result, 'character');
                 avatarSelector.classList.remove('show');
             };
             reader.onerror = function() {
@@ -677,7 +679,8 @@ function initUserAvatarUpload() {
         if (file) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                updateAllUserAvatars(e.target.result);
+                // 打开裁切模态框
+                openAvatarCrop(e.target.result, 'user');
             };
             reader.onerror = function() {
                 console.error('文件读取失败');
@@ -1397,3 +1400,221 @@ try {
     };
     console.log('使用备用回复系统');
 }
+
+// 头像裁切相关变量
+let cropImage = null;
+let cropSelection = null;
+let currentCropType = 'character'; // 'character' 或 'user'
+let isDragging = false;
+let isResizing = false;
+let dragStartX = 0;
+let dragStartY = 0;
+let selectionStartX = 0;
+let selectionStartY = 0;
+
+// 打开头像裁切模态框
+function openAvatarCrop(imageSrc, type) {
+    currentCropType = type;
+    const modal = document.getElementById('avatar-crop-modal');
+    const previewImage = document.getElementById('crop-preview-image');
+    const selection = document.getElementById('crop-selection');
+
+    if (!modal || !previewImage || !selection) {
+        console.error('裁切模态框元素未找到');
+        return;
+    }
+
+    previewImage.src = imageSrc;
+    modal.classList.add('show');
+
+    // 重置选区位置和大小
+    selection.style.top = '50%';
+    selection.style.left = '50%';
+    selection.style.transform = 'translate(-50%, -50%)';
+    selection.style.width = '150px';
+    selection.style.height = '150px';
+
+    // 初始化裁切图像尺寸
+    cropImage = {
+        width: 0,
+        height: 0,
+        naturalWidth: 0,
+        naturalHeight: 0
+    };
+
+    previewImage.onload = function() {
+        cropImage.naturalWidth = previewImage.naturalWidth;
+        cropImage.naturalHeight = previewImage.naturalHeight;
+    };
+}
+
+// 关闭头像裁切模态框
+function closeAvatarCrop() {
+    const modal = document.getElementById('avatar-crop-modal');
+    if (modal) {
+        modal.classList.remove('show');
+    }
+}
+
+// 确认裁切并应用
+function confirmAvatarCrop() {
+    const previewImage = document.getElementById('crop-preview-image');
+    const selection = document.getElementById('crop-selection');
+
+    if (!previewImage || !selection) {
+        console.error('裁切元素未找到');
+        return;
+    }
+
+    // 获取选区位置和大小
+    const cropArea = document.getElementById('crop-area');
+    const areaRect = cropArea.getBoundingClientRect();
+    const selRect = selection.getBoundingClientRect();
+
+    // 计算相对于图片的裁切区域
+    const scaleX = previewImage.naturalWidth / areaRect.width;
+    const scaleY = previewImage.naturalHeight / areaRect.height;
+
+    const cropX = (selRect.left - areaRect.left) * scaleX;
+    const cropY = (selRect.top - areaRect.top) * scaleY;
+    const cropWidth = selRect.width * scaleX;
+    const cropHeight = selRect.height * scaleY;
+
+    // 创建canvas进行裁切
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const outputSize = 200; // 输出头像大小
+
+    canvas.width = outputSize;
+    canvas.height = outputSize;
+
+    // 绘制裁切后的头像
+    ctx.drawImage(previewImage, cropX, cropY, cropWidth, cropHeight, 0, 0, outputSize, outputSize);
+
+    // 获取裁切后的数据URL
+    const croppedDataUrl = canvas.toDataURL('image/png');
+
+    // 根据类型更新头像
+    if (currentCropType === 'character') {
+        const characterImage = document.getElementById('character-image');
+        const mobileCharacterAvatar = document.getElementById('mobile-character-avatar');
+
+        if (characterImage) characterImage.src = croppedDataUrl;
+        if (mobileCharacterAvatar) mobileCharacterAvatar.src = croppedDataUrl;
+        localStorage.setItem('luchen_character_avatar', croppedDataUrl);
+    } else {
+        const userAvatarDesktop = document.getElementById('user-avatar-desktop');
+        const userAvatarMobile = document.getElementById('user-avatar-mobile');
+
+        if (userAvatarDesktop) userAvatarDesktop.src = croppedDataUrl;
+        if (userAvatarMobile) userAvatarMobile.src = croppedDataUrl;
+        localStorage.setItem('luchen_user_avatar', croppedDataUrl);
+    }
+
+    closeAvatarCrop();
+}
+
+// 初始化裁切功能
+function initAvatarCrop() {
+    const cropArea = document.getElementById('crop-area');
+    const selection = document.getElementById('crop-selection');
+
+    if (!cropArea || !selection) {
+        console.error('裁切区域元素未找到');
+        return;
+    }
+
+    // 拖动选区
+    selection.addEventListener('mousedown', function(e) {
+        if (e.target.classList.contains('crop-handle')) {
+            isResizing = true;
+        } else {
+            isDragging = true;
+        }
+        dragStartX = e.clientX;
+        dragStartY = e.clientY;
+        const rect = selection.getBoundingClientRect();
+        selectionStartX = rect.left;
+        selectionStartY = rect.top;
+        e.preventDefault();
+    });
+
+    // 触摸事件支持
+    selection.addEventListener('touchstart', function(e) {
+        if (e.target.classList.contains('crop-handle')) {
+            isResizing = true;
+        } else {
+            isDragging = true;
+        }
+        dragStartX = e.touches[0].clientX;
+        dragStartY = e.touches[0].clientY;
+        const rect = selection.getBoundingClientRect();
+        selectionStartX = rect.left;
+        selectionStartY = rect.top;
+        e.preventDefault();
+    });
+
+    // 移动
+    document.addEventListener('mousemove', function(e) {
+        if (!isDragging && !isResizing) return;
+
+        const cropAreaRect = cropArea.getBoundingClientRect();
+        const deltaX = e.clientX - dragStartX;
+        const deltaY = e.clientY - dragStartY;
+
+        if (isDragging) {
+            let newLeft = selectionStartX + deltaX - cropAreaRect.left;
+            let newTop = selectionStartY + deltaY - cropAreaRect.top;
+
+            // 边界检查
+            const selWidth = selection.offsetWidth;
+            const selHeight = selection.offsetHeight;
+            newLeft = Math.max(0, Math.min(newLeft, cropAreaRect.width - selWidth));
+            newTop = Math.max(0, Math.min(newTop, cropAreaRect.height - selHeight));
+
+            selection.style.left = newLeft + 'px';
+            selection.style.top = newTop + 'px';
+            selection.style.transform = 'none';
+        }
+        e.preventDefault();
+    });
+
+    document.addEventListener('touchmove', function(e) {
+        if (!isDragging && !isResizing) return;
+
+        const cropAreaRect = cropArea.getBoundingClientRect();
+        const deltaX = e.touches[0].clientX - dragStartX;
+        const deltaY = e.touches[0].clientY - dragStartY;
+
+        if (isDragging) {
+            let newLeft = selectionStartX + deltaX - cropAreaRect.left;
+            let newTop = selectionStartY + deltaY - cropAreaRect.top;
+
+            const selWidth = selection.offsetWidth;
+            const selHeight = selection.offsetHeight;
+            newLeft = Math.max(0, Math.min(newLeft, cropAreaRect.width - selWidth));
+            newTop = Math.max(0, Math.min(newTop, cropAreaRect.height - selHeight));
+
+            selection.style.left = newLeft + 'px';
+            selection.style.top = newTop + 'px';
+            selection.style.transform = 'none';
+        }
+        e.preventDefault();
+    });
+
+    // 释放
+    document.addEventListener('mouseup', function() {
+        isDragging = false;
+        isResizing = false;
+    });
+
+    document.addEventListener('touchend', function() {
+        isDragging = false;
+        isResizing = false;
+    });
+}
+
+// 页面加载时初始化裁切功能
+document.addEventListener('DOMContentLoaded', function() {
+    initAvatarCrop();
+});

@@ -40,6 +40,33 @@
             </div>
         </div>
 
+        <!-- 头像裁切模态框 -->
+        <div class="avatar-crop-modal" id="avatar-crop-modal">
+            <div class="avatar-crop-container">
+                <div class="crop-header">
+                    <h3>调整头像</h3>
+                    <button class="crop-close-btn" onclick="closeAvatarCrop()">✕</button>
+                </div>
+                <div class="crop-content">
+                    <div class="crop-area" id="crop-area">
+                        <img id="crop-preview-image" src="" alt="裁切预览">
+                        <div class="crop-overlay" id="crop-overlay"></div>
+                        <div class="crop-selection" id="crop-selection">
+                            <div class="crop-handle top-left"></div>
+                            <div class="crop-handle top-right"></div>
+                            <div class="crop-handle bottom-left"></div>
+                            <div class="crop-handle bottom-right"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="crop-hint">拖动选区调整头像显示范围</div>
+                <div class="crop-actions">
+                    <button class="crop-cancel-btn" onclick="closeAvatarCrop()">取消</button>
+                    <button class="crop-confirm-btn" onclick="confirmAvatarCrop()">确认</button>
+                </div>
+            </div>
+        </div>
+
         <!-- 对话区域 -->
         <div class="chat-area">
             <div class="chat-header">
