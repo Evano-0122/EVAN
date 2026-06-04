@@ -1861,16 +1861,26 @@ body {
     }
 
     .mobile-user-avatar {
-        display: block;
+        display: flex;
+        align-items: center;
+        gap: 8px;
         position: relative;
-        margin-right: 50px;
+        margin-right: 0;
     }
 
     .settings-button {
-        right: 10px;
-        width: 32px;
-        height: 32px;
-        font-size: 14px;
+        position: relative;
+        right: auto;
+        top: auto;
+        transform: none;
+        width: 28px;
+        height: 28px;
+        font-size: 12px;
+        flex-shrink: 0;
+    }
+
+    .settings-button:hover {
+        transform: scale(1.1);
     }
 
     #avatar-selector-mobile {
