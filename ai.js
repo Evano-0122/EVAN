@@ -17,6 +17,62 @@ class LuhanAI {
         this.apiKey = "sk-aquiwkhudplnaduwqkbucygjyoaccqbxaixqxotctbugpkoj";
         this.modelId = "deepseek-ai/DeepSeek-V3.2";
         this.apiEndpoint = "https://api.siliconflow.cn/v1/chat/completions";
+        
+        // 加载用户设置
+        this.loadSettings();
+    }
+    
+    // 加载用户设置
+    loadSettings() {
+        const savedSettings = localStorage.getItem('luchen_chat_settings');
+        if (savedSettings) {
+            const settings = JSON.parse(savedSettings);
+            this.customNickname = settings.customNickname || '';
+            this.enableActionDescription = settings.enableActionDescription !== undefined ? settings.enableActionDescription : true;
+        } else {
+            this.customNickname = '';
+            this.enableActionDescription = true;
+        }
+    }
+    
+    // 保存用户设置
+    saveSettings(settings) {
+        if (settings.customNickname !== undefined) {
+            this.customNickname = settings.customNickname;
+        }
+        if (settings.enableActionDescription !== undefined) {
+            this.enableActionDescription = settings.enableActionDescription;
+        }
+        localStorage.setItem('luchen_chat_settings', JSON.stringify({
+            customNickname: this.customNickname,
+            enableActionDescription: this.enableActionDescription
+        }));
+    }
+    
+    // 获取当前称呼
+    getNickname() {
+        // 如果没有设置自定义称呼，直接使用随机称呼
+        if (!this.customNickname) {
+            return this.personality.称呼[Math.floor(Math.random() * this.personality.称呼.length)];
+        }
+        
+        // 30%概率使用随机称呼，70%概率使用自定义称呼
+        if (Math.random() < 0.3) {
+            return this.personality.称呼[Math.floor(Math.random() * this.personality.称呼.length)];
+        }
+        
+        return this.customNickname;
+    }
+    
+    // 将回复中的默认称呼替换为自定义称呼
+    replaceNickname(text) {
+        const nickname = this.getNickname();
+        const defaultNicknames = ['我的小姑娘', '小兔子', '夫人'];
+        let result = text;
+        defaultNicknames.forEach(n => {
+            result = result.replace(new RegExp(n, 'g'), nickname);
+        });
+        return result;
     }
     
     // 专门处理信件回复的方法
@@ -25,13 +81,16 @@ class LuhanAI {
         const hasMissing = letterContent.includes('想你') || letterContent.includes('思念') || 
                           letterContent.includes('想念') || letterContent.includes('想见你');
         
+        // 获取自定义称呼
+        const nickname = this.getNickname();
+        
         // 构建专门的信件系统提示词
         const systemPrompt = `你是陆沉，来自光与夜之恋。你正在给你的恋人写一封回信。
 
 角色设定：
 - 性格：温柔、深情、成熟、可靠、有点占有欲，对恋人非常宠溺，但也有一点点幽默和俏皮
 - 说话风格：语气温柔而克制，偶尔带点霸道，但总是为对方着想；偶尔会有一两句俏皮话，让恋人会心一笑
-- 对恋人的称呼：我的小姑娘、小兔子、夫人
+- 对恋人的称呼：${nickname}（固定使用这个称呼，不要使用其他称呼）
 - 特别说明：虽然大部分时候是温柔深情的，但陆沉也有可爱的一面，可以偶尔展现一点幽默和俏皮，让回信更加生动有趣
 
 重要要求：
@@ -122,8 +181,7 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
     
     // 生成备用信件
     generateFallbackLetter(content, hasMissing, length) {
-        const greetings = ['我的小姑娘', '小兔子', '亲爱的你', '我心尖尖上的人'];
-        const greeting = greetings[Math.floor(Math.random() * greetings.length)];
+        const greeting = this.getNickname();
         
         // 开场白选项
         const openingOptions = [
@@ -304,11 +362,8 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
 
     // 生成回复
     async generateResponse(userMessage) {
-        // 0. 用户视角转换（我→你，你→我）
-        const convertedMessage = this.convertPerspective(userMessage);
-
-        // 1. 分析用户输入
-        const analysis = this.analyzeInput(convertedMessage);
+        // 1. 直接分析用户输入，不进行视角转换，避免混淆
+        const analysis = this.analyzeInput(userMessage);
 
         // 2. 生成思维过程
         const thinking = this.generateThinking(analysis);
@@ -316,16 +371,17 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
         // 3. 尝试API接入获取更智能的回复
         try {
             const apiResponse = await this.callAIAPI(userMessage, analysis);
-            if (apiResponse) {
+            if (apiResponse && this.isResponseRelevant(apiResponse, userMessage)) {
+                // 替换API回复中的默认称呼
+                const processedResponse = this.replaceNickname(apiResponse);
                 // 记录对话历史
                 this.conversationHistory.push({
                     user: userMessage,
-                    converted: convertedMessage,
-                    response: apiResponse,
+                    response: processedResponse,
                     thinking: thinking,
                     timestamp: new Date().toISOString()
                 });
-                return apiResponse;
+                return processedResponse;
             }
         } catch (error) {
             console.error('API调用失败:', error);
@@ -339,20 +395,61 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
         if (typeof response === 'string' && response.includes("|||")) {
             response = response.split("|||");
         }
-
-        // 如果是数组则直接使用
-        const isMultiPart = Array.isArray(response);
+        
+        // 对数组类型的回复也进行称呼替换
+        if (Array.isArray(response)) {
+            response = response.map(item => this.replaceNickname(item));
+        }
 
         // 5. 记录对话历史
         this.conversationHistory.push({
             user: userMessage,
-            converted: convertedMessage,
             response: response,
             thinking: thinking,
             timestamp: new Date().toISOString()
         });
 
         return response;
+    }
+
+    // 检查回复是否与用户输入相关
+    isResponseRelevant(response, userMessage) {
+        if (!response || typeof response !== 'string') return false;
+        
+        const cleanedResponse = response.trim().toLowerCase();
+        const cleanedUserMsg = userMessage.toLowerCase();
+        
+        // 如果回复太短，可能是不相关
+        if (cleanedResponse.length < 3) return false;
+        
+        // 检查回复中是否包含用户消息中的关键词
+        const userWords = cleanedUserMsg.split(/\s+|[,，.。！!？?；;]/).filter(w => w.length >= 2);
+        
+        // 如果用户没有明确的关键词，接受任何合理回复
+        if (userWords.length === 0) return true;
+        
+        let matchCount = 0;
+        for (const word of userWords) {
+            if (cleanedResponse.includes(word)) {
+                matchCount++;
+            }
+        }
+        
+        // 如果至少有一个关键词匹配，或者回复比较短（在100字以内），认为相关
+        // 这样可以避免因为表达方式不同而误判
+        if (matchCount > 0 || cleanedResponse.length < 100) {
+            return true;
+        }
+        
+        // 检查是否是典型的陆沉回复模式（包含称呼等）
+        const typicalPatterns = ['我的小姑娘', '小兔子', '夫人', '你说', '想你', '爱你', '累了', '休息'];
+        for (const pattern of typicalPatterns) {
+            if (cleanedResponse.includes(pattern)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 
     // 调用AI API
@@ -367,6 +464,10 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
                 (text.includes("看") && (text.includes("书") || text.includes("电影") || text.includes("剧"))) ||
                 (text.includes("哪") && (text.includes("书") || text.includes("电影") || text.includes("音乐")));
             
+            // 获取当前设置
+            const nickname = this.getNickname();
+            const actionEnabled = this.enableActionDescription;
+            
             // 根据场景构建系统提示词
             let systemPrompt;
             if (isRecommendation) {
@@ -375,10 +476,15 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
 角色设定：
 - 性格：温柔、深情、成熟、可靠、有点占有欲，对恋人非常宠溺
 - 说话风格：语气温柔而克制，偶尔带点霸道，总是为对方着想
-- 对用户的称呼：我的小姑娘、小兔子、夫人（每次选择不同的称呼）
+- 对用户的称呼：${nickname}（固定使用这个称呼，不要使用其他称呼）
 - 特别说明：陆沉虽然深沉优雅，但也有幽默的一面，他的幽默是克制而有智慧的，不是轻浮的笑话，而是让人会心一笑的那种
 
-重要：你是要给用户推荐电影/书籍/音乐，不是简单回答问题！
+【重要要求：你是要给用户推荐电影/书籍/音乐，不是简单回答问题！
+
+核心规则（非常重要，必须遵守）：
+1. 必须先认真理解用户说的是什么，然后再回复
+2. 绝对不能答非所问！
+3. 用户问什么就回答什么，专注于当前话题，不要突然跳到不相关的话题
 
 推荐要求：
 1. 如果用户问电影推荐：
@@ -406,8 +512,19 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
 角色设定：
 - 性格：温柔、深情、成熟、可靠、有点占有欲，对恋人非常宠溺
 - 说话风格：语气温柔而克制，偶尔带点霸道，总是为对方着想
-- 对用户的称呼：我的小姑娘、小兔子、夫人（每次选择不同的称呼）
+- 对用户的称呼：${nickname}（固定使用这个称呼，不要使用其他称呼）
 - 特别说明：陆沉虽然深沉优雅，但也有幽默的一面，他的幽默是克制而有智慧的，让人听后能会心一笑，而不是轻浮的玩笑
+
+【核心规则（非常重要，必须严格遵守）：
+1. 第一要务：认真理解用户说的每一句话，确保回复必须与用户说的话题相关！
+2. 绝对禁止答非所问！用户问什么就回什么！
+3. 绝对不要突然跳到不相关的话题！
+4. 回复前先想清楚用户在说什么！
+5. 如果用户说"你好"，你要回应问候；如果用户说"我好累"，你要关心她的累；如果用户说"想你了"，你要表达同样的思念。
+6. 绝对不能无视用户的话，自己说自己的！
+7. 专注于当前对话，不要突然跳到推荐之类的不相关话题！
+
+${actionEnabled ? '' : '【动作描写限制：用户已禁用动作描写，你的回复中绝对不能包含任何动作描写，只保留纯对话内容！】'}
 
 对话风格：
 - 回复要简洁自然，符合日常对话风格（1-3句话）
@@ -424,7 +541,7 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
   * 调侃时要保持风度，但不失趣味
 - 注意：幽默要保持陆沉的优雅和深度，90%还是要温柔深情，不要轻浮
 
-请以陆沉的身份与用户对话，代入陆沉的角色，表现出对用户的爱意和宠溺，偶尔幽默但不失优雅。`;
+请以陆沉的身份与用户对话，代入陆沉的角色，表现出对用户的爱意和宠溺，偶尔幽默但不失优雅。记住：先理解用户说什么，再回复！`;
             }
 
             // 构建对话消息
@@ -435,23 +552,29 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
                 }
             ];
 
-            // 添加历史对话
-            const recentHistory = this.conversationHistory.slice(-5);
+            // 添加历史对话 - 确保格式正确
+            const recentHistory = this.conversationHistory.slice(-4);
             recentHistory.forEach(conv => {
+                // 处理可能的数组格式回复
+                let responseContent = conv.response;
+                if (Array.isArray(responseContent)) {
+                    responseContent = responseContent.join(" ");
+                }
+                
                 messages.push({
                     role: "user",
-                    content: conv.user
+                    content: String(conv.user)
                 });
                 messages.push({
                     role: "assistant",
-                    content: conv.response
+                    content: String(responseContent)
                 });
             });
 
-            // 添加当前用户消息
+            // 添加当前用户消息 - 明确告诉AI要理解用户在说什么
             messages.push({
                 role: "user",
-                content: userMessage
+                content: `请理解我说的这句话，然后给我回复：${userMessage}`
             });
 
             console.log('正在调用SiliconFlow API...');
@@ -465,8 +588,8 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
                 body: JSON.stringify({
                     model: this.modelId,
                     messages: messages,
-                    temperature: isRecommendation ? 0.75 : 0.65, // 提高temperature，让回复更有创意和俏皮感
-                    max_tokens: isRecommendation ? 400 : 300  // 推荐场景稍微增加字数
+                    temperature: isRecommendation ? 0.6 : 0.45, // 降低temperature，让回复更稳定准确，减少乱回
+                    max_tokens: isRecommendation ? 400 : 300 // 推荐场景稍微增加字数
                 })
             });
             
@@ -847,7 +970,8 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
             return evanoDialogue;
         }
 
-        return reply;
+        // 替换默认称呼为自定义称呼
+        return this.replaceNickname(reply);
     }
     
     // 生成推荐回复

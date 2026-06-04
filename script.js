@@ -1768,4 +1768,120 @@ function initAvatarCrop() {
 // 页面加载时初始化裁切功能
 document.addEventListener('DOMContentLoaded', function() {
     initAvatarCrop();
+    loadSettingsToPanel();
 });
+
+// 设置面板相关函数
+function openSettingsPanel() {
+    const panel = document.getElementById('settings-panel');
+    if (panel) {
+        panel.classList.add('show');
+    }
+}
+
+function closeSettingsPanel() {
+    const panel = document.getElementById('settings-panel');
+    if (panel) {
+        panel.classList.remove('show');
+    }
+}
+
+function loadSettingsToPanel() {
+    const settings = localStorage.getItem('luchen_chat_settings');
+    if (settings) {
+        const data = JSON.parse(settings);
+        const nicknameInput = document.getElementById('custom-nickname-input');
+        const actionToggle = document.getElementById('action-description-toggle');
+        
+        if (nicknameInput) {
+            nicknameInput.value = data.customNickname || '';
+        }
+        if (actionToggle) {
+            actionToggle.checked = data.enableActionDescription !== undefined ? data.enableActionDescription : true;
+        }
+    }
+}
+
+function saveSettings() {
+    const nicknameInput = document.getElementById('custom-nickname-input');
+    const actionToggle = document.getElementById('action-description-toggle');
+    
+    const settings = {
+        customNickname: nicknameInput ? nicknameInput.value.trim() : '',
+        enableActionDescription: actionToggle ? actionToggle.checked : true
+    };
+    
+    localStorage.setItem('luchen_chat_settings', JSON.stringify(settings));
+    
+    // 更新AI实例的设置
+    if (window.luhanAI) {
+        window.luhanAI.saveSettings(settings);
+    }
+    
+    closeSettingsPanel();
+    
+    // 显示保存成功提示
+    showNotification('设置已保存');
+}
+
+function resetSettings() {
+    const nicknameInput = document.getElementById('custom-nickname-input');
+    const actionToggle = document.getElementById('action-description-toggle');
+    
+    if (nicknameInput) {
+        nicknameInput.value = '';
+    }
+    if (actionToggle) {
+        actionToggle.checked = true;
+    }
+    
+    // 清除本地存储
+    localStorage.removeItem('luchen_chat_settings');
+    
+    // 更新AI实例的设置
+    if (window.luhanAI) {
+        window.luhanAI.saveSettings({
+            customNickname: '',
+            enableActionDescription: true
+        });
+    }
+    
+    showNotification('已重置为默认设置');
+}
+
+function showNotification(message) {
+    // 创建通知元素
+    const notification = document.createElement('div');
+    notification.className = 'settings-notification';
+    notification.textContent = message;
+    notification.style.cssText = `
+        position: fixed;
+        bottom: 30px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(184, 17, 36, 0.9);
+        color: white;
+        padding: 12px 24px;
+        border-radius: 25px;
+        font-size: 14px;
+        z-index: 9999;
+        opacity: 0;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(184, 17, 36, 0.4);
+    `;
+    
+    document.body.appendChild(notification);
+    
+    // 显示动画
+    setTimeout(() => {
+        notification.style.opacity = '1';
+    }, 10);
+    
+    // 3秒后消失
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => {
+            document.body.removeChild(notification);
+        }, 300);
+    }, 2000);
+}

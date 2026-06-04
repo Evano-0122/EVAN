@@ -40,6 +40,37 @@
             </div>
         </div>
 
+        <!-- 设置面板 -->
+        <div class="settings-panel" id="settings-panel">
+            <div class="settings-overlay" onclick="closeSettingsPanel()"></div>
+            <div class="settings-content">
+                <div class="settings-header">
+                    <h3>对话设置</h3>
+                    <button class="settings-close-btn" onclick="closeSettingsPanel()">✕</button>
+                </div>
+                <div class="settings-section">
+                    <div class="setting-item">
+                        <label class="setting-label">自定义称呼</label>
+                        <input type="text" id="custom-nickname-input" placeholder="输入你想要的称呼" maxlength="10">
+                        <div class="setting-hint">设置后，陆沉会用这个称呼来叫你</div>
+                    </div>
+                    <div class="setting-item">
+                        <label class="setting-label">动作语言描写</label>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="action-description-toggle">
+                            <label for="action-description-toggle" class="toggle-label"></label>
+                            <span class="toggle-text">启用</span>
+                        </div>
+                        <div class="setting-hint">关闭后，回复中将不会包含动作描写</div>
+                    </div>
+                </div>
+                <div class="settings-actions">
+                    <button class="settings-reset-btn" onclick="resetSettings()">重置默认</button>
+                    <button class="settings-save-btn" onclick="saveSettings()">保存设置</button>
+                </div>
+            </div>
+        </div>
+
         <!-- 头像裁切模态框 -->
         <div class="avatar-crop-modal" id="avatar-crop-modal">
             <div class="avatar-crop-container">
@@ -109,7 +140,7 @@
                 <div class="mobile-user-avatar">
                     <img id="user-avatar-mobile" class="mobile-avatar" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSIyNSIgZmlsbD0iI2UwZTBlMCIvPjxjaXJjbGUgY3g9IjUwIiBjeT0iNDQiIHI9IjE1IiBmaWxsPSIjYzBjMGZmIi8+PHBhdGggZD0iTTI1IDY1IEEyMCAyMCAwIDExIDY1IDY1IDk1IDk1IDAgMCAxIDI1IDY1IiBmaWxsPSIjZmZmIi8+PC9zdmc+" alt="用户头像">
                 </div>
-                <div class="header-decoration"></div>
+                <button class="settings-button" id="settings-button" onclick="openSettingsPanel()">⚙️</button>
             </div>
             <div class="chat-messages" id="chat-messages">
                 <!-- 对话消息将在这里动态生成 -->
