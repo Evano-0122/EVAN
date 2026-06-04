@@ -1809,11 +1809,17 @@ body {
         position: relative;
     }
 
+    .mobile-character-avatar {
+        flex-shrink: 0;
+        z-index: 2;
+    }
+
     .header-content {
         position: absolute;
         left: 50%;
         transform: translateX(-50%);
         text-align: center;
+        z-index: 1;
     }
 
     .chat-header h2 {
@@ -1855,17 +1861,14 @@ body {
             0 4px 10px rgba(0, 0, 0, 0.35);
     }
 
-    .mobile-character-avatar {
-        display: block;
-        position: relative;
-    }
-
     .mobile-user-avatar {
         display: flex;
         align-items: center;
         gap: 8px;
         position: relative;
         margin-right: 0;
+        flex-shrink: 0;
+        z-index: 2;
     }
 
     .settings-button {
