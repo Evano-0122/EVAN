@@ -1866,6 +1866,13 @@ body {
         margin-right: 50px;
     }
 
+    .settings-button {
+        right: 10px;
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+
     #avatar-selector-mobile {
         display: none;
         position: absolute;
