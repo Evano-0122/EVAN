@@ -426,12 +426,12 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
         }
         
         // 根据用户信件内容决定是否添加今日行程描述
-        // 如果用户提到今天、行程、做什么等，或者信件内容比较日常，添加行程描述
-        if (content.includes('今天') || content.includes('昨天') || content.includes('最近') || 
-            content.includes('做什么') || content.includes('忙吗') || content.includes('生活') ||
-            content.includes('日常') || Math.random() < 0.3) {
+        // 如果用户提到今天、行程、做什么等，随机分享一个有趣的日常故事
+        if ((content.includes('今天') || content.includes('昨天') || content.includes('最近') || 
+             content.includes('做什么') || content.includes('忙吗') || content.includes('生活') ||
+             content.includes('日常')) && Math.random() < 0.5) {
             const schedule = this.generateTodaySchedule();
-            letter += `今天的行程不算太忙，\n${schedule}\n\n`;
+            letter += `${schedule}\n\n`;
         }
         
         // 结尾选项 - 更丰富的表达方式
@@ -524,10 +524,7 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
         
         // 随机选择1-2个故事
         const shuffled = [...interestingStories].sort(() => Math.random() - 0.5);
-        const selectedStories = shuffled.slice(0, Math.random() > 0.7 ? 2 : 1);
-        
-        // 按时间顺序排序
-        selectedStories.sort((a, b) => timeOrder[a.time] - timeOrder[b.time]);
+        const selectedStories = shuffled.slice(0, Math.random() > 0.6 ? 2 : 1);
         
         // 生成故事描述
         let schedule = '';
