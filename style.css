@@ -1745,12 +1745,27 @@ body {
     }
 
     .character-area {
-        display: none;
+        display: none !important;
+        visibility: hidden;
+        position: absolute;
+        left: -9999px;
+        top: -9999px;
+        opacity: 0;
+    }
+
+    #character-image {
+        display: none !important;
+        visibility: hidden;
+        position: absolute;
+        left: -9999px;
+        top: -9999px;
+        opacity: 0;
     }
 
     /* 移动端隐藏桌面端用户头像容器 */
     .user-avatar-container {
         display: none !important;
+        visibility: hidden;
     }
 
     .chat-area {
