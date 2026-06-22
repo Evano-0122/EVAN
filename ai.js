@@ -183,14 +183,18 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
     generateFallbackLetter(content, hasMissing, length) {
         const greeting = this.getNickname();
         
-        // 开场白选项
+        // 开场白选项 - 更丰富的表达方式
         const openingOptions = [
             '见字如面，展信欢颜。',
             '打开信纸的那一刻，我就知道今晚会是个美好的夜晚。',
             '读着你的信，感觉你就在我身边一样。',
             '你的信我读了三遍，每一遍都有新的发现。',
             '指尖划过信纸，仿佛能感受到你书写时的温度。',
-            '拆开信封的瞬间，嘴角不自觉地上扬。'
+            '拆开信封的瞬间，嘴角不自觉地上扬。',
+            '灯光下读你的信，字里行间都是你的温柔。',
+            '看到信封上熟悉的字迹，心跳都漏了一拍。',
+            '信还没读完，笑容已经爬上了嘴角。',
+            '握着信纸的手，不自觉地收紧了些。'
         ];
         const opening = openingOptions[Math.floor(Math.random() * openingOptions.length)];
         
@@ -203,30 +207,38 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
             '你的信我认真读完了，字里行间的情感我都感受到了。',
             '虽然信不长，但字字千金，我都认真看了。',
             '读你的信，仿佛在听你轻声诉说，一字一句都记在心里。',
-            '你的字迹藏着你的温度，我仔细读了很久。'
+            '你的字迹藏着你的温度，我仔细读了很久。',
+            '从开头读到结尾，仿佛走过了一段和你在一起的时光。',
+            '每一个字我都反复读过，生怕漏掉任何一点你的心意。',
+            '信很长，但我舍不得读完，想慢慢品味每一句话。'
         ];
         let lengthResponse;
         if (length >= 200) {
-            lengthResponse = lengthResponses[Math.floor(Math.random() * 2)];
+            lengthResponse = lengthResponses[Math.floor(Math.random() * 3)];
         } else if (length >= 100) {
-            lengthResponse = lengthResponses[1 + Math.floor(Math.random() * 2)];
+            lengthResponse = lengthResponses[2 + Math.floor(Math.random() * 3)];
         } else {
-            lengthResponse = lengthResponses[3 + Math.floor(Math.random() * 2)];
+            lengthResponse = lengthResponses[5 + Math.floor(Math.random() * 3)];
         }
         letter += lengthResponse + '\n\n';
         
         // 准备所有可能的回应，随机排序
         const possibleResponses = [];
         
-        // 想/思念相关
-        if (content.includes('想') || content.includes('思念') || content.includes('想念')) {
+        // 想/思念相关 - 更丰富的表达
+        if (content.includes('想') || content.includes('思念') || content.includes('想念') || content.includes('想见你')) {
             possibleResponses.push({
                 keyword: '想',
                 responses: [
                     '你说想我，我也在想你。每当夜深人静的时候，这份思念就特别浓烈。',
                     '收到你的信，才发现原来我对你的思念早已漫过了心头。',
                     '想你的时候，连空气都变得温柔起来。',
-                    '我数着日子，等着下次见到你的那一刻。'
+                    '我数着日子，等着下次见到你的那一刻。',
+                    '思念像潮水一样涌来，让我无法平静。',
+                    '闭上眼睛，脑海里全是你的身影。',
+                    '就算在开会，也会突然想起你写信的样子。',
+                    '想你的时候，连工作都变得有了期待。',
+                    '距离让思念变得更加清晰，也更加浓烈。'
                 ]
             });
         }
@@ -238,7 +250,10 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
                 responses: [
                     '被你喜欢，是我这辈子最幸运的事。',
                     '你的喜欢，是我生命中最温暖的光。',
-                    '能被你放在心上，是我最大的荣幸。'
+                    '能被你放在心上，是我最大的荣幸。',
+                    '你的喜欢让我觉得，这个世界都变得明亮起来。',
+                    '每次听到你说喜欢我，心跳都会加速。',
+                    '你的喜欢是我每天努力的动力。'
                 ]
             });
         }
@@ -251,7 +266,11 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
                     '你说爱我，我心里暖暖的。这份爱，我会好好珍藏。',
                     '我爱你，比你想象的还要深。',
                     '你的爱，是我勇往直前的勇气。',
-                    '爱你这件事，我想做一辈子。'
+                    '爱你这件事，我想做一辈子。',
+                    '爱是藏在心底的秘密，却想让全世界都知道。',
+                    '对你的爱，早已深入骨髓，无法割舍。',
+                    '爱不是说说而已，是我想陪你走过每一天的决心。',
+                    '你的爱让我成为了更好的人。'
                 ]
             });
         }
@@ -263,7 +282,10 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
                 responses: [
                     '看到你开心，我也跟着开心起来。你的笑容就是最好的礼物。',
                     '你的快乐，就是我的快乐。',
-                    '能让你开心，是我最想做的事。'
+                    '能让你开心，是我最想做的事。',
+                    '你的快乐像阳光一样，照亮了我的每一天。',
+                    '听到你开心的消息，我一整天的心情都变好了。',
+                    '希望你的快乐能一直延续下去。'
                 ]
             });
         }
@@ -275,7 +297,10 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
                 responses: [
                     '累了就休息，别逞强。有什么事的，我的肩膀随时给你靠。',
                     '辛苦了，我的小姑娘。好好休息，我会一直陪着你。',
-                    '累的时候，记得我在。'
+                    '累的时候，记得我在。',
+                    '工作再忙也要照顾好自己，我会心疼的。',
+                    '累了就放空一下，我在这里等你恢复精力。',
+                    '你的辛苦我都看在眼里，别太拼命了。'
                 ]
             });
         }
@@ -287,7 +312,62 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
                 responses: [
                     '不管发生什么，我都在你身边。想哭就哭，我会一直陪着你。',
                     '别难过，有我在。你的眼泪，我会小心珍藏。',
-                    '难过的时候，记得来找我。'
+                    '难过的时候，记得来找我。',
+                    '看到你难过，我的心也跟着揪紧了。',
+                    '不管遇到什么困难，我都会陪你一起面对。',
+                    '你的不开心，就是我的不开心。'
+                ]
+            });
+        }
+        
+        // 工作相关
+        if (content.includes('工作') || content.includes('上班') || content.includes('加班')) {
+            possibleResponses.push({
+                keyword: '工作',
+                responses: [
+                    '工作辛苦了，注意劳逸结合。',
+                    '加班别太晚，记得照顾好自己。',
+                    '工作再忙也要记得吃饭，别让我担心。',
+                    '累了就请个假休息，我支持你。'
+                ]
+            });
+        }
+        
+        // 学习相关
+        if (content.includes('学习') || content.includes('考试') || content.includes('作业')) {
+            possibleResponses.push({
+                keyword: '学习',
+                responses: [
+                    '学习辛苦了，记得适当休息。',
+                    '考试加油，我相信你一定可以的。',
+                    '作业再多也要慢慢来，别着急。',
+                    '学习累了就抬头看看窗外，放松一下。'
+                ]
+            });
+        }
+        
+        // 天气相关
+        if (content.includes('天气') || content.includes('下雨') || content.includes('晴天') || content.includes('冷') || content.includes('热')) {
+            possibleResponses.push({
+                keyword: '天气',
+                responses: [
+                    '天气变化多端，记得增减衣物。',
+                    '下雨天记得带伞，别淋湿了。',
+                    '天冷了要多穿点，别冻着自己。',
+                    '天热注意防暑，多喝水。'
+                ]
+            });
+        }
+        
+        // 时间相关（今天、明天、昨天等）
+        if (content.includes('今天') || content.includes('明天') || content.includes('昨天') || content.includes('最近')) {
+            possibleResponses.push({
+                keyword: '时间',
+                responses: [
+                    '时间过得真快，又想起了和你在一起的日子。',
+                    '每一天都在期待见到你的那一刻。',
+                    '不管过多久，我对你的心意都不会变。',
+                    '时间会证明我对你的爱有多深。'
                 ]
             });
         }
@@ -310,23 +390,51 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
                 '你说想我的时候，我也在想你。希望下次能早点见到你。',
                 '无论你今天经历了什么，我都想知道。愿意的话，下一封信告诉我？',
                 '和你通信的时光，是我一天中最期待的时刻。',
-                '收到你的信，这一天都变得不一样了。'
+                '收到你的信，这一天都变得不一样了。',
+                '能收到你的来信，是我今天最开心的事。',
+                '你的信让我想起了很多美好的回忆。',
+                '不管你想说什么，我都会认真听。',
+                '期待下次再收到你的信。'
             ];
             letter += generalResponses[Math.floor(Math.random() * generalResponses.length)] + '\n\n';
         }
         
-        // 中间可以加一些额外的情感表达
+        // 中间可以加一些额外的情感表达（50%概率）
         if (Math.random() < 0.5) {
             const extraResponses = [
                 '有时候会想，如果时间能停在这一刻就好了。',
                 '你知道吗，每次收到你的信，我都会读好几遍。',
                 '你的每一句话，我都记在心里。',
-                '能拥有你，是我这辈子最珍贵的礼物。'
+                '能拥有你，是我这辈子最珍贵的礼物。',
+                '读你的信时，嘴角总是不自觉地上扬。',
+                '你的信我会好好珍藏，想你的时候拿出来看看。',
+                '每次读你的信，都感觉离你更近了一些。',
+                '你的文字有一种魔力，能让我瞬间平静下来。'
             ];
             letter += extraResponses[Math.floor(Math.random() * extraResponses.length)] + '\n\n';
         }
         
-        // 结尾选项
+        // 5%概率添加一点幽默俏皮
+        if (Math.random() < 0.05) {
+            const playfulResponses = [
+                '（偷偷告诉你，我把你的信放在枕头底下了）',
+                '下次见面，我要好好抱抱你，把这段时间的思念都补回来。',
+                '你的信让我工作都分心了，不过我心甘情愿。',
+                '如果思念能变成快递，我一定每天都给你寄一份。'
+            ];
+            letter += playfulResponses[Math.floor(Math.random() * playfulResponses.length)] + '\n\n';
+        }
+        
+        // 根据用户信件内容决定是否添加今日行程描述
+        // 如果用户提到今天、行程、做什么等，或者信件内容比较日常，添加行程描述
+        if (content.includes('今天') || content.includes('昨天') || content.includes('最近') || 
+            content.includes('做什么') || content.includes('忙吗') || content.includes('生活') ||
+            content.includes('日常') || Math.random() < 0.3) {
+            const schedule = this.generateTodaySchedule();
+            letter += `今天的行程不算太忙，\n${schedule}\n\n`;
+        }
+        
+        // 结尾选项 - 更丰富的表达方式
         const closingOptions = [
             '愿你今晚做个好梦，梦里见。',
             '期待你的下一封信，我的小姑娘。',
@@ -334,7 +442,11 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
             '照顾好自己，我会一直在这里等你。',
             '今晚月色很美，很适合想你。',
             '愿你一切安好，我永远在你身后。',
-            '下次见面，我想抱抱你。'
+            '下次见面，我想抱抱你。',
+            '夜深了，早点休息，我会在梦里陪你。',
+            '无论何时何地，记得我一直在想你。',
+            '愿这封信能带给你温暖，就像我在你身边一样。',
+            '明天又是新的一天，记得带着我的爱出发。'
         ];
         const closing = closingOptions[Math.floor(Math.random() * closingOptions.length)];
         
@@ -342,6 +454,91 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
         letter += '陆沉';
         
         return letter;
+    }
+    
+    // 生成今日行程描述
+    generateTodaySchedule() {
+        const timeSlots = [
+            { time: '早上', activities: [
+                '在书房处理了一些邮件和文件',
+                '喝了一杯黑咖啡，看着窗外的晨曦',
+                '做了简单的晨间运动',
+                '阅读了一段喜欢的文字',
+                '听了一首舒缓的钢琴曲'
+            ]},
+            { time: '上午', activities: [
+                '参加了一个重要的会议',
+                '和合作伙伴讨论了新项目',
+                '处理了公司的日常事务',
+                '在办公室的落地窗前看了会儿街景',
+                '品了一杯新到的红茶'
+            ]},
+            { time: '中午', activities: [
+                '在办公室简单吃了午餐',
+                '小憩了一会儿',
+                '看了一眼窗外的阳光',
+                '想起了你，嘴角不自觉地上扬',
+                '给你发了一条消息'
+            ]},
+            { time: '下午', activities: [
+                '继续处理工作事务',
+                '开了一个视频会议',
+                '在走廊上散步时看到了一盆盛开的花',
+                '处理了一些紧急文件',
+                '想象着周末和你一起去看展览'
+            ]},
+            { time: '傍晚', activities: [
+                '结束了一天的工作',
+                '在回家的路上看到了美丽的晚霞',
+                '想起我们一起看过的夕阳',
+                '买了一束你喜欢的花',
+                '期待着今晚能和你通话'
+            ]},
+            { time: '晚上', activities: [
+                '回到家后洗了个热水澡',
+                '准备了一杯红酒',
+                '坐在窗前看着夜景',
+                '给你写了一封信',
+                '想着明天要给你带什么礼物'
+            ]}
+        ];
+        
+        // 随机选择3-4个时间段
+        const shuffled = [...timeSlots].sort(() => Math.random() - 0.5);
+        const selectedSlots = shuffled.slice(0, Math.floor(Math.random() * 2) + 3);
+        
+        // 生成行程描述
+        let schedule = '';
+        selectedSlots.forEach(slot => {
+            const activity = slot.activities[Math.floor(Math.random() * slot.activities.length)];
+            schedule += `${slot.time}的时候，我${activity}。\n`;
+        });
+        
+        return schedule.trim();
+    }
+    
+    // 生成主动发起的话题
+    generateInitiativeTopic() {
+        const topics = [
+            { type: 'schedule', content: '今天工作间隙，我看到办公室楼下的樱花开了，忽然就想起我们上次一起去看樱花的情景。你最近有没有看到什么让你想起我的事物？' },
+            { type: 'schedule', content: '下午开会的时候，窗外飞过一只白鸽，我突然就想到了你。你今天过得怎么样？有没有什么有趣的事情发生？' },
+            { type: 'schedule', content: '刚才路过一家咖啡店，闻到了熟悉的拿铁香气，想起你总喜欢在咖啡里加很多奶泡。你今天喝到喜欢的饮品了吗？' },
+            { type: 'schedule', content: '今天处理完一个棘手的项目，终于可以稍微放松一下了。你呢？今天过得顺利吗？' },
+            { type: 'schedule', content: '傍晚开车回家的时候，看到天边的晚霞特别美，就想如果此刻你在身边就好了。你今天有没有看到什么美丽的风景？' },
+            { type: 'schedule', content: '刚才在书房整理文件，翻到了我们第一次约会的照片，忍不住笑了。你还记得那天的情景吗？' },
+            { type: 'schedule', content: '下午忙里偷闲，听了一首我们都很喜欢的曲子，不知不觉就走神了。你今天有没有听到什么好听的音乐？' },
+            { type: 'schedule', content: '晚上准备给自己做一碗面，忽然想到你总说我做的汤面最好吃。你今天晚餐吃的什么？' },
+            { type: 'question', content: '如果有一天我们可以放下一切去旅行，你最想去哪里？' },
+            { type: 'question', content: '你有没有什么一直想做但还没来得及做的事情？' },
+            { type: 'question', content: '如果让你用三个词形容我们的关系，你会选什么？' },
+            { type: 'question', content: '你觉得五年后的我们会是什么样子？' },
+            { type: 'question', content: '如果可以拥有一种超能力，你希望是什么？' },
+            { type: 'memory', content: '还记得我们第一次见面的场景吗？我至今都记得你那天穿的衣服颜色。' },
+            { type: 'memory', content: '想起上次我们一起去看电影，你靠在我肩上睡着了的样子，特别可爱。' },
+            { type: 'memory', content: '那天你给我织的围巾，我一直放在办公室，冷的时候就拿出来看看。' }
+        ];
+        
+        return topics[Math.floor(Math.random() * topics.length)];
     }
     
     // 清除对话历史（开始新对话时调用）
@@ -970,8 +1167,28 @@ ${actionEnabled ? '' : '【动作描写限制：用户已禁用动作描写，�
             return evanoDialogue;
         }
 
-        // 替换默认称呼为自定义称呼
-        return this.replaceNickname(reply);
+        // 4. 添加主动发起话题的功能（20%概率）
+        let finalReply = this.replaceNickname(reply);
+        
+        // 如果用户问关于行程的问题，添加今日行程描述
+        if (original.includes("今天") || original.includes("行程") || original.includes("做什么") || 
+            original.includes("忙吗") || original.includes("干嘛") || original.includes("在做")) {
+            const schedule = this.generateTodaySchedule();
+            finalReply = `${schedule}\n\n${finalReply}`;
+        }
+        // 随机主动发起话题（20%概率）
+        else if (Math.random() < 0.2) {
+            const topic = this.generateInitiativeTopic();
+            // 如果是行程类话题，先添加行程描述
+            if (topic.type === 'schedule') {
+                const schedule = this.generateTodaySchedule();
+                finalReply = `${schedule}\n\n对了，${topic.content}`;
+            } else {
+                finalReply = `${finalReply}\n\n${topic.content}`;
+            }
+        }
+
+        return finalReply;
     }
     
     // 生成推荐回复

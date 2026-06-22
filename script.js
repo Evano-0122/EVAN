@@ -253,6 +253,9 @@ function initLetterModal() {
 
 陆沉
                 `.trim();
+            } finally {
+                // 确保无论成功还是失败，按钮状态都能恢复
+                sendLetterBtn.classList.remove('sending');
             }
             
             addLetter(content, response);
@@ -267,8 +270,6 @@ function initLetterModal() {
             setTimeout(() => {
                 replyModal.classList.add('show');
             }, 500);
-            
-            sendLetterBtn.classList.remove('sending');
         }, 1500);
     });
 }
