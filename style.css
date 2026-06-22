@@ -1690,10 +1690,12 @@ body {
 }
 
 /* 桌面端隐藏手机端头像 */
-.mobile-avatar,
-.mobile-character-avatar,
-.mobile-user-avatar {
-    display: none;
+@media (min-width: 769px) {
+    .mobile-avatar,
+    .mobile-character-avatar,
+    .mobile-user-avatar {
+        display: none !important;
+    }
 }
 
 @media (max-width: 1200px) {
@@ -1811,9 +1813,9 @@ body {
     }
 
     .mobile-character-avatar {
+        display: flex !important;
         flex-shrink: 0;
         z-index: 2;
-        display: flex !important;
         order: 1;
     }
 
@@ -1826,13 +1828,13 @@ body {
     }
 
     .mobile-user-avatar {
-        order: 3;
         display: flex !important;
         align-items: center;
         gap: 8px;
         margin-right: 0;
         flex-shrink: 0;
         z-index: 2;
+        order: 3;
     }
 
     .chat-header h2 {
@@ -1850,7 +1852,7 @@ body {
     }
 
     .mobile-avatar {
-        display: block;
+        display: block !important;
         width: 40px;
         height: 40px;
         min-width: 40px;
