@@ -1923,17 +1923,20 @@ body {
 
     #avatar-selector-mobile {
         display: none;
-        position: absolute;
+        position: fixed;
         top: 60px;
         left: 10px;
         right: 10px;
-        background: rgba(20, 20, 40, 0.98);
+        background: #141428;
+        background: linear-gradient(180deg, #1a1a2e 0%, #141428 100%);
         border: 1px solid rgba(184, 17, 36, 0.3);
         border-radius: 15px;
         padding: 15px;
-        z-index: 1000;
+        z-index: 9999;
         grid-template-columns: repeat(4, 1fr);
         gap: 10px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(30px);
     }
 
     #avatar-selector-mobile.show {
@@ -2342,17 +2345,21 @@ body {
     }
 
     .character-area {
-        width: 100%;
-        height: 25%;
-        flex-direction: row;
-        padding: 10px;
+        display: none !important;
+        visibility: hidden;
+        position: absolute;
+        left: -9999px;
+        top: -9999px;
+        opacity: 0;
     }
 
     #character-image {
-        max-width: 120px;
-        max-height: 160px;
-        width: auto;
-        height: auto;
+        display: none !important;
+        visibility: hidden;
+        position: absolute;
+        left: -9999px;
+        top: -9999px;
+        opacity: 0;
     }
 
     .avatar-selector {

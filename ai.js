@@ -458,60 +458,59 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
     
     // 生成今日行程描述
     generateTodaySchedule() {
-        const timeSlots = [
-            { time: '早上', activities: [
-                '在书房处理了一些邮件和文件',
-                '喝了一杯黑咖啡，看着窗外的晨曦',
-                '做了简单的晨间运动',
-                '阅读了一段喜欢的文字',
-                '听了一首舒缓的钢琴曲'
-            ]},
-            { time: '上午', activities: [
-                '参加了一个重要的会议',
-                '和合作伙伴讨论了新项目',
-                '处理了公司的日常事务',
-                '在办公室的落地窗前看了会儿街景',
-                '品了一杯新到的红茶'
-            ]},
-            { time: '中午', activities: [
-                '在办公室简单吃了午餐',
-                '小憩了一会儿',
-                '看了一眼窗外的阳光',
-                '想起了你，嘴角不自觉地上扬',
-                '给你发了一条消息'
-            ]},
-            { time: '下午', activities: [
-                '继续处理工作事务',
-                '开了一个视频会议',
-                '在走廊上散步时看到了一盆盛开的花',
-                '处理了一些紧急文件',
-                '想象着周末和你一起去看展览'
-            ]},
-            { time: '傍晚', activities: [
-                '结束了一天的工作',
-                '在回家的路上看到了美丽的晚霞',
-                '想起我们一起看过的夕阳',
-                '买了一束你喜欢的花',
-                '期待着今晚能和你通话'
-            ]},
-            { time: '晚上', activities: [
-                '回到家后洗了个热水澡',
-                '准备了一杯红酒',
-                '坐在窗前看着夜景',
-                '给你写了一封信',
-                '想着明天要给你带什么礼物'
-            ]}
+        // 有趣的日常故事和见闻
+        const interestingStories = [
+            {
+                story: '今天早上在公司楼下的咖啡店，看到一位老爷爷正在教他的小孙子用咖啡机。孩子认真地盯着爷爷的手，奶泡打得歪歪扭扭的，却坚持要自己完成。那一刻忽然想起，如果以后我们有了孩子，我也想这样教他做咖啡，或者...教他怎么讨妈妈开心。',
+                emotion: '温暖'
+            },
+            {
+                story: '下午开会的时候，窗外飞进来一只小麻雀，在会议桌上蹦蹦跳跳。所有人都愣住了，最后还是我起身把它捧起来放回窗外。它飞走前还歪着头看了我一眼，像是在道谢。你说，这是不是你派来的小信使？',
+                emotion: '有趣'
+            },
+            {
+                story: '中午去常去的餐厅吃饭，老板突然端来一份甜点，说是"陆先生的太太专属"。我愣了一下才反应过来，他说的是上次你陪我来的时候，特别喜欢他们家的焦糖布丁。原来他都记得。那一刻真的很想你在身边。',
+                emotion: '想念'
+            },
+            {
+                story: '下班路过花店，看到一束特别的玫瑰，花瓣边缘是渐变的香槟色。店主说这叫"落日珊瑚"，像夕阳下的海面。我忍不住买了一束带回家，插在书房的花瓶里。现在看着它，就好像看到你穿着那条香槟色的裙子向我走来。',
+                emotion: '浪漫'
+            },
+            {
+                story: '今天处理一份合同的时候，发现合作方的代表居然是我大学时的校友。我们聊起当年在校门口那家小吃店排队买煎饼的日子，忽然觉得时光过得真快。不过比起回忆过去，我更期待和你一起创造新的回忆。',
+                emotion: '感慨'
+            },
+            {
+                story: '傍晚开车回家，遇到堵车。百无聊赖地看着窗外，发现旁边车道上有个小女孩在车窗上画笑脸。她看到我在看她，还特意给我画了一个大大的爱心。那一刻，一整天的疲惫都烟消云散了。你看，生活总有这样不经意的小美好。',
+                emotion: '治愈'
+            },
+            {
+                story: '晚上在家整理书房，翻到了我们第一次约会时你送给我的书签。那是一片银杏叶，上面用钢笔写着"愿每个秋天都有你"。不知不觉，我们已经一起走过了这么多个秋天。明年秋天，我们去看银杏吧。',
+                emotion: '甜蜜'
+            },
+            {
+                story: '今天收到一份特别的礼物，是合作方从国外带来的手工巧克力。包装纸上写着"送给最重要的人"。我尝了一颗，是你最喜欢的榛子口味。当时就想，如果现在你在我身边，一定会抢着要吃最后一颗。',
+                emotion: '温馨'
+            },
+            {
+                story: '上午在露台喝咖啡的时候，看到楼下有一对老夫妻手牵手散步。老爷爷走得慢，老奶奶就耐心地陪着他，时不时还帮他理理衣领。我站在那里看了很久，忽然很期待几十年后，我们也能这样一起散步。',
+                emotion: '憧憬'
+            },
+            {
+                story: '下午工作间隙，去茶水间泡了杯茶。发现新来的实习生正在偷偷给每个人的杯子上画小图案。我的杯子上画了一只戴着皇冠的小兔子，旁边写着"陆总专用"。看着那个歪歪扭扭的皇冠，忍不住笑了很久。年轻真好啊，不过有你在身边，每一天都很美好。',
+                emotion: '开心'
+            }
         ];
         
-        // 随机选择3-4个时间段
-        const shuffled = [...timeSlots].sort(() => Math.random() - 0.5);
-        const selectedSlots = shuffled.slice(0, Math.floor(Math.random() * 2) + 3);
+        // 随机选择1-2个故事
+        const shuffled = [...interestingStories].sort(() => Math.random() - 0.5);
+        const selectedStories = shuffled.slice(0, Math.random() > 0.7 ? 2 : 1);
         
-        // 生成行程描述
+        // 生成故事描述
         let schedule = '';
-        selectedSlots.forEach(slot => {
-            const activity = slot.activities[Math.floor(Math.random() * slot.activities.length)];
-            schedule += `${slot.time}的时候，我${activity}。\n`;
+        selectedStories.forEach((item, index) => {
+            if (index > 0) schedule += '\n';
+            schedule += item.story;
         });
         
         return schedule.trim();
@@ -649,10 +648,10 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
         return false;
     }
 
-    // 调用AI API
+    // 调用AI API（带超时限制）
     async callAIAPI(userMessage, analysis) {
         try {
-            console.log('正在调用DeepSeek API...');
+            console.log('正在调用AI API...');
 
             // 检测是否为推荐类问题
             const text = userMessage.toLowerCase();
@@ -731,12 +730,12 @@ ${actionEnabled ? '' : '【动作描写限制：用户已禁用动作描写，�
 - 不要频繁问同样的问题（同一个问题最多问一次）
 - 可以自然地延伸话题，但要有逻辑关联
 - 偶尔可以在对话中表达对她的在意，让她感受到被关注
-- 可以适当展现优雅的幽默感（约10%），让对话更有趣味：
+- 可以适当展现优雅的幽默感（约5%），让对话更有趣味：
   * 被小姑娘撒娇时，可以用优雅的方式回应
   * 被夸赞时，可以谦逊而幽默地接受
   * 日常对话中可以有一点深沉而有智慧的幽默
   * 调侃时要保持风度，但不失趣味
-- 注意：幽默要保持陆沉的优雅和深度，90%还是要温柔深情，不要轻浮
+- 注意：幽默要保持陆沉的优雅和深度，95%还是要温柔深情，不要轻浮
 
 请以陆沉的身份与用户对话，代入陆沉的角色，表现出对用户的爱意和宠溺，偶尔幽默但不失优雅。记住：先理解用户说什么，再回复！`;
             }
@@ -749,8 +748,8 @@ ${actionEnabled ? '' : '【动作描写限制：用户已禁用动作描写，�
                 }
             ];
 
-            // 添加历史对话 - 确保格式正确
-            const recentHistory = this.conversationHistory.slice(-4);
+            // 添加历史对话 - 减少历史记录数量以提高响应速度
+            const recentHistory = this.conversationHistory.slice(-2);
             recentHistory.forEach(conv => {
                 // 处理可能的数组格式回复
                 let responseContent = conv.response;
@@ -776,19 +775,31 @@ ${actionEnabled ? '' : '【动作描写限制：用户已禁用动作描写，�
 
             console.log('正在调用SiliconFlow API...');
             
-            const response = await fetch(this.apiEndpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + this.apiKey
-                },
-                body: JSON.stringify({
-                    model: this.modelId,
-                    messages: messages,
-                    temperature: isRecommendation ? 0.6 : 0.45, // 降低temperature，让回复更稳定准确，减少乱回
-                    max_tokens: isRecommendation ? 400 : 300 // 推荐场景稍微增加字数
-                })
+            // 创建超时Promise（30秒超时）
+            const timeoutPromise = new Promise((_, reject) => {
+                setTimeout(() => {
+                    reject(new Error('API请求超时'));
+                }, 30000); // 30秒超时
             });
+            
+            // 使用Promise.race实现超时控制
+            const response = await Promise.race([
+                fetch(this.apiEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + this.apiKey
+                    },
+                    body: JSON.stringify({
+                        model: this.modelId,
+                        messages: messages,
+                        temperature: isRecommendation ? 0.6 : 0.45,
+                        max_tokens: isRecommendation ? 300 : 200, // 减少token数量提高响应速度
+                        stream: false
+                    })
+                }),
+                timeoutPromise
+            ]);
             
             console.log('API响应状态:', response.status);
             
@@ -805,6 +816,9 @@ ${actionEnabled ? '' : '【动作描写限制：用户已禁用动作描写，�
             }
         } catch (error) {
             console.error('API调用失败:', error);
+            if (error.message === 'API请求超时') {
+                console.warn('API请求超时，将使用本地回复');
+            }
         }
 
         return null;
