@@ -287,12 +287,13 @@ body {
 .character-area {
     width: 25%;
     height: 100%;
-    display: flex;
+    display: flex !important;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 20px;
     position: relative;
+    float: left;
 }
 
 .avatar-container {
@@ -1209,8 +1210,8 @@ body {
 .user-avatar-container {
     display: flex;
     align-items: center;
-    margin-left: 20px;
-    margin-right: 60px;
+    margin-left: auto;
+    margin-right: 10px;
 }
 
 .desktop-user-avatar {
@@ -1812,14 +1813,26 @@ body {
     .mobile-character-avatar {
         flex-shrink: 0;
         z-index: 2;
+        display: flex !important;
+        order: 1;
     }
 
     .header-content {
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
+        flex: 1;
         text-align: center;
         z-index: 1;
+        order: 2;
+        padding: 0 10px;
+    }
+
+    .mobile-user-avatar {
+        order: 3;
+        display: flex !important;
+        align-items: center;
+        gap: 8px;
+        margin-right: 0;
+        flex-shrink: 0;
+        z-index: 2;
     }
 
     .chat-header h2 {
@@ -1859,16 +1872,6 @@ body {
         box-shadow: 
             0 0 0 2px rgba(184, 17, 36, 0.5),
             0 4px 10px rgba(0, 0, 0, 0.35);
-    }
-
-    .mobile-user-avatar {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        position: relative;
-        margin-right: 0;
-        flex-shrink: 0;
-        z-index: 2;
     }
 
     .settings-button {
