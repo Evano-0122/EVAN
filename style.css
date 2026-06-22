@@ -1693,8 +1693,15 @@ body {
 @media (min-width: 769px) {
     .mobile-avatar,
     .mobile-character-avatar,
-    .mobile-user-avatar {
+    .mobile-user-avatar,
+    .mobile-character-avatar img,
+    .mobile-user-avatar img {
         display: none !important;
+        visibility: hidden;
+    }
+    
+    .user-avatar-container {
+        display: flex !important;
     }
 }
 
@@ -1739,6 +1746,11 @@ body {
 
     .character-area {
         display: none;
+    }
+
+    /* 移动端隐藏桌面端用户头像容器 */
+    .user-avatar-container {
+        display: none !important;
     }
 
     .chat-area {
@@ -1814,6 +1826,7 @@ body {
 
     .mobile-character-avatar {
         display: flex !important;
+        visibility: visible !important;
         flex-shrink: 0;
         z-index: 2;
         order: 1;
@@ -1829,6 +1842,7 @@ body {
 
     .mobile-user-avatar {
         display: flex !important;
+        visibility: visible !important;
         align-items: center;
         gap: 8px;
         margin-right: 0;
@@ -1853,6 +1867,7 @@ body {
 
     .mobile-avatar {
         display: block !important;
+        visibility: visible !important;
         width: 40px;
         height: 40px;
         min-width: 40px;
@@ -1918,10 +1933,6 @@ body {
     #avatar-selector-mobile .avatar-upload {
         width: 60px;
         height: 60px;
-    }
-
-    .user-avatar-container {
-        display: none;
     }
 
     #chat-messages {
