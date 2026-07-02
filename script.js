@@ -50,6 +50,7 @@ window.onload = function() {
     initUserAvatarUpload();
     initMusicMode();
     initAutoGreetings();
+    initAnnouncement();
     
     document.getElementById('send-button').addEventListener('click', sendMessage);
     
@@ -1377,6 +1378,30 @@ function initAutoGreetings() {
     
     // 暴露函数供外部调用
     window.scheduleCharacterAction = scheduleCharacterAction;
+}
+
+// 公告栏功能
+function initAnnouncement() {
+    const announcementBar = document.getElementById('announcement-bar');
+    if (!announcementBar) return;
+    
+    // 页面加载后2秒显示公告栏（每次刷新都显示）
+    setTimeout(() => {
+        announcementBar.style.display = 'block';
+    }, 2000);
+}
+
+function closeAnnouncement() {
+    const announcementBar = document.getElementById('announcement-bar');
+    if (!announcementBar) return;
+    
+    // 添加隐藏动画类
+    announcementBar.classList.add('hidden');
+    
+    // 动画结束后隐藏
+    setTimeout(() => {
+        announcementBar.style.display = 'none';
+    }, 300);
 }
 
 // 初始化AI实例
