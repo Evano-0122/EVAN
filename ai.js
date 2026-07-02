@@ -14,8 +14,8 @@ class LuhanAI {
             称呼: ["我的小姑娘", "小兔子", "夫人"],
             taboos: ["油腻的情话", "过度的玩笑", "不尊重的言论"]
         };
-        this.apiKey = "sk-aquiwkhudplnaduwqkbucygjyoaccqbxaixqxotctbugpkoj";
-        this.modelId = "deepseek-ai/DeepSeek-V3.2";
+        this.apiKey = "sk-xpqdcrrztgidveqhdhiskwhmvdxxajyoetijtfrmsedxazvt";
+        this.modelId = "Pro/deepseek-ai/DeepSeek-V3.2";
         this.apiEndpoint = "https://api.siliconflow.cn/v1/chat/completions";
         
         // 加载用户设置
