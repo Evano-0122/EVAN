@@ -1387,7 +1387,11 @@ function initAnnouncement() {
     
     // 页面加载后2秒显示公告栏（每次刷新都显示）
     setTimeout(() => {
+        announcementBar.classList.add('show');
         announcementBar.style.display = 'block';
+        
+        // 调整移动端聊天区域位置
+        adjustMobileLayout(true);
     }, 2000);
 }
 
@@ -1401,7 +1405,20 @@ function closeAnnouncement() {
     // 动画结束后隐藏
     setTimeout(() => {
         announcementBar.style.display = 'none';
+        announcementBar.classList.remove('hidden', 'show');
+        
+        // 恢复移动端聊天区域位置
+        adjustMobileLayout(false);
     }, 300);
+}
+
+function adjustMobileLayout(hasAnnouncement) {
+    if (window.innerWidth > 768) return;
+    
+    const chatArea = document.querySelector('.chat-area');
+    if (chatArea) {
+        chatArea.style.top = hasAnnouncement ? '70px' : '0';
+    }
 }
 
 // 初始化AI实例

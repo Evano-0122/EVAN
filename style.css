@@ -70,8 +70,9 @@ body {
     top: 0;
     left: 0;
     right: 0;
-    z-index: 10000;
+    z-index: 99999;
     animation: slideDown 0.5s ease-out forwards;
+    display: none;
 }
 
 .announcement-bar.hidden {
@@ -1906,6 +1907,13 @@ body {
         top: 0;
         left: 0;
         z-index: 5;
+        transition: top 0.5s ease-out;
+    }
+    
+    /* 公告栏显示时，聊天区域向下移动 */
+    .announcement-bar.show + .container .chat-area,
+    .announcement-bar:not(.hidden) + .container .chat-area {
+        top: 70px;
     }
 
     .interaction-area {
