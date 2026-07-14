@@ -1834,6 +1834,49 @@ body {
         padding: 12px 15px;
     }
     
+    /* 移动端头像裁切模态框适配 */
+    .avatar-crop-container {
+        padding: 15px;
+        width: 96%;
+        max-width: 100%;
+        height: 90vh;
+        display: flex;
+        flex-direction: column;
+        border-radius: 0;
+    }
+    
+    .crop-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+    
+    .crop-area {
+        flex: 1;
+        height: auto;
+        min-height: 300px;
+        border-radius: 8px;
+    }
+    
+    .crop-selection {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .crop-handle {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .crop-header h3 {
+        font-size: 16px;
+    }
+    
+    .crop-preview-section {
+        padding: 10px 0;
+    }
+    
     .announcement-icon {
         font-size: 20px;
         margin-right: 12px;

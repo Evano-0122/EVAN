@@ -1451,6 +1451,7 @@ let currentCropType = 'character'; // 'character' 或 'user'
 let isDragging = false;
 let isResizing = false;
 let isDraggingImage = false;
+let isPinching = false;
 let dragStartX = 0;
 let dragStartY = 0;
 let selectionStartX = 0;
@@ -1458,6 +1459,8 @@ let selectionStartY = 0;
 let imageStartX = 0;
 let imageStartY = 0;
 let imageScale = 1;
+let initialPinchDistance = 0;
+let initialPinchScale = 1;
 
 // 打开头像裁切模态框
 function openAvatarCrop(imageSrc, type) {
@@ -1697,11 +1700,19 @@ function initAvatarCrop() {
     // 触摸事件支持 - 图片
     previewImage.addEventListener('touchstart', function(e) {
         if (!isDragging && !isResizing) {
-            isDraggingImage = true;
-            dragStartX = e.touches[0].clientX;
-            dragStartY = e.touches[0].clientY;
-            imageStartX = parseFloat(previewImage.style.left) || 0;
-            imageStartY = parseFloat(previewImage.style.top) || 0;
+            // 如果是双指触摸，开始缩放
+            if (e.touches.length === 2) {
+                isPinching = true;
+                isDraggingImage = false;
+                initialPinchDistance = getDistance(e.touches);
+                initialPinchScale = imageScale;
+            } else if (e.touches.length === 1) {
+                isDraggingImage = true;
+                dragStartX = e.touches[0].clientX;
+                dragStartY = e.touches[0].clientY;
+                imageStartX = parseFloat(previewImage.style.left) || 0;
+                imageStartY = parseFloat(previewImage.style.top) || 0;
+            }
             e.preventDefault();
         }
     });
@@ -1753,9 +1764,51 @@ function initAvatarCrop() {
 
     // 移动 - 触摸
     document.addEventListener('touchmove', function(e) {
-        if (!isDragging && !isResizing && !isDraggingImage) return;
+        if (!isDragging && !isResizing && !isDraggingImage && !isPinching) return;
 
         const cropAreaRect = cropArea.getBoundingClientRect();
+
+        if (isPinching && e.touches.length === 2) {
+            // 双指缩放
+            const currentDistance = getDistance(e.touches);
+            const scaleFactor = currentDistance / initialPinchDistance;
+            let newScale = initialPinchScale * scaleFactor;
+
+            // 限制缩放范围
+            newScale = Math.max(0.5, Math.min(newScale, 5));
+
+            // 计算缩放后的尺寸
+            const originalWidth = previewImage.naturalWidth;
+            const originalHeight = previewImage.naturalHeight;
+            const newWidth = originalWidth * newScale;
+            const newHeight = originalHeight * newScale;
+
+            // 保持图片中心位置不变
+            const centerX = cropAreaRect.width / 2;
+            const centerY = cropAreaRect.height / 2;
+            const currentLeft = parseFloat(previewImage.style.left) || 0;
+            const currentTop = parseFloat(previewImage.style.top) || 0;
+
+            // 计算新的偏移量，使图片中心保持在裁切区域中心
+            const newLeft = centerX - (centerX - currentLeft) * (newScale / imageScale) - newWidth / 2;
+            const newTop = centerY - (centerY - currentTop) * (newScale / imageScale) - newHeight / 2;
+
+            previewImage.style.width = newWidth + 'px';
+            previewImage.style.height = newHeight + 'px';
+            previewImage.style.left = newLeft + 'px';
+            previewImage.style.top = newTop + 'px';
+
+            imageScale = newScale;
+            cropImage.width = newWidth;
+            cropImage.height = newHeight;
+            cropImage.offsetX = newLeft;
+            cropImage.offsetY = newTop;
+
+            updatePreviewAvatars();
+            e.preventDefault();
+            return;
+        }
+
         const deltaX = e.touches[0].clientX - dragStartX;
         const deltaY = e.touches[0].clientY - dragStartY;
 
@@ -1801,11 +1854,29 @@ function initAvatarCrop() {
         isDraggingImage = false;
     });
 
-    document.addEventListener('touchend', function() {
+    document.addEventListener('touchend', function(e) {
         isDragging = false;
         isResizing = false;
         isDraggingImage = false;
+        isPinching = false;
+        
+        // 如果触摸点从2个变为1个，继续支持拖动
+        if (e.changedTouches.length === 1 && e.touches.length === 1) {
+            isDraggingImage = true;
+            dragStartX = e.touches[0].clientX;
+            dragStartY = e.touches[0].clientY;
+            imageStartX = parseFloat(previewImage.style.left) || 0;
+            imageStartY = parseFloat(previewImage.style.top) || 0;
+        }
     });
+}
+
+// 计算两个触摸点之间的距离
+function getDistance(touches) {
+    if (touches.length < 2) return 0;
+    const dx = touches[0].clientX - touches[1].clientX;
+    const dy = touches[0].clientY - touches[1].clientY;
+    return Math.sqrt(dx * dx + dy * dy);
 }
 
 // 页面加载时初始化裁切功能
