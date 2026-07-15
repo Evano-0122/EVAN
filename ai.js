@@ -42,7 +42,7 @@ class LuhanAI {
             ]
         };
         this.apiKey = "sk-xpqdcrrztgidveqhdhiskwhmvdxxajyoetijtfrmsedxazvt";
-        this.modelId = "deepseek-ai/DeepSeek-V4-Flash";
+        this.modelId = "deepseek-ai/DeepSeek-V3.2";
         this.apiEndpoint = "https://api.siliconflow.cn/v1/chat/completions";
         
         // 加载用户设置
@@ -975,9 +975,11 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
         // 3. 尝试API接入获取更智能的回复
         try {
             const apiResponse = await this.callAIAPI(userMessage, analysis);
+            console.log('API返回:', apiResponse ? `成功(${apiResponse.length}字)` : '失败');
             if (apiResponse && this.isResponseRelevant(apiResponse, userMessage)) {
                 // 替换API回复中的默认称呼
                 const processedResponse = this.replaceNickname(apiResponse);
+                console.log('使用API回复');
                 // 记录对话历史
                 this.conversationHistory.push({
                     user: userMessage,
@@ -986,6 +988,8 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
                     timestamp: new Date().toISOString()
                 });
                 return processedResponse;
+            } else {
+                console.warn('API回复未通过相关性检查，使用本地回复');
             }
         } catch (error) {
             console.error('API调用失败:', error);
@@ -1020,33 +1024,17 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
     isResponseRelevant(response, userMessage) {
         if (!response || typeof response !== 'string') return false;
         
-        const cleanedResponse = response.trim().toLowerCase();
-        const cleanedUserMsg = userMessage.toLowerCase();
+        const cleanedResponse = response.trim();
         
         // 如果回复太短，认为是不相关或敷衍
-        if (cleanedResponse.length < 15) return false;
+        if (cleanedResponse.length < 10) return false;
         
-        // 检查回复中是否包含用户消息中的关键词
-        const userWords = cleanedUserMsg.split(/\s+|[,，.。！!？?；;]/).filter(w => w.length >= 2);
+        // 如果回复足够长（超过20字），直接接受
+        // API回复通常都是合理的，不需要过度检查
+        if (cleanedResponse.length >= 20) return true;
         
-        // 如果用户没有明确的关键词，接受任何合理长度的回复
-        if (userWords.length === 0) return cleanedResponse.length >= 30;
-        
-        let matchCount = 0;
-        for (const word of userWords) {
-            if (cleanedResponse.includes(word)) {
-                matchCount++;
-            }
-        }
-        
-        // 如果至少有一个关键词匹配，并且回复长度足够，认为相关
-        // 如果回复太短（小于30字），即使有关键词也认为是敷衍
-        if (matchCount > 0 && cleanedResponse.length >= 30) {
-            return true;
-        }
-        
-        // 检查是否是典型的陆沉回复模式（包含称呼等）
-        const typicalPatterns = ['我的小姑娘', '小兔子', '夫人', '你说', '想你', '爱你', '累了', '休息'];
+        // 对于较短回复，检查是否包含典型陆沉回复模式
+        const typicalPatterns = ['小姑娘', '小兔子', '夫人', '想你', '爱你', '陪你', '在意', '关心', '嗯', '好'];
         for (const pattern of typicalPatterns) {
             if (cleanedResponse.includes(pattern)) {
                 return true;
@@ -1237,11 +1225,11 @@ ${actionEnabled ? '' : '【动作描写限制：用户已禁用动作描写，�
 
             console.log('正在调用SiliconFlow API...');
             
-            // 创建超时Promise（30秒超时）
+            // 创建超时Promise（60秒超时）
             const timeoutPromise = new Promise((_, reject) => {
                 setTimeout(() => {
                     reject(new Error('API请求超时'));
-                }, 30000); // 30秒超时
+                }, 60000); // 60秒超时
             });
             
             // 使用Promise.race实现超时控制
@@ -1266,14 +1254,20 @@ ${actionEnabled ? '' : '【动作描写限制：用户已禁用动作描写，�
             
             if (response.ok) {
                 const data = await response.json();
-                console.log('API响应数据:', data);
                 if (data.choices && data.choices.length > 0) {
+                    console.log('API回复成功，长度:', data.choices[0].message.content.length);
                     return data.choices[0].message.content;
                 }
             } else {
                 console.error('API请求失败:', response.status, response.statusText);
                 const errorText = await response.text();
                 console.error('错误详情:', errorText);
+                // 如果是认证错误或模型不存在，显示明确信息
+                if (response.status === 401) {
+                    console.error('API密钥无效，请检查密钥配置');
+                } else if (response.status === 404) {
+                    console.error('模型不存在，请检查模型名称:', this.modelId);
+                }
             }
         } catch (error) {
             console.error('API调用失败:', error);
