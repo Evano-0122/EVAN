@@ -50,7 +50,7 @@ window.onload = function() {
     initUserAvatarUpload();
     initMusicMode();
     initAutoGreetings();
-    initAnnouncement();
+    // initAnnouncement(); // 公告栏已关闭，需要时取消注释即可
     
     document.getElementById('send-button').addEventListener('click', sendMessage);
     
