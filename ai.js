@@ -42,7 +42,7 @@ class LuhanAI {
             ]
         };
         this.apiKey = "sk-xpqdcrrztgidveqhdhiskwhmvdxxajyoetijtfrmsedxazvt";
-        this.modelId = "Pro/deepseek-ai/DeepSeek-V3.2";
+        this.modelId = "deepseek-ai/DeepSeek-V4-Flash";
         this.apiEndpoint = "https://api.siliconflow.cn/v1/chat/completions";
         
         // 加载用户设置
