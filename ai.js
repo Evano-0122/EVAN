@@ -2150,9 +2150,9 @@ ${actionEnabled ? '' : '【动作描写限制：用户已禁用动作描写，�
             return reply;
         }
 
-        // 铺垫触发：闲聊中 2.5% 概率
+        // 铺垫触发：闲聊中 15% 概率
         if ((intent === "daily" || intent === "chat" || intent === "greeting") &&
-            this.eggState === 'off' && Math.random() < 0.025) {
+            this.eggState === 'off' && Math.random() < 0.15) {
             this.eggState = 'evano_prologue';
             console.log('Evano彩蛋铺垫触发');
             if (typeof window.enterEvanoPrologue === 'function') window.enterEvanoPrologue();
