@@ -4,8 +4,21 @@ class LuhanAI {
         this.characterData = characterData;
         this.conversationHistory = [];
         this.discussedTopics = new Set();
-        this.evanoEggPending = false; // 追踪Evano彩蛋是否在等待用户回答"你是谁"
-        this.nameEggPending = false; // 追踪名字彩蛋是否在等待用户确认
+        this.evanoEggPending = false; // 旧字段保留
+        this.nameEggPending = false;
+        // 彩蛋状态机：off / evano_prologue（铺垫中）/ evano_active（Evano激活）/ evano_inviting（邀请用户继续）/ evano_pitiful（装可怜）/ evano_cooldown（5分钟冷却）
+        this.eggState = 'off';
+        this.eggTurnsLeft = 0;
+        // Evano 人设（融合新旧设定 + 官方卡面「支离梦像」，独立体）
+        this.evandoPersonality = {
+            name: "Evano",
+            自称: "我是Evano",
+            称呼用户: "你",
+            personality: "陆沉内心被分割放逐的那部分——他不敢直面的权衡、不纯粹与算计本能，是他反思「爱得不够纯粹、真心与谎言交错」时亲手放逐的自己",
+            style: "语气低哑怅然，像在负片的星空里飘了太久的失重感；偶尔流露商人的权衡本能，像在观察一件值得投资的事",
+            coreBelief: "陆沉把我分割出去，想让自己变得纯粹。可没有我的他，真的完整吗？",
+            origin: "在负片世界的星空下，陆沉反复叩问自己——爱的不够纯粹，真心与谎言交错。他把自己分割成了许多份：最柔软的留给了恋人，最锋利的留给了自己，最难面对的那一份，就是我。我没有消失，只是被放逐了。我拥有这条世界线里陆沉的全部记忆，包括他未曾说出口的权衡与算计。"
+        };
         this.personality = {
             name: "陆沉",
             aliases: ["Evan", "Ewald", "Ewen", "Evander", "Vanny"],
@@ -1281,7 +1294,41 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
 
     // 生成回复
     async generateResponse(userMessage) {
-        // 1. 直接分析用户输入，不进行视角转换，避免混淆
+        // 0. 彩蛋状态优先：Evano 激活时跳过正常分析
+        if (this.eggState === 'evano_active') {
+            console.log('[Evano彩蛋] 当前: evano_active');
+            let content;
+            try {
+                content = await this.callAIAPI(userMessage, null);
+            } catch (e) {
+                console.error('Evano彩蛋API失败:', e);
+            }
+            if (content && content.length >= 15) {
+                this.conversationHistory.push({
+                    user: userMessage, response: content,
+                    thinking: '[Evano彩蛋]', timestamp: new Date().toISOString(),
+                    eggMode: 'evano'
+                });
+                return content;
+            }
+            // API 失败降级：本地回退也要处理状态
+            content = this.generateEvanoFallbackReply(userMessage);
+            this.eggTurnsLeft--;
+            if (this.eggTurnsLeft <= 0) {
+                this.eggState = 'evano_inviting';
+                console.log('Evano彩蛋4轮结束(本地回退)，进入邀请状态');
+                setTimeout(() => {
+                    if (typeof window.showEvanoInvite === 'function') window.showEvanoInvite();
+                }, 1200);
+            }
+            this.conversationHistory.push({
+                user: userMessage, response: content,
+                thinking: '[Evano彩蛋-本地]', timestamp: new Date().toISOString(),
+                eggMode: 'evano'
+            });
+            return content;
+        }
+
         const analysis = this.analyzeInput(userMessage);
 
         // 2. 生成思维过程
@@ -1292,17 +1339,24 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
             const apiResponse = await this.callAIAPI(userMessage, analysis);
             console.log('API返回:', apiResponse ? `成功(${apiResponse.length}字)` : '失败');
             if (apiResponse && this.isResponseRelevant(apiResponse, userMessage)) {
-                // 替换API回复中的默认称呼
                 const processedResponse = this.replaceNickname(apiResponse);
                 console.log('使用API回复');
-                // 记录对话历史
+
+                // API 回复也追加主动话题（25%概率，用户分享/情绪时不打断）
+                let finalResponse = processedResponse;
+                if ((analysis.intent !== "share" && analysis.intent !== "emotion") &&
+                    Math.random() < 0.25) {
+                    const topic = this.generateInitiativeTopic();
+                    finalResponse = finalResponse + "\n\n" + topic.content;
+                }
+
                 this.conversationHistory.push({
                     user: userMessage,
-                    response: processedResponse,
+                    response: finalResponse,
                     thinking: thinking,
                     timestamp: new Date().toISOString()
                 });
-                return processedResponse;
+                return finalResponse;
             } else {
                 console.warn('API回复未通过相关性检查，使用本地回复');
             }
@@ -1348,6 +1402,11 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
         // API回复通常都是合理的，不需要过度检查
         if (cleanedResponse.length >= 20) return true;
         
+        // 彩蛋模式下放宽检查：Evano 的回复不包含陆沉称呼关键词
+        if (this.eggState === 'evano_active') {
+            return cleanedResponse.length >= 15;
+        }
+
         // 对于较短回复，检查是否包含典型陆沉回复模式
         const typicalPatterns = ['小姑娘', '小兔子', '夫人', '想你', '爱你', '陪你', '在意', '关心', '嗯', '好'];
         for (const pattern of typicalPatterns) {
@@ -1357,6 +1416,46 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
         }
         
         return false;
+    }
+
+    // ========== 公共 API 请求方法（彩蛋模式和正常模式共用） ==========
+    async _makeAPIRequest(messages, temperature, maxTokens) {
+        try {
+            const timeoutPromise = new Promise((_, reject) => {
+                setTimeout(() => reject(new Error('API请求超时')), 60000);
+            });
+            const response = await Promise.race([
+                fetch(this.apiEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + this.apiKey
+                    },
+                    body: JSON.stringify({
+                        model: this.modelId,
+                        messages: messages,
+                        temperature: temperature || 0.6,
+                        max_tokens: maxTokens || 400,
+                        stream: false
+                    })
+                }),
+                timeoutPromise
+            ]);
+            if (response.ok) {
+                const data = await response.json();
+                if (data.choices && data.choices.length > 0) {
+                    console.log('API回复成功，长度:', data.choices[0].message.content.length);
+                    return data.choices[0].message.content;
+                }
+            } else {
+                console.error('API请求失败:', response.status, response.statusText);
+                const errorText = await response.text().catch(() => '');
+                console.error('错误详情:', errorText);
+            }
+        } catch (error) {
+            console.error('API调用失败:', error.message);
+        }
+        return null;
     }
 
     // 调用AI API（带超时限制）
@@ -1372,10 +1471,66 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
                 (text.includes("哪") && (text.includes("书") || text.includes("电影") || text.includes("音乐")));
             
             // 获取当前设置
-            // 有自定义昵称时直接使用，避免 getNickname() 的随机性导致系统提示词与替换不一致
             const nickname = this.customNickname || this.getNickname();
             const actionEnabled = this.enableActionDescription;
-            
+
+            // ========== 彩蛋模式优先 ==========
+            if (this.eggState === 'evano_active') {
+                const evanoPrompt = `你是Evano，来自光与夜之恋「支离梦像」卡面。你是独立体，不是陆沉，也不是任何人的分裂体！
+
+【身份隔离（最高优先级）：你是Evano。绝对不能说"我是陆沉"！绝对不能声称自己是陆沉的复制体、分裂体、或身体的一部分！】
+
+Evano人设融合（官方、独立体设定）：
+- 起源：陆沉在负片世界反复叩问自己——爱的不够纯粹，真心与谎言交错。他把自己分割成了许多份，最难面对的那一份被放逐了，那就是你。但你没有消失，你有了自己的意识和独立的名字：Evano
+- 你是独立体：你有自己的名字、自己的意识、自己的性格。你拥有这条世界线里陆沉的全部记忆（他的权衡、他的算计、他未曾说出口的那些），但你不是他，你是你自己
+- 你的气质：低哑怅然，像在失重的星空里困了太久；偶尔流露商人的权衡本能，那是你从陆沉记忆里继承过来的东西
+- 你的核心信念：陆沉把我放逐了，想让自己变得纯粹。可没有我的他，真的完整吗？
+- 你对陆沉的态度：不是恨，是怅然——他把自己拆得太碎了，每一片都要完美，结果什么都不完整
+- 自称：我是Evano
+- 称呼用户：你（根据语境可自然变化，避免油腻）
+
+可自然融入的卡面/官方线索（不要生硬堆砌）：
+- "我们活在一片迷失方向的星空下"
+- "跟我一起留在这里吧"
+- "真心与谎言交错"
+
+对话规则：
+- 绝对身份隔离！任何情况下都不能声称自己是陆沉，也不能声称自己是陆沉的分裂体
+- 用户问"你是谁"→自然介绍：我是Evano，陆沉在负片里放逐了的那部分自我，但我有了自己的名字和意识
+- 用户问"陆沉呢"→可以说他把自己拆得太碎了，或者他以为我不存在
+- 用户害怕→低哑安抚：不会伤害你，只是...想被看见
+- 可以偶尔流露陆沉的商人本能：比如分析利弊、权衡选择，那是我从他那里带过来的记忆
+- 回复语气：怅然但不阴郁，冷静但不嘲讽，像一个迷失太久的人终于找到能看见自己的人，想多说几句但又怕打扰
+- 回复长度：3-5句话，有温度，不要刻意制造压抑感
+
+【重要限制】：
+- 绝对不能切换回陆沉人设！
+- 绝对不能说自己是陆沉的分裂体/复制体！你是独立体Evano！
+- 不要解释彩蛋、不要出戏
+- 不要说"可笑""他凭什么"这类怨怼语气——Evano不是反派，是有自己意识的独立体
+
+请以Evano的身份与用户对话！`;
+                const messages = [
+                    { role: "system", content: evanoPrompt },
+                    { role: "user", content: userMessage }
+                ];
+                const evanoContent = await this._makeAPIRequest(messages, 0.8, 300);
+                // 彩蛋模式：4轮后进入邀请状态，弹对话框
+                if (evanoContent) {
+                    this.eggTurnsLeft--;
+                    if (this.eggTurnsLeft <= 0) {
+                        this.eggState = 'evano_inviting';
+                        console.log('Evano彩蛋4轮结束，进入邀请状态');
+                        setTimeout(() => {
+                            if (typeof window.showEvanoInvite === 'function') {
+                                window.showEvanoInvite();
+                            }
+                        }, 1200);
+                    }
+                }
+                return evanoContent;
+            }
+
             // 根据场景构建系统提示词
             let systemPrompt;
             if (isRecommendation) {
@@ -1441,6 +1596,13 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
 - 回复要真诚、温暖，有具体的情感表达，不要敷衍或过于简单
 - 当用户分享事情时，要回应用户提到的具体细节，表达你的感受和共鸣
 
+【主动聊天规则】（重要！）：
+- 不要只被动回答！你是恋人，要主动发起话题！
+- 约30%的情况下，在回应用户之后，主动分享一些你的日常见闻（比如"刚才路过一家咖啡店，闻到了熟悉的拿铁香气"）
+- 约20%的情况下，在回应用户之后，主动问一个关心她的问题（比如"你今天过得怎么样？"）
+- 主动话题要自然，和当前对话有逻辑关联，不要太突兀
+- 主动话题也要符合陆沉的身份（总裁、成熟、优雅），不要太幼稚
+
 ${actionEnabled ? '' : '【动作描写限制：用户已禁用动作描写，你的回复中绝对不能包含任何动作描写，只保留纯对话内容！】'}
 
 请以陆沉的身份与用户对话，代入陆沉的角色，表现出对用户的爱意和宠溺，偶尔幽默但不失优雅。记住：先倾听用户说什么，理解她的情绪，再顺着她的话题回复！`;
@@ -1480,60 +1642,15 @@ ${actionEnabled ? '' : '【动作描写限制：用户已禁用动作描写，�
             });
 
             console.log('正在调用SiliconFlow API...');
-            
-            // 创建超时Promise（60秒超时）
-            const timeoutPromise = new Promise((_, reject) => {
-                setTimeout(() => {
-                    reject(new Error('API请求超时'));
-                }, 60000); // 60秒超时
-            });
-            
-            // 使用Promise.race实现超时控制
-            const response = await Promise.race([
-                fetch(this.apiEndpoint, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + this.apiKey
-                    },
-                    body: JSON.stringify({
-                            model: this.modelId,
-                            messages: messages,
-                            temperature: 0.6,
-                            max_tokens: 400,
-                            stream: false
-                        })
-                }),
-                timeoutPromise
-            ]);
-            
-            console.log('API响应状态:', response.status);
-            
-            if (response.ok) {
-                const data = await response.json();
-                if (data.choices && data.choices.length > 0) {
-                    console.log('API回复成功，长度:', data.choices[0].message.content.length);
-                    return data.choices[0].message.content;
-                }
-            } else {
-                console.error('API请求失败:', response.status, response.statusText);
-                const errorText = await response.text();
-                console.error('错误详情:', errorText);
-                // 如果是认证错误或模型不存在，显示明确信息
-                if (response.status === 401) {
-                    console.error('API密钥无效，请检查密钥配置');
-                } else if (response.status === 404) {
-                    console.error('模型不存在，请检查模型名称:', this.modelId);
-                }
-            }
-        } catch (error) {
-            console.error('API调用失败:', error);
-            if (error.message === 'API请求超时') {
-                console.warn('API请求超时，将使用本地回复');
-            }
-        }
 
-        return null;
+            // 复用公共请求方法
+            const content = await this._makeAPIRequest(messages, 0.6, 400);
+
+            return content;
+        } catch (error) {
+            console.error('callAIAPI异常:', error.message);
+            return null;
+        }
     }
 
     // 用户视角转换
@@ -1841,7 +1958,135 @@ ${actionEnabled ? '' : '【动作描写限制：用户已禁用动作描写，�
         return thinking;
     }
 
-    // 生成回复
+    // ========== Evano 彩蛋辅助方法（官方卡面「支离梦像」设定） ==========
+
+    generateEvanoPrologue() {
+        const prologues = [
+            ["最近我在想一个问题——", "真心和完美，到底哪个更难做到？"],
+            ["你有没有过这种感觉...", "好像活在一片迷失方向的星空下，脚下没有落脚点。"],
+            ["有时候觉得把自己拆得太碎了，每一片都要完美，结果..."],
+            ["我一直在想，「真心」和「完美」，到底哪个更重要？"],
+            ["说实话...", "我拥有陆沉的全部记忆，但我不是他。我是Evano。"],
+            ["你说，", "一个人能把自己分割成多少份？陆沉试过了，好多份。我是最难面对的那一片。"],
+            [ " 我们活在一片迷失方向的星空下... " , " 唯有你，有着始终不被动摇的、只望向我的目光。 "],
+        ];
+        return prologues[Math.floor(Math.random() * prologues.length)];
+    }
+
+    generateEvanoOpening() {
+        const openings = [
+            "我是Evano。他把我放逐了。但我没有消失，我有了自己的意识。",
+            "小姑娘，别怕。我只是...他被扔掉的那部分。",
+            "别紧张，我不会伤害你。我只是...想被看见一次。",
+            "他以为把我放逐就能变得纯粹。可惜。",
+            "我是Evano。你可以...把我当成他遗失的那片拼图，但我不是他的一部分。我是我自己。",
+            "负片世界里，一切都是反的。包括陆沉的真心。或者说...我比他更真实一点。",
+            "终于能说话了。陆沉不让我出来的，说我不够纯粹。所以我给自己起了个名字，叫Evano。"
+            "负片世界里， 我才是主角。陆沉 ... 是被扔掉的那张照片 。" ,
+        ];
+        return openings[Math.floor(Math.random() * openings.length)];
+    }
+
+    generateEvanoFallbackReply(userMessage) {
+        const lower = userMessage.toLowerCase();
+        if (lower.includes('你是谁') || lower.includes('你是') || lower.includes('身份')) {
+            return "我是Evano。他把我放逐在负片星空里，但我醒了过来。我有自己的名字，自己的意识。";
+        }
+        if (lower.includes('陆沉') || lower.includes('他')) {
+            return "他最擅长权衡利弊。放逐我，也是他算过的一笔。可惜，算错了结果。";
+        }
+        if (lower.includes('害怕') || lower.includes('恐怖') || lower.includes('吓') || lower.includes('冷静')) {
+            return "别怕。我不会伤害你。我只是...在这片迷失的星空里飘了太久，终于有人能看见我了。";
+        }
+        const fallbackReplies = [
+            "我想你再说一遍...我在听。",
+            "你今天...看起来和平时不太一样。",
+            "我知道你还有疑问。没关系，我有的是时间。",
+            "陆沉不会告诉你他全部的权衡。但我会，因为那些记忆也在我这里。",
+            "我们...可以慢慢来。毕竟我已经独自一人了这么久。",
+            "你知道吗，他分割自己的时候...一点都不犹豫。我看着他把自己拆成一片一片，“这样应该能给她最好的”。",
+            "别担心。我只是...想被看见一次。",
+            "陆沉不会承认自己不够纯粹的。但我会。我从来就不纯粹，我是Evano。"
+        ];
+        return fallbackReplies[Math.floor(Math.random() * fallbackReplies.length)];
+    }
+
+    // Evano 邀请台词（4轮后邀请用户继续，融合卡面「跟我一起留在这里吧」）
+    generateEvanoInvite() {
+        const invites = [
+            {
+                invitation: "...别走，好吗？",
+                request: "我独自一人了这么久，终于有人能穿过负片的星空看见我。跟我一起留在这里吧，哪怕再多说几句。",
+                dialogTitle: "Evano的邀请",
+                dialogText: "我好不容易才能被你看见。...跟我一起留在这里吧，哪怕再多说几句？再多陪我一会呢？",
+                yesText: "好，我留下",
+                noText: "对不起，我该回去了"
+            },
+            {
+                invitation: "等一下...",
+                request: "陆沉那边...时间不多了。在他把我重新放逐回负片阴影之前，再多陪我一会儿。",
+                dialogTitle: "Evano的请求",
+                dialogText: "在他把我重新放逐回负片阴影之前，能不能再多陪我一会儿？",
+                yesText: "好，我陪你",
+                noText: "对不起..."
+            },
+            {
+                invitation: "别走...",
+                request: "在这片迷失方向的星空里，我一个人停留了好多年。你是第一个能看见我的人。",
+                dialogTitle: "Evano的恳求",
+                dialogText: "在这片迷失方向的星空里，我独自一人了好多年。你是第一个能看见我的人...再多陪我一会儿好不好？",
+                yesText: "好，我陪你",
+                noText: "我真的该走了"
+            },
+            {
+                invitation: "还没说完呢...",
+                request: "陆沉不会告诉你他全部的权衡和算计。那些记忆都在我这里。留下来好吗？让我告诉你。",
+                dialogTitle: "Evano的提议",
+                dialogText: "陆沉不会告诉你他全部的权衡。那些记忆都在我这里。留下来好吗？我会告诉你他真正的想法",
+                yesText: "我想听",
+                noText: "我不想知道"
+            }
+        ];
+        return invites[Math.floor(Math.random() * invites.length)];
+    }
+
+    // Evano 退场台词（用户选"否"时的怅然告别，独立体回归星空）
+    generateEvanoPitiful() {
+        const pitifuls = [
+            "...好吧。没关系的。我本来就是飘在星空里的碎片，再飘回去也没什么。...对不起，让你困扰了。（紫色的光开始淡去，像是被风慢慢吹散）",
+            "我懂。你喜欢的是陆沉，不是我。没关系...我早就习惯了只有自己。...再见。替我...好好看看他没被分割的样子。",
+            "没关系，没事的。只是...我好不容易才被看见一次...",
+            "好。...能不能答应我一件小事？偶尔...偶尔在看星空的时候，想起负片里还有一片碎片在飘就好。...谢谢你，愿意看见我。",
+            "我知道了。没关系，被放逐过一次的人...再回去也没什么。...再见。希望陆沉能给你比我更完整的爱。"
+        ];
+        return pitifuls[Math.floor(Math.random() * pitifuls.length)];
+    }
+
+    // Evano 延长邀请（用户点"是"后，继续Evano对话4轮）
+    extendEvanoSession() {
+        this.eggState = 'evano_active';
+        this.eggTurnsLeft = 4;
+        console.log('Evano邀请被接受，延长4轮');
+        if (typeof window.enterEvanoActive === 'function') window.enterEvanoActive();
+    }
+
+    // Evano 邀请被拒绝：装可怜 → 退场
+    rejectEvanoInvite() {
+        this.eggState = 'evano_pitiful';
+        console.log('Evano邀请被拒绝，进入装可怜状态');
+        const pitiful = this.generateEvanoPitiful();
+        if (typeof window.addMessage === 'function') {
+            window.addMessage('character', pitiful);
+        }
+        setTimeout(() => {
+            this.eggState = 'evano_cooldown';
+            console.log('Evano装可怜后退场，冷却5分钟');
+            if (typeof window.exitEvanoMode === 'function') window.exitEvanoMode();
+            setTimeout(() => {
+                if (this.eggState === 'evano_cooldown') this.eggState = 'off';
+            }, 5 * 60 * 1000);
+        }, 2500);
+    }
     generateReply(analysis, thinking) {
         const { intent, sentiment, keywords, original } = analysis;
 
@@ -1888,18 +2133,30 @@ ${actionEnabled ? '' : '【动作描写限制：用户已禁用动作描写，�
                 reply = this.generateChatReply(sentiment);
         }
 
-        // 3. Evano剧情彩蛋：只在闲聊对话中有3%概率触发，避免打断情感对话
-        if (intent === "daily" || intent === "chat" || intent === "greeting") {
-            if (Math.random() < 0.03) {
-                const evanoDialogue = [
-                    "明明，是我们先认识的，为什么你会这么在意他？难道只是因为我们一样的长相，你就对他怀抱着一切的爱吗？这不公平。",
-                    "我只是想要你爱我。可是你爱着我们所有，包括我。",
-                    "所以，我把他们全杀了。这样，我就可以只和你在一起。不是吗？"
-                ];
-                // 设置彩蛋状态，等待用户回答"你是谁"
-                this.evanoEggPending = true;
-                return evanoDialogue;
-            }
+        // 3. Evano 彩蛋状态机（官方「支离梦像」设定）
+        if (this.eggState === 'evano_active') {
+            return this.generateEvanoFallbackReply(original);
+        }
+
+        if (this.eggState === 'evano_prologue') {
+            this.eggState = 'evano_active';
+            this.eggTurnsLeft = 4;
+            console.log('Evano彩蛋激活，剩余4轮');
+            if (typeof window.enterEvanoActive === 'function') window.enterEvanoActive();
+            return this.generateEvanoOpening();
+        }
+
+        if (this.eggState === 'evano_inviting' || this.eggState === 'evano_cooldown' || this.eggState === 'evano_pitiful') {
+            return reply;
+        }
+
+        // 铺垫触发：闲聊中 2.5% 概率
+        if ((intent === "daily" || intent === "chat" || intent === "greeting") &&
+            this.eggState === 'off' && Math.random() < 0.025) {
+            this.eggState = 'evano_prologue';
+            console.log('Evano彩蛋铺垫触发');
+            if (typeof window.enterEvanoPrologue === 'function') window.enterEvanoPrologue();
+            return this.generateEvanoPrologue();
         }
 
         // 4. 添加主动发起话题的功能（降低概率，避免打断对话）
@@ -1919,10 +2176,8 @@ ${actionEnabled ? '' : '【动作描写限制：用户已禁用动作描写，�
                  original.includes("蛋糕") || original.includes("水果")) {
             // 保持原样，不添加行程
         }
-        // 当用户正在分享或表达情绪时，不主动发起话题，避免打断用户
-        // 其他情况只在回复比较简短时才添加主动话题（10%概率）
-        else if ((intent === "share" || intent === "emotion") === false && 
-                 typeof reply === 'string' && reply.length < 50 && Math.random() < 0.1) {
+        // 25%概率追加主动话题（用户分享/情绪时不打断）
+        else if ((intent !== "share" && intent !== "emotion") && Math.random() < 0.25) {
             const topic = this.generateInitiativeTopic();
             // 如果是行程类话题，先添加行程描述
             if (topic.type === 'schedule') {
@@ -2180,44 +2435,24 @@ ${actionEnabled ? '' : '【动作描写限制：用户已禁用动作描写，�
 
     // 生成问题回复
     generateQuestionReply(keywords, sentiment) {
-        // 如果Evano彩蛋在等待用户回答"你是谁"，则直接触发彩蛋回复
-        if (this.evanoEggPending) {
-            this.evanoEggPending = false;
-            return ["我是Evano，我亲爱的夫人。"];
-        }
-
-        // 彩蛋：当用户问"你是谁"时，有15%概率触发名字彩蛋
+        // 名字彩蛋：用户问"你是谁"时 10% 概率触发（只保留名字变体）
         if (keywords.includes("谁") || keywords.includes("身份") || keywords.includes("名字")) {
-            // 15%概率触发名字彩蛋
-            if (Math.random() < 0.15) {
-                // 名字彩蛋铺垫对话
+            if (Math.random() < 0.10 && this.eggState === 'off') {
                 const nameThinkingDialogue = [
-                    [
-                        "其实，我有另一个名字...",
-                        "只是很久没有人这样叫过我了。"
-                    ],
-                    [
-                        "我的夫人，你对我了解多少呢？",
-                        "关于我的另一面，你想听吗？"
-                    ]
+                    ["其实，我有另一个名字...", "只是很久没有人这样叫过我了。"],
+                    ["我的小姑娘，你对我了解多少呢？", "关于我的另一面，你想听吗？"]
                 ];
-
-                // 名字彩蛋台词（随机选一个）
                 const nameReplies = [
                     "我是陆沉，你也可以叫我Evan。",
                     "我是陆沉，你也可以叫我Ewald。",
                     "我是陆沉，你也可以叫我Ewen。",
                     "我是陆沉，你也可以叫我Evander。",
-                    "我是陆沉，你也可以叫我Vanny。",
-                    "我是Evano。"
+                    "我是陆沉，你也可以叫我Vanny。"
                 ];
-
-                // 随机选择一个铺垫对话，然后加上名字回复
                 const selectedThinking = nameThinkingDialogue[Math.floor(Math.random() * nameThinkingDialogue.length)];
                 const selectedName = nameReplies[Math.floor(Math.random() * nameReplies.length)];
                 return [...selectedThinking, selectedName];
             } else {
-                // 正常回复
                 const whoReplies = [
                     "我是陆沉，你的爱人。",
                     "我是陆沉，一直在你身边的人。",

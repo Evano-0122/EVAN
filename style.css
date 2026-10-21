@@ -1291,6 +1291,167 @@ body {
     position: relative;
 }
 
+/* ========== Evano 彩蛋模式（「支离梦像」——深蓝紫星空色调） ========== */
+.container.evano-mode .chat-area {
+    background: linear-gradient(135deg, rgba(15, 20, 50, 0.85) 0%, rgba(25, 15, 55, 0.9) 50%, rgba(10, 25, 45, 0.85) 100%) !important;
+    border: 1px solid rgba(120, 100, 200, 0.35) !important;
+    box-shadow: 0 0 50px rgba(100, 80, 180, 0.25), inset 0 0 80px rgba(50, 30, 100, 0.3) !important;
+    animation: evanoStarry 4s ease-in-out infinite;
+}
+
+.container.evano-mode .chat-area::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image:
+        radial-gradient(1px 1px at 20% 30%, rgba(200, 180, 255, 0.8) 50%, transparent 100%),
+        radial-gradient(1px 1px at 80% 10%, rgba(180, 200, 255, 0.6) 50%, transparent 100%),
+        radial-gradient(1px 1px at 40% 70%, rgba(220, 200, 255, 0.7) 50%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 60% 40%, rgba(255, 230, 255, 0.5) 50%, transparent 100%),
+        radial-gradient(1px 1px at 90% 80%, rgba(180, 220, 255, 0.7) 50%, transparent 100%),
+        radial-gradient(1px 1px at 10% 90%, rgba(200, 180, 255, 0.6) 50%, transparent 100%),
+        radial-gradient(1px 1px at 70% 60%, rgba(255, 200, 255, 0.5) 50%, transparent 100%),
+        radial-gradient(1px 1px at 30% 50%, rgba(180, 200, 255, 0.7) 50%, transparent 100%);
+    pointer-events: none;
+    z-index: 0;
+    animation: evanoTwinkle 3s ease-in-out infinite;
+}
+
+.container.evano-mode .chat-header {
+    background: linear-gradient(180deg, rgba(100, 80, 180, 0.2) 0%, transparent 100%) !important;
+    border-bottom: 1px solid rgba(120, 100, 200, 0.25) !important;
+}
+
+.container.evano-mode .character-message .content {
+    background: linear-gradient(135deg, rgba(40, 30, 80, 0.9) 0%, rgba(25, 20, 55, 0.95) 100%) !important;
+    border: 1px solid rgba(130, 110, 210, 0.4) !important;
+    color: #d8d0f0 !important;
+    box-shadow: 0 0 20px rgba(100, 80, 180, 0.2) !important;
+}
+
+.container.evano-mode .user-message .content {
+    background: rgba(20, 18, 45, 0.7) !important;
+    border: 1px solid rgba(120, 100, 200, 0.25) !important;
+    color: #c8c0e0 !important;
+}
+
+.container.evano-mode .character-message .avatar {
+    border: 2px solid rgba(130, 110, 210, 0.6) !important;
+    box-shadow: 0 0 25px rgba(100, 80, 180, 0.5) !important;
+    filter: saturate(0.7) hue-rotate(10deg) !important;
+}
+
+@keyframes evanoStarry {
+    0%, 100% { box-shadow: 0 0 50px rgba(100, 80, 180, 0.25), inset 0 0 80px rgba(50, 30, 100, 0.3); }
+    50% { box-shadow: 0 0 70px rgba(120, 100, 200, 0.4), inset 0 0 100px rgba(60, 40, 120, 0.4); }
+}
+
+@keyframes evanoTwinkle {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+}
+
+/* 铺垫阶段：轻微暗示 */
+.container.evano-prologue .chat-area {
+    border: 1px solid rgba(120, 100, 200, 0.3) !important;
+    box-shadow: 0 0 20px rgba(100, 80, 180, 0.12) !important;
+}
+.container.evano-prologue .character-message .content {
+    border: 1px solid rgba(120, 100, 200, 0.25) !important;
+}
+
+/* ========== Evano 邀请对话框 ========== */
+#evano-invite-modal {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 999999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: evanoModalFadeIn 0.4s ease;
+}
+.evano-invite-backdrop {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(10, 5, 25, 0.85);
+    backdrop-filter: blur(6px);
+}
+.evano-invite-dialog {
+    position: relative;
+    z-index: 1;
+    background: linear-gradient(135deg, rgba(20, 15, 50, 0.98) 0%, rgba(30, 20, 60, 0.98) 100%);
+    border: 1px solid rgba(130, 110, 210, 0.5);
+    border-radius: 16px;
+    padding: 32px;
+    max-width: 380px;
+    width: 90%;
+    box-shadow: 0 0 60px rgba(100, 80, 180, 0.4), inset 0 0 40px rgba(50, 30, 100, 0.3);
+    animation: evanoModalSlideIn 0.5s ease;
+}
+.evano-invite-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #d8d0f0;
+    text-align: center;
+    margin-bottom: 16px;
+    letter-spacing: 2px;
+}
+.evano-invite-body {
+    font-size: 15px;
+    color: #b8b0d0;
+    line-height: 1.8;
+    text-align: center;
+    margin-bottom: 24px;
+}
+.evano-invite-buttons {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+.evano-invite-btn {
+    padding: 10px 24px;
+    border-radius: 10px;
+    border: none;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    letter-spacing: 1px;
+}
+.evano-invite-yes {
+    background: linear-gradient(135deg, #6a5acd 0%, #4b3f8f 100%);
+    color: #fff;
+    border: 1px solid rgba(150, 130, 230, 0.5);
+    box-shadow: 0 0 15px rgba(106, 90, 205, 0.4);
+}
+.evano-invite-yes:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 25px rgba(106, 90, 205, 0.7);
+}
+.evano-invite-no {
+    background: rgba(40, 30, 70, 0.8);
+    color: #a098b8;
+    border: 1px solid rgba(120, 100, 180, 0.3);
+}
+.evano-invite-no:hover {
+    background: rgba(50, 35, 85, 0.9);
+    color: #c0b8d8;
+}
+@keyframes evanoModalFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes evanoModalSlideIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@media (max-width: 600px) {
+    .evano-invite-dialog { padding: 24px; max-width: 320px; }
+    .evano-invite-title { font-size: 16px; }
+    .evano-invite-body { font-size: 14px; }
+    .evano-invite-btn { padding: 8px 16px; font-size: 13px; }
+}
+
 .chat-header {
     padding: 20px 30px;
     background: linear-gradient(180deg, rgba(184, 17, 36, 0.08) 0%, transparent 100%);

@@ -37,6 +37,57 @@ function markLetterAsRead(id) {
     }
 }
 
+// ========== Evano 彩蛋视觉效果 ==========
+window.enterEvanoPrologue = function() {
+    const container = document.querySelector('.container');
+    if (container) {
+        container.classList.remove('evano-mode');
+        container.classList.add('evano-prologue');
+    }
+};
+window.enterEvanoActive = function() {
+    const container = document.querySelector('.container');
+    if (container) {
+        container.classList.remove('evano-prologue');
+        container.classList.add('evano-mode');
+    }
+};
+window.exitEvanoMode = function() {
+    const container = document.querySelector('.container');
+    if (container) {
+        container.classList.remove('evano-mode', 'evano-prologue');
+    }
+};
+
+// Evano 邀请对话框
+window.showEvanoInvite = function() {
+    if (!window.luhanAI || !window.luhanAI.generateEvanoInvite) return;
+    const invite = window.luhanAI.generateEvanoInvite();
+    if (typeof window.addMessage === 'function') {
+        window.addMessage('character', invite.invitation + ' ' + invite.request);
+    }
+    setTimeout(() => {
+        let modal = document.getElementById('evano-invite-modal');
+        if (modal) modal.remove();
+        modal = document.createElement('div');
+        modal.id = 'evano-invite-modal';
+        modal.innerHTML = '<div class="evano-invite-backdrop"></div><div class="evano-invite-dialog"><div class="evano-invite-title">' + invite.dialogTitle + '</div><div class="evano-invite-body">' + invite.dialogText + '</div><div class="evano-invite-buttons"><button class="evano-invite-btn evano-invite-yes">' + invite.yesText + '</button><button class="evano-invite-btn evano-invite-no">' + invite.noText + '</button></div></div>';
+        document.body.appendChild(modal);
+        modal.querySelector('.evano-invite-backdrop').onclick = function() {
+            if (window.luhanAI && window.luhanAI.rejectEvanoInvite) window.luhanAI.rejectEvanoInvite();
+            modal.remove();
+        };
+        modal.querySelector('.evano-invite-yes').onclick = function() {
+            if (window.luhanAI && window.luhanAI.extendEvanoSession) window.luhanAI.extendEvanoSession();
+            modal.remove();
+        };
+        modal.querySelector('.evano-invite-no').onclick = function() {
+            if (window.luhanAI && window.luhanAI.rejectEvanoInvite) window.luhanAI.rejectEvanoInvite();
+            modal.remove();
+        };
+    }, 800);
+};
+
 window.onload = function() {
     loadLetterBox();
     initEmojiPicker();
@@ -1095,6 +1146,7 @@ async function sendMessage() {
 }
 
 function addMessage(type, content) {
+    window.addMessage = addMessage;
     const chatMessages = document.getElementById('chat-messages');
     const messageDiv = document.createElement('div');
     messageDiv.className = `message ${type}-message`;
@@ -1425,6 +1477,7 @@ function adjustMobileLayout(hasAnnouncement) {
 let luhanAI;
 try {
     luhanAI = new LuhanAI();
+    window.luhanAI = luhanAI;
     console.log('AI初始化成功');
 } catch (error) {
     console.error('AI初始化失败:', error);
