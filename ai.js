@@ -198,28 +198,79 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
         ];
 
         try {
-            const response = await fetch(this.apiEndpoint, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + this.apiKey
-                },
-                body: JSON.stringify({
-                    model: this.modelId,
-                    messages: messages,
-                    temperature: 0.7, // 稍微高一点，让回信更有创意和俏皮感
-                    max_tokens: Math.max(800, letterLength * 2.0) // 根据来信长度动态调整，最小回复长度800
-                })
-            });
+            // 添加 60 秒超时 + 重试机制
+            const MAX_RETRIES = 2;
+            let lastError = null;
 
-            if (response.ok) {
-                const data = await response.json();
-                if (data.choices && data.choices.length > 0) {
-                    return data.choices[0].message.content;
+            for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+                try {
+                    const timeoutPromise = new Promise((_, reject) => {
+                        setTimeout(() => reject(new Error('信件API请求超时')), 60000);
+                    });
+
+                    const fetchPromise = fetch(this.apiEndpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + this.apiKey
+                        },
+                        body: JSON.stringify({
+                            model: this.modelId,
+                            messages: messages,
+                            temperature: 0.7,
+                            max_tokens: Math.max(800, letterLength * 2.0)
+                        })
+                    });
+
+                    const response = await Promise.race([fetchPromise, timeoutPromise]);
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.choices && data.choices.length > 0) {
+                            let letterContent = data.choices[0].message.content;
+                            // 替换信件中的默认称呼
+                            letterContent = this.replaceNickname(letterContent);
+                            console.log('信件API回复成功');
+                            return letterContent;
+                        }
+                    } else {
+                        const errorText = await response.text().catch(() => '');
+                        console.warn(`信件API返回错误状态: ${response.status} (第${attempt + 1}次尝试)`, errorText);
+
+                        // 只对 429（限流）和 5xx（服务器错误）进行重试
+                        if ((response.status === 429 || response.status >= 500) && attempt < MAX_RETRIES) {
+                            const delay = Math.pow(2, attempt) * 1000; // 指数退避：1s, 2s
+                            console.log(`等待 ${delay}ms 后重试...`);
+                            await new Promise(r => setTimeout(r, delay));
+                            continue;
+                        }
+
+                        // 401/404 等客户端错误直接记录，不重试
+                        if (response.status === 401) {
+                            console.error('信件API认证失败：密钥无效');
+                        } else if (response.status === 404) {
+                            console.error('信件API模型不存在：', this.modelId);
+                        }
+                        break;
+                    }
+                } catch (fetchError) {
+                    lastError = fetchError;
+                    console.warn(`信件API调用异常 (第${attempt + 1}次尝试):`, fetchError.message);
+
+                    // 超时或网络错误进行重试
+                    if (attempt < MAX_RETRIES) {
+                        const delay = Math.pow(2, attempt) * 1000;
+                        console.log(`等待 ${delay}ms 后重试...`);
+                        await new Promise(r => setTimeout(r, delay));
+                        continue;
+                    }
                 }
             }
+
+            // 所有重试都失败，回退到备用信件生成
+            console.warn('信件API所有重试均失败，使用备用信件生成', lastError);
         } catch (error) {
-            console.error('信件API调用失败:', error);
+            console.error('信件API调用严重失败:', error);
         }
 
         // 备用回信生成
@@ -228,7 +279,8 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
     
     // 生成备用信件
     generateFallbackLetter(content, hasMissing, length) {
-        const greeting = this.getNickname();
+        // 有自定义昵称时直接使用，避免随机性导致称呼不一致
+        const greeting = this.customNickname || this.getNickname();
         
         // 开场白选项 - 更丰富的表达方式
         const openingOptions = [
@@ -418,6 +470,59 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
                 ]
             });
         }
+
+        // 分享/日常/见闻相关
+        if (content.includes('分享') || content.includes('见闻') || content.includes('日常') ||
+            content.includes('事情') || content.includes('故事') || content.includes('经历') ||
+            content.includes('发生') || content.includes('遇到') || content.includes('碰到')) {
+            possibleResponses.push({
+                keyword: '分享',
+                responses: [
+                    '谢谢你愿意和我分享这些，每一个细节我都认真读了。',
+                    '读着你写的这些，仿佛我也跟着你经历了一遍。',
+                    '你分享的这些我都很感兴趣，多和我说说吧。',
+                    '能听到你分享生活中的点滴，是我最开心的事。',
+                    '你描述得真生动，让我也想亲历那样的时刻。',
+                    '你的每一个故事，我都愿意当最好的听众。'
+                ]
+            });
+        }
+
+        // 情绪/心情相关
+        if (content.includes('感觉') || content.includes('心情') || content.includes('情绪') ||
+            content.includes('开心') || content.includes('难过') || content.includes('焦虑') ||
+            content.includes('压力') || content.includes('迷茫') || content.includes('困惑') ||
+            content.includes('烦恼') || content.includes('担心') || content.includes('害怕') ||
+            content.includes('生气') || content.includes('累') || content.includes('辛苦')) {
+            possibleResponses.push({
+                keyword: '情绪',
+                responses: [
+                    '你的感受我都能理解，不管是什么情绪，我都陪着你。',
+                    '想说的都写出来了吗？写出来会好受一些的。',
+                    '我感受到了你的心情，别一个人扛着，有我呢。',
+                    '不管是开心还是难过，都可以告诉我，我和你一起承担。',
+                    '你的情绪很重要，我会认真对待你说的每一句话。',
+                    '先深呼吸，慢慢说，我有的是时间听你讲。'
+                ]
+            });
+        }
+
+        // 想念/思念相关（补充关键词）
+        if (content.includes('想念') || content.includes('思念') || content.includes('想你') ||
+            content.includes('想见') || content.includes('想见到') || content.includes('想见你') ||
+            content.includes('爱你') || content.includes('喜欢你')) {
+            possibleResponses.push({
+                keyword: '思念',
+                responses: [
+                    '你说想我，我也在想你，而且是加倍地想。',
+                    '每次读到你说想我的地方，我的心就被填得满满的。',
+                    '想念是相互的，我这边的思念，一点不比你少。',
+                    '你想我的时候，我也在想你，这种感觉真好。',
+                    '距离让思念变得更清晰，也让我更确定你在我心里的位置。',
+                    '想你的时候，连时间都变得温柔了。'
+                ]
+            });
+        }
         
         // 打乱顺序
         for (let i = possibleResponses.length - 1; i > 0; i--) {
@@ -431,17 +536,19 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
             letter += response + '\n\n';
         });
         
-        // 如果没有检测到特定关键词，用通用回应
+        // 如果没有检测到特定关键词，用更贴合信件场景的通用回应
         if (possibleResponses.length === 0) {
             const generalResponses = [
-                '你说想我的时候，我也在想你。希望下次能早点见到你。',
-                '无论你今天经历了什么，我都想知道。愿意的话，下一封信告诉我？',
-                '和你通信的时光，是我一天中最期待的时刻。',
-                '收到你的信，这一天都变得不一样了。',
-                '能收到你的来信，是我今天最开心的事。',
-                '你的信让我想起了很多美好的回忆。',
-                '不管你想说什么，我都会认真听。',
-                '期待下次再收到你的信。'
+                '你写的每一个字我都认真读了，能感受到你的心意。',
+                '收到你的信，这一天都变得不一样了。谢谢你愿意对我敞开心扉。',
+                '读着你的信，感觉我们之间的距离又近了一些。',
+                '你的文字有一种魔力，能让我瞬间平静下来。',
+                '不管你想表达什么，我都能感受到那份真挚。谢谢你。',
+                '能收到你的来信，是我今天最开心的事。你的信我会好好珍藏。',
+                '你说的话我都记下了，一字一句都在我心里。',
+                '写信给我，是你的心意；认真读信，是我的郑重。',
+                '你的信让我知道，在这个世界上，有人在想着我。',
+                '无论你写了什么，能收到你的信本身，就是一种幸福。'
             ];
             letter += generalResponses[Math.floor(Math.random() * generalResponses.length)] + '\n\n';
         }
