@@ -37,6 +37,14 @@ function markLetterAsRead(id) {
     }
 }
 
+// 删除信件（用户数据存于 localStorage，删除后不可恢复，调用处需先确认）
+function deleteLetter(id) {
+    letterBox = letterBox.filter(l => l.id !== id);
+    saveLetterBox();
+    renderMailList();
+    updateMailboxStats();
+}
+
 // ========== Evano 彩蛋视觉效果 ==========
 window.enterEvanoPrologue = function() {
     const container = document.querySelector('.container');
@@ -417,17 +425,29 @@ function renderMailList() {
     
     mailList.innerHTML = letterBox.map(letter => `
         <div class="mail-item ${letter.read ? '' : 'unread'}" data-id="${letter.id}">
+            <button class="mail-delete-btn" data-id="${letter.id}" title="删除这封信">×</button>
             <div class="mail-date">${letter.date} ${letter.time}</div>
             <div class="mail-preview">${letter.content.substring(0, 50)}${letter.content.length > 50 ? '...' : ''}</div>
         </div>
     `).join('');
-    
+
     document.querySelectorAll('.mail-item').forEach(item => {
         item.addEventListener('click', function() {
             const id = parseInt(this.getAttribute('data-id'));
             const letter = letterBox.find(l => l.id === id);
             if (letter) {
                 openLetterDetail(letter);
+            }
+        });
+    });
+
+    // 删除按钮：阻止冒泡，避免触发打开信件详情
+    document.querySelectorAll('.mail-delete-btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const id = parseInt(this.getAttribute('data-id'));
+            if (confirm('确定要删除这封信吗？删除后无法恢复。')) {
+                deleteLetter(id);
             }
         });
     });

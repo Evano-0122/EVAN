@@ -3330,7 +3330,7 @@ body {
     content: '';
     position: absolute;
     top: 20px;
-    right: 20px;
+    right: 48px;
     width: 10px;
     height: 10px;
     background: #c9184a;
@@ -3355,6 +3355,30 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.mail-delete-btn {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 26px;
+    height: 26px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mail-delete-btn:hover {
+    background: rgba(184, 17, 36, 0.25);
+    color: #ff8fa3;
 }
 
 .empty-state {

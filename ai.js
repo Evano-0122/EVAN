@@ -54,9 +54,9 @@ class LuhanAI {
                 "你是我心中唯一的答案。"
             ]
         };
-        this.apiKey = "sk-xpqdcrrztgidveqhdhiskwhmvdxxajyoetijtfrmsedxazvt";
-        this.modelId = "deepseek-ai/DeepSeek-V3.2";
-        this.apiEndpoint = "https://api.siliconflow.cn/v1/chat/completions";
+        this.apiKey = "f9fd81f1e37540e5937374bf07cab01d.yuEKqDX6Ej7kNnHR";
+        this.modelId = "glm-5.3-flash";
+        this.apiEndpoint = "https://open.bigmodel.cn/api/paas/v4/chat/completions";
         
         // 加载用户设置
         this.loadSettings();
@@ -221,18 +221,27 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
                         setTimeout(() => reject(new Error('信件API请求超时')), 60000);
                     });
 
+                    // 留足 token 空间，重试时逐步放大，避免回信被 max_tokens 截断
+                    const maxTokens = Math.max(2000, letterLength * 3) * (attempt + 1);
+
+                    const requestBody = {
+                        model: this.modelId,
+                        messages: messages,
+                        temperature: 0.7,
+                        max_tokens: maxTokens
+                    };
+                    // 智谱推理模型：低档思考，省 token、降延迟、避免挤占正文空间
+                    if (this.apiEndpoint.includes('bigmodel')) {
+                        requestBody.reasoning_effort = 'low';
+                    }
+
                     const fetchPromise = fetch(this.apiEndpoint, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
                             'Authorization': 'Bearer ' + this.apiKey
                         },
-                        body: JSON.stringify({
-                            model: this.modelId,
-                            messages: messages,
-                            temperature: 0.7,
-                            max_tokens: Math.max(800, letterLength * 2.0)
-                        })
+                        body: JSON.stringify(requestBody)
                     });
 
                     const response = await Promise.race([fetchPromise, timeoutPromise]);
@@ -240,11 +249,23 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
                     if (response.ok) {
                         const data = await response.json();
                         if (data.choices && data.choices.length > 0) {
-                            let letterContent = data.choices[0].message.content;
-                            // 替换信件中的默认称呼
-                            letterContent = this.replaceNickname(letterContent);
-                            console.log('信件API回复成功');
-                            return letterContent;
+                            const choice = data.choices[0];
+                            let replyText = choice.message.content;
+                            const finishReason = choice.finish_reason;
+
+                            // 校验：内容为空、过短、或被截断的回信都视为失败，进入重试
+                            if (replyText && replyText.trim().length >= 50 && finishReason !== 'length') {
+                                replyText = this.replaceNickname(replyText);
+                                console.log('信件API回复成功，长度:', replyText.length);
+                                return replyText;
+                            }
+
+                            console.warn(`信件API回复无效（第${attempt + 1}次尝试）: finish_reason=${finishReason}, 内容长度=${replyText ? replyText.trim().length : 0}`);
+                            lastError = new Error('回信为空或被截断');
+                            if (attempt < MAX_RETRIES) {
+                                continue;
+                            }
+                            break;
                         }
                     } else {
                         const errorText = await response.text().catch(() => '');
@@ -1424,6 +1445,17 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
             const timeoutPromise = new Promise((_, reject) => {
                 setTimeout(() => reject(new Error('API请求超时')), 60000);
             });
+            const requestBody = {
+                model: this.modelId,
+                messages: messages,
+                temperature: temperature || 0.6,
+                max_tokens: maxTokens || 400,
+                stream: false
+            };
+            // 智谱推理模型：低档思考，省 token、降延迟
+            if (this.apiEndpoint.includes('bigmodel')) {
+                requestBody.reasoning_effort = 'low';
+            }
             const response = await Promise.race([
                 fetch(this.apiEndpoint, {
                     method: 'POST',
@@ -1431,13 +1463,7 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
                         'Content-Type': 'application/json',
                         'Authorization': 'Bearer ' + this.apiKey
                     },
-                    body: JSON.stringify({
-                        model: this.modelId,
-                        messages: messages,
-                        temperature: temperature || 0.6,
-                        max_tokens: maxTokens || 400,
-                        stream: false
-                    })
+                    body: JSON.stringify(requestBody)
                 }),
                 timeoutPromise
             ]);
