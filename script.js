@@ -106,6 +106,7 @@ window.onload = function() {
     initModeSelector();
     initLetterModal();
     initMailbox();
+    initIfLine();
     initUserAvatarUpload();
     initMusicMode();
     initAutoGreetings();
@@ -217,6 +218,76 @@ function initInteractionButtons() {
             }
         }, 800);
     });
+}
+
+// ========== IF线（平行世界角色扮演） ==========
+// 根据 luhanAI.ifLine 状态刷新横幅显示
+window.refreshIfLineUI = function() {
+    const banner = document.getElementById('ifline-banner');
+    const text = document.getElementById('ifline-banner-text');
+    if (!banner) return;
+    if (window.luhanAI && window.luhanAI.ifLine) {
+        const cfg = window.luhanAI.ifLine.config;
+        text.textContent = 'IF线进行中：' + (cfg.worldview || '未知世界');
+        banner.style.display = 'flex';
+    } else {
+        banner.style.display = 'none';
+    }
+};
+
+function initIfLine() {
+    const iflineBtn = document.getElementById('ifline-btn');
+    const modal = document.getElementById('ifline-modal');
+    const closeBtn = document.getElementById('ifline-close-btn');
+    const startBtn = document.getElementById('ifline-start-btn');
+    const exitBtn = document.getElementById('ifline-exit-btn');
+    if (!iflineBtn || !modal) return;
+
+    iflineBtn.addEventListener('click', function() {
+        if (window.luhanAI && window.luhanAI.ifLine) {
+            addSystemMessage('IF线进行中，点击上方「退出IF线」可回到日常');
+            return;
+        }
+        modal.classList.add('show');
+    });
+
+    closeBtn.addEventListener('click', function() {
+        modal.classList.remove('show');
+    });
+    modal.addEventListener('click', function(e) {
+        if (e.target === modal) modal.classList.remove('show');
+    });
+
+    startBtn.addEventListener('click', function() {
+        const worldview = document.getElementById('ifline-worldview').value.trim();
+        if (!worldview) {
+            alert('请至少填写世界观/场景');
+            return;
+        }
+        const config = {
+            worldview: worldview,
+            timeline: document.getElementById('ifline-timeline').value.trim(),
+            hisIdentity: document.getElementById('ifline-his-identity').value.trim(),
+            userIdentity: document.getElementById('ifline-user-identity').value.trim(),
+            relationship: document.getElementById('ifline-relationship').value.trim(),
+            extra: document.getElementById('ifline-extra').value.trim()
+        };
+        window.luhanAI.startIfLine(config);
+        modal.classList.remove('show');
+        window.refreshIfLineUI();
+        addSystemMessage('🌌 已进入IF线：' + worldview + '。这条世界线的记忆会为你保留，输入「退出IF线」或点击上方按钮可回到日常。');
+    });
+
+    exitBtn.addEventListener('click', function() {
+        if (!window.luhanAI || !window.luhanAI.ifLine) return;
+        if (!confirm('确定要退出这条IF线吗？退出后这条世界线的对话记忆将被清除。')) return;
+        window.luhanAI.exitIfLine();
+        window.refreshIfLineUI();
+        addSystemMessage('已退出IF线，回到属于你们的世界。');
+    });
+
+    // 页面加载时恢复IF线状态
+    window.refreshIfLineUI();
 }
 
 function openLetterModal() {
@@ -1153,8 +1224,8 @@ async function sendMessage() {
                     addMessage('character', response);
                 }
 
-                // 回复后有概率发送随机问候/动作（增强活人感）
-                if (window.scheduleCharacterAction) {
+                // 回复后有概率发送随机问候/动作（增强活人感，IF线进行中不打断剧情）
+                if (window.scheduleCharacterAction && !(window.luhanAI && window.luhanAI.ifLine)) {
                     window.scheduleCharacterAction(message);
                 }
             } catch (error) {

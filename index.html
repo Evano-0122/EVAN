@@ -157,6 +157,12 @@
                     <button class="settings-button" id="settings-button-mobile" onclick="openSettingsPanel()">⚙️</button>
                 </div>
             </div>
+            <!-- IF线进行中提示条 -->
+            <div class="ifline-banner" id="ifline-banner" style="display: none;">
+                <span class="ifline-banner-icon">🌌</span>
+                <span class="ifline-banner-text" id="ifline-banner-text">IF线进行中</span>
+                <button class="ifline-exit-btn" id="ifline-exit-btn">退出IF线</button>
+            </div>
             <div class="chat-messages" id="chat-messages">
                 <!-- 对话消息将在这里动态生成 -->
             </div>
@@ -185,6 +191,7 @@
                 <button class="interaction-btn" id="pat-btn">摸头</button>
                 <button class="interaction-btn" id="letter-btn">✉️ 写信</button>
                 <button class="interaction-btn" id="mailbox-btn">📮 信箱</button>
+                <button class="interaction-btn" id="ifline-btn">🌌 IF线</button>
             </div>
 
             <!-- 模式切换 -->
@@ -645,6 +652,49 @@
                             </div>
                         </div>
                     </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- IF线设定弹窗 -->
+        <div class="letter-modal" id="ifline-modal">
+            <div class="letter-modal-content ifline">
+                <div class="letter-header">
+                    <div class="header-icon">🌌</div>
+                    <h3>开启一条IF线</h3>
+                    <button class="close-btn" id="ifline-close-btn">✕</button>
+                </div>
+                <div class="ifline-body">
+                    <div class="ifline-desc">写下这个世界线的设定，他会以IF线中的身份与你对话。设定和对话记忆会保存在本地，退出IF线后回到日常。</div>
+                    <div class="ifline-form">
+                        <div class="ifline-field">
+                            <label>世界观 / 场景 <span class="ifline-required">*</span></label>
+                            <input type="text" id="ifline-worldview" placeholder="例：中世纪古堡、末世废土、现代都市、校园" maxlength="100">
+                        </div>
+                        <div class="ifline-field">
+                            <label>时间线</label>
+                            <input type="text" id="ifline-timeline" placeholder="例：你们初遇之前、结婚三年后、战争结束的那个冬天" maxlength="100">
+                        </div>
+                        <div class="ifline-field">
+                            <label>他的身份 / 职业</label>
+                            <input type="text" id="ifline-his-identity" placeholder="例：吸血鬼公爵、敌国将军、大学教授" maxlength="100">
+                        </div>
+                        <div class="ifline-field">
+                            <label>你的身份</label>
+                            <input type="text" id="ifline-user-identity" placeholder="例：被俘的公主、他的学生、失忆的恋人" maxlength="100">
+                        </div>
+                        <div class="ifline-field">
+                            <label>你们的关系</label>
+                            <input type="text" id="ifline-relationship" placeholder="例：宿敌、秘密恋人、被迫联姻的夫妻" maxlength="100">
+                        </div>
+                        <div class="ifline-field">
+                            <label>补充说明</label>
+                            <textarea id="ifline-extra" placeholder="任何想补充的设定、想要的剧情走向..." maxlength="500" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="ifline-actions">
+                        <button class="ifline-start-btn" id="ifline-start-btn">进入IF线</button>
                     </div>
                 </div>
             </div>
