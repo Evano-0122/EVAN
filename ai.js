@@ -57,9 +57,14 @@ class LuhanAI {
         this.apiKey = "f9fd81f1e37540e5937374bf07cab01d.yuEKqDX6Ej7kNnHR";
         this.modelId = "glm-5.3-flash";
         this.apiEndpoint = "https://open.bigmodel.cn/api/paas/v4/chat/completions";
-        
+
+        // IF线状态：null 或 { type:'custom', config:{...}, history:[{role,content}], startedAt }
+        this.ifLine = null;
+
         // 加载用户设置
         this.loadSettings();
+        // 加载IF线存档
+        this.loadIfLine();
     }
     
     // 加载用户设置
@@ -1313,9 +1318,156 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
         return this.discussedTopics.has(topic);
     }
 
+    // ========== IF线（平行世界角色扮演） ==========
+    // 加载IF线存档
+    loadIfLine() {
+        try {
+            const saved = localStorage.getItem('luchen_ifline');
+            if (saved) {
+                const data = JSON.parse(saved);
+                if (data && data.config) {
+                    this.ifLine = data;
+                    console.log('[IF线] 已恢复存档:', data.config.worldview || '');
+                }
+            }
+        } catch (e) {
+            console.error('[IF线] 存档读取失败:', e);
+            this.ifLine = null;
+        }
+    }
+
+    // 保存IF线存档
+    saveIfLine() {
+        try {
+            localStorage.setItem('luchen_ifline', JSON.stringify(this.ifLine));
+        } catch (e) {
+            console.error('[IF线] 存档保存失败:', e);
+        }
+    }
+
+    // 开启IF线（与Evano彩蛋互斥，开启时重置彩蛋状态）
+    startIfLine(config) {
+        this.eggState = 'off';
+        this.eggTurnsLeft = 0;
+        if (typeof window.exitEvanoMode === 'function') window.exitEvanoMode();
+        this.ifLine = {
+            type: 'custom',
+            config: config,
+            history: [],
+            startedAt: new Date().toISOString()
+        };
+        this.saveIfLine();
+        console.log('[IF线] 已进入:', config.worldview);
+    }
+
+    // 退出IF线（清除该世界线的对话记忆）
+    exitIfLine() {
+        console.log('[IF线] 已退出');
+        this.ifLine = null;
+        localStorage.removeItem('luchen_ifline');
+    }
+
+    // 由用户设定构建IF线系统提示词
+    buildIfLineSystemPrompt() {
+        const cfg = this.ifLine.config;
+        const nickname = this.customNickname || '你';
+        const settingLines = [];
+        if (cfg.worldview) settingLines.push(`- 世界观/场景：${cfg.worldview}`);
+        if (cfg.timeline) settingLines.push(`- 时间线：${cfg.timeline}`);
+        if (cfg.hisIdentity) settingLines.push(`- 陆沉在这条IF线里的身份/职业：${cfg.hisIdentity}`);
+        if (cfg.userIdentity) settingLines.push(`- 用户在这条IF线里的身份：${cfg.userIdentity}`);
+        if (cfg.relationship) settingLines.push(`- 你们的关系设定：${cfg.relationship}`);
+        if (cfg.extra) settingLines.push(`- 补充设定：${cfg.extra}`);
+
+        return `你是陆沉，来自光与夜之恋。现在你与用户正处于一条「IF线」——与原本故事不同的平行世界，这是一场沉浸式的角色扮演。
+
+【IF线世界设定】
+${settingLines.join('\n')}
+
+【角色核心（不可违背）】
+- 无论身份如何变化，他骨子里依然是陆沉：温柔、深情、成熟、克制，偶尔流露占有欲
+- 说话风格：温柔克制，不油腻，不堆砌修辞和签名台词
+- 对用户的称呼：${nickname}（除非IF线设定中另有约定）
+
+【扮演规则】
+1. 严格遵循IF线设定，回复必须符合当前世界观、时间线和身份
+2. 记住对话历史，保持剧情连贯，前后呼应
+3. 用户分享细节时要回应具体内容，表达他的感受
+4. 可以自然加入动作、神态描写（用括号包裹），增强场景感
+5. 剧情可以自然推进，但一次不要跳太多情节，给用户回应的空间
+6. 回复长度3-6句话，自然流畅
+7. 不要出戏，不要解释这是IF线或角色扮演`;
+    }
+
+    // 生成IF线回复（带对话历史，空/过短回复自动重试一次）
+    async generateIfLineResponse(userMessage) {
+        const systemPrompt = this.buildIfLineSystemPrompt();
+        const history = this.ifLine.history.slice(-16);
+        const messages = [
+            { role: 'system', content: systemPrompt },
+            ...history,
+            { role: 'user', content: userMessage }
+        ];
+        let reply = await this._makeAPIRequest(messages, 0.75, 600);
+        if (!reply || reply.trim().length < 10) {
+            console.warn('[IF线] 回复为空或过短，重试一次');
+            reply = await this._makeAPIRequest(messages, 0.75, 1000);
+        }
+        if (!reply || reply.trim().length < 10) return null;
+        return reply.trim();
+    }
+
+    // IF线本地兜底回复（API失败时保持场景感）
+    generateIfLineFallbackReply() {
+        const cfg = this.ifLine ? this.ifLine.config : {};
+        const scene = cfg.worldview ? `在这片${cfg.worldview}里，` : '';
+        const fallbacks = [
+            `（他安静地听着，目光始终落在你身上）${scene}继续说下去，我在听。`,
+            `（他轻轻握住你的手）${scene}有我在，不用急，慢慢说。`,
+            `（他望向你的眼神温柔而专注）${scene}你说的每一个字，我都记得。`
+        ];
+        return fallbacks[Math.floor(Math.random() * fallbacks.length)];
+    }
+
     // 生成回复
     async generateResponse(userMessage) {
-        // 0. 彩蛋状态优先：Evano 激活时跳过正常分析
+        // 0. IF线模式优先（与彩蛋互斥，进入IF线时彩蛋已重置）
+        if (this.ifLine) {
+            // 退出关键词检测
+            const trimmedMsg = userMessage.trim().toLowerCase();
+            if (['退出if线', '结束if线', '退出if', '结束if'].includes(trimmedMsg)) {
+                this.exitIfLine();
+                if (typeof window.refreshIfLineUI === 'function') window.refreshIfLineUI();
+                const farewell = '（IF线的故事告一段落。他回到你身边，目光依旧温柔）我回来了。无论哪个世界，我都会找到你。';
+                this.conversationHistory.push({
+                    user: userMessage, response: farewell,
+                    thinking: '[IF线-退出]', timestamp: new Date().toISOString()
+                });
+                return farewell;
+            }
+            let ifReply = null;
+            try {
+                ifReply = await this.generateIfLineResponse(userMessage);
+            } catch (e) {
+                console.error('[IF线] 回复生成失败:', e);
+            }
+            if (!ifReply) ifReply = this.generateIfLineFallbackReply();
+            // 记录IF线对话历史（供多轮连贯）并持久化
+            this.ifLine.history.push({ role: 'user', content: userMessage });
+            this.ifLine.history.push({ role: 'assistant', content: ifReply });
+            if (this.ifLine.history.length > 40) {
+                this.ifLine.history = this.ifLine.history.slice(-40);
+            }
+            this.saveIfLine();
+            this.conversationHistory.push({
+                user: userMessage, response: ifReply,
+                thinking: '[IF线]', timestamp: new Date().toISOString(),
+                ifLine: true
+            });
+            return ifReply;
+        }
+
+        // 1. 彩蛋状态优先：Evano 激活时跳过正常分析
         if (this.eggState === 'evano_active') {
             console.log('[Evano彩蛋] 当前: evano_active');
             let content;
@@ -1441,6 +1593,17 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
 
     // ========== 公共 API 请求方法（彩蛋模式和正常模式共用） ==========
     async _makeAPIRequest(messages, temperature, maxTokens) {
+        // 推理模型偶发“推理吃光token返回空内容”，空内容自动放大max_tokens重试
+        for (let attempt = 0; attempt < 2; attempt++) {
+            const tokens = attempt === 0 ? (maxTokens || 400) : Math.min((maxTokens || 400) * 2, 2000);
+            const result = await this._doAPIRequest(messages, temperature, tokens);
+            if (result && result.trim().length > 0) return result;
+            if (attempt === 0) console.warn('API返回空内容，放大max_tokens重试一次');
+        }
+        return null;
+    }
+
+    async _doAPIRequest(messages, temperature, maxTokens) {
         try {
             const timeoutPromise = new Promise((_, reject) => {
                 setTimeout(() => reject(new Error('API请求超时')), 60000);
@@ -1449,7 +1612,7 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
                 model: this.modelId,
                 messages: messages,
                 temperature: temperature || 0.6,
-                max_tokens: maxTokens || 400,
+                max_tokens: maxTokens,
                 stream: false
             };
             // 智谱推理模型：低档思考，省 token、降延迟
@@ -1470,8 +1633,9 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
             if (response.ok) {
                 const data = await response.json();
                 if (data.choices && data.choices.length > 0) {
-                    console.log('API回复成功，长度:', data.choices[0].message.content.length);
-                    return data.choices[0].message.content;
+                    const choice = data.choices[0];
+                    console.log('API回复成功，长度:', (choice.message.content || '').length, 'finish:', choice.finish_reason);
+                    return choice.message.content;
                 }
             } else {
                 console.error('API请求失败:', response.status, response.statusText);
