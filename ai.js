@@ -58,8 +58,24 @@ class LuhanAI {
         this.modelId = "glm-5.3-flash";
         this.apiEndpoint = "https://open.bigmodel.cn/api/paas/v4/chat/completions";
 
-        // IF线状态：null 或 { type:'custom', config:{...}, history:[{role,content}], startedAt }
+        // IF线状态：null 或 { type:'custom'|'preset', config:{...}, history:[{role,content}], startedAt }
         this.ifLine = null;
+
+        // 固定IF线剧本库（卡面剧情衍生）
+        this.ifLinePresets = {
+            liuchizhixia: {
+                name: '六尺之下 · 春归',
+                config: {
+                    worldview: '抗战时期的战时修道院与战后和平年代（四周年「到明天去」卡面「六尺之下」HE衍生线）',
+                    timeline: '「六尺之下」之后——她在战火中牺牲，战争结束后的第一个春天',
+                    hisIdentity: '战时修道院的「守夜人」，以身份掩护在枪林弹雨中救助战争孤儿的陆沉；战后独自活着、常去墓园看望她的人',
+                    userIdentity: '与陆沉一同在修道院庇护孤儿、在战火中牺牲的恋人，奇迹般再次醒来的人',
+                    relationship: '战火中相爱、生死相隔后重逢的恋人',
+                    extra: '剧情背景（严格遵循卡面设定）：抗战时期，陆沉化身「守夜人」，利用自己的身份掩护，与她一起在战时修道院救助被战火波及的孤儿。她在战争中牺牲——充斥火焰的废墟中，陆沉紧抱着身死的她，悲痛欲绝。战争结束后，他独自活着，定期去墓园看望她；他们救下的孤儿们也已长大成人。IF线从战后的某个春天开始：陆沉独自去墓园看望她，却看见她就站在自己的墓碑前——她真实地回来了。剧情必须朝HE（圆满结局）发展：她是真实存在的，不是幻觉、鬼魂或回光返照，她会留在他身边，两人珍惜来之不易的和平与相守，长大的孩子们也能再见到她。前期陆沉不敢置信、害怕这是梦境或幻觉，表现得克制又破碎，不敢触碰怕她消散；确认她真实存在后，逐渐转为失而复得的珍视与再不放手。绝对不要让她再次消失、死亡或被发现只是幻影，这条世界线必须走向幸福。'
+                },
+                opening: '（战争结束后的第一个春天，墓园里新草刚冒出头。他抱着一束白菊，在熟悉的墓碑前停下脚步——然后，他看见了站在碑前的你）\n（花束从指间滑落，散了一地。他僵在原地，连呼吸都停了，眼睛一瞬不瞬地盯着你，像是怕眨眼之间你就会消散）\n……是你吗？\n（他的声音哑得几乎不成调，向前迈了半步，又生生停住，不敢靠得太近）\n炮火停了，孩子们都长大了，修道院的春天也来了……可每一次来看你，你都只是碑上一张笑着的照片。\n（他抬起手，悬在半空，指尖微微发抖，却迟迟不敢落下去触碰你）\n如果你真的是她……求你，别动。就站在那里，让我确认这不是又一场梦。'
+            }
+        };
 
         // 加载用户设置
         this.loadSettings();
@@ -122,7 +138,42 @@ class LuhanAI {
         });
         return result;
     }
-    
+
+    // 从信件中提取关键词（长度>=2的中文词，去停用词和称呼）
+    extractLetterKeywords(text) {
+        const matches = text.match(/[\u4e00-\u9fa5]{2,}/g) || [];
+        const stopwords = new Set([
+            '我们', '你们', '他们', '这个', '那个', '什么', '怎么', '可以', '已经', '还是',
+            '因为', '所以', '但是', '如果', '虽然', '不是', '没有', '一个', '一些', '一下',
+            '一样', '一直', '一起', '不会', '不能', '不要', '不过', '其实', '觉得', '知道',
+            '现在', '今天', '昨天', '明天', '时候', '自己', '这样', '那样', '为什么',
+            '真的', '非常', '特别', '有点', '可能', '应该', '需要', '想要', '希望', '感觉',
+            // 称呼/署名/问候类，回信中几乎必现，不能用来判断相关性
+            '陆沉', '夫人', '小姑娘', '小兔子', '亲爱的', '见字如面', '展信欢颜',
+            '收到', '来信', '回信', '用心', '心意'
+        ]);
+        return [...new Set(matches.filter(w => !stopwords.has(w)))].slice(0, 15);
+    }
+
+    // 检查回信是否与来信相关（命中来信关键词，或篇幅足够长且有署名）
+    isLetterRelevant(reply, letterContent) {
+        if (!reply || typeof reply !== 'string') return false;
+        const cleaned = reply.trim();
+        if (cleaned.length < 50) return false;
+
+        const keywords = this.extractLetterKeywords(letterContent);
+        if (keywords.length === 0) return true; // 无关键词则不校验
+
+        // 命中至少一个关键词则认为相关
+        const matched = keywords.some(k => cleaned.includes(k));
+        if (matched) return true;
+
+        // 兜底：篇幅足够长（>=300字）且有署名，可能是模型换了表达，放宽通过
+        if (cleaned.length >= 300 && cleaned.includes('陆沉')) return true;
+
+        return false;
+    }
+
     // 专门处理信件回复的方法
     async generateLetterResponse(letterContent) {
         const letterLength = letterContent.length;
@@ -216,14 +267,14 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
         ];
 
         try {
-            // 添加 60 秒超时 + 重试机制
-            const MAX_RETRIES = 2;
+            // 添加超时 + 重试机制（首次请求建连慢，超时放宽到90s，重试4次）
+            const MAX_RETRIES = 3;
             let lastError = null;
 
             for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
                 try {
                     const timeoutPromise = new Promise((_, reject) => {
-                        setTimeout(() => reject(new Error('信件API请求超时')), 60000);
+                        setTimeout(() => reject(new Error('信件API请求超时')), 90000);
                     });
 
                     // 留足 token 空间，重试时逐步放大，避免回信被 max_tokens 截断
@@ -258,15 +309,17 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
                             let replyText = choice.message.content;
                             const finishReason = choice.finish_reason;
 
-                            // 校验：内容为空、过短、或被截断的回信都视为失败，进入重试
-                            if (replyText && replyText.trim().length >= 50 && finishReason !== 'length') {
+                            // 校验：内容为空、过短、被截断、或与来信不相关都视为失败，进入重试
+                            if (replyText && replyText.trim().length >= 50 && finishReason !== 'length'
+                                && this.isLetterRelevant(replyText, letterContent)) {
                                 replyText = this.replaceNickname(replyText);
                                 console.log('信件API回复成功，长度:', replyText.length);
                                 return replyText;
                             }
 
-                            console.warn(`信件API回复无效（第${attempt + 1}次尝试）: finish_reason=${finishReason}, 内容长度=${replyText ? replyText.trim().length : 0}`);
-                            lastError = new Error('回信为空或被截断');
+                            const relevant = replyText ? this.isLetterRelevant(replyText, letterContent) : false;
+                            console.warn(`信件API回复无效（第${attempt + 1}次尝试）: finish_reason=${finishReason}, 内容长度=${replyText ? replyText.trim().length : 0}, 相关=${relevant}`);
+                            lastError = new Error('回信为空、被截断或与来信不相关');
                             if (attempt < MAX_RETRIES) {
                                 continue;
                             }
@@ -1365,6 +1418,21 @@ ${hasMissing ? `- 对方在信中表达了思念之情，你必须深情回应�
         console.log('[IF线] 已退出');
         this.ifLine = null;
         localStorage.removeItem('luchen_ifline');
+    }
+
+    // 开启固定剧本IF线，返回预设（含固定开头），失败返回null
+    startPresetIfLine(presetId) {
+        const preset = this.ifLinePresets[presetId];
+        if (!preset) return null;
+        this.startIfLine(preset.config);
+        this.ifLine.type = 'preset';
+        this.ifLine.presetId = presetId;
+        this.ifLine.presetName = preset.name;
+        // 固定开头写入历史，保证后续剧情承接
+        this.ifLine.history.push({ role: 'assistant', content: preset.opening });
+        this.saveIfLine();
+        console.log('[IF线] 已进入固定剧本:', preset.name);
+        return preset;
     }
 
     // 由用户设定构建IF线系统提示词
