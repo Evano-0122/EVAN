@@ -55,7 +55,7 @@ class LuhanAI {
             ]
         };
         this.apiKey = "sk-7QB28TjLAPl1zIBpS9suaVWN2dAAUdSJARIM7rAN5PBTbPrW";
-        this.modelId = "deepseek-v3.2";
+        this.modelId = "deepseek-v4.1-flash";
         this.apiEndpoint = "https://api.a6api.com/v1/chat/completions";
 
         // IF线状态：null 或 { type:'custom'|'preset', config:{...}, history:[{role,content}], startedAt }
