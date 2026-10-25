@@ -161,6 +161,10 @@ class LuhanAI {
         const cleaned = reply.trim();
         if (cleaned.length < 50) return false;
 
+        // OOC拦截：回信中自称Kiro/编程助手视为无效，触发重试
+        const oocMarkers = ['Kiro', 'kiro', '编程搭档', '写代码', '调试问题', '分析系统', 'AI助手', '人工智能助手', '编程助手'];
+        if (oocMarkers.some(m => cleaned.includes(m))) return false;
+
         const keywords = this.extractLetterKeywords(letterContent);
         if (keywords.length === 0) return true; // 无关键词则不校验
 
@@ -1635,7 +1639,16 @@ ${settingLines.join('\n')}
         if (!response || typeof response !== 'string') return false;
         
         const cleanedResponse = response.trim();
-        
+
+        // OOC拦截：中转站后端偶发不应用人设，自称Kiro/编程助手的回复判为不相关
+        const oocMarkers = ['Kiro', 'kiro', '编程搭档', '写代码', '调试问题', '分析系统', 'AI助手', '人工智能助手', '编程助手'];
+        for (const marker of oocMarkers) {
+            if (cleanedResponse.includes(marker)) {
+                console.warn('检测到OOC回复（人设未生效），已拦截。特征词:', marker);
+                return false;
+            }
+        }
+
         // 如果回复太短，认为是不相关或敷衍
         if (cleanedResponse.length < 10) return false;
         
