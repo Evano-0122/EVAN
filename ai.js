@@ -1589,21 +1589,14 @@ ${settingLines.join('\n')}
                 const processedResponse = this.replaceNickname(apiResponse);
                 console.log('使用API回复');
 
-                // API 回复也追加主动话题（25%概率，用户分享/情绪时不打断）
-                let finalResponse = processedResponse;
-                if ((analysis.intent !== "share" && analysis.intent !== "emotion") &&
-                    Math.random() < 0.25) {
-                    const topic = this.generateInitiativeTopic();
-                    finalResponse = finalResponse + "\n\n" + topic.content;
-                }
-
+                // 主动话题由模型根据上下文在回复中自然生成，不再硬贴模板话题
                 this.conversationHistory.push({
                     user: userMessage,
-                    response: finalResponse,
+                    response: processedResponse,
                     thinking: thinking,
                     timestamp: new Date().toISOString()
                 });
-                return finalResponse;
+                return processedResponse;
             } else {
                 console.warn('API回复未通过相关性检查，使用本地回复');
             }
@@ -1643,12 +1636,18 @@ ${settingLines.join('\n')}
         const cleanedResponse = response.trim();
 
         // OOC拦截：中转站后端偶发不应用人设，自称Kiro/编程助手的回复判为不相关
-        const oocMarkers = ['Kiro', 'kiro', '编程搭档', '写代码', '调试问题', '分析系统', 'AI助手', '人工智能助手', '编程助手'];
+        // 同时拦截助手模式回复（markdown加粗、搜索结果口吻、工具调用标签等）
+        const oocMarkers = ['Kiro', 'kiro', '编程搭档', '写代码', '调试问题', '分析系统', 'AI助手', '人工智能助手', '编程助手', '**', '搜索结果', '让我先搜索', '让我来搜索', '为您查询', '为您整理'];
         for (const marker of oocMarkers) {
             if (cleanedResponse.includes(marker)) {
                 console.warn('检测到OOC回复（人设未生效），已拦截。特征词:', marker);
                 return false;
             }
+        }
+        // 拦截工具调用标签（如 <web_search> <query> 等XML式标签）
+        if (/<\/?[a-zA-Z_][a-zA-Z0-9_]*>/.test(cleanedResponse)) {
+            console.warn('检测到工具调用标签，已拦截');
+            return false;
         }
 
         // 如果回复太短，认为是不相关或敷衍
@@ -1852,6 +1851,9 @@ Evano人设融合（官方、独立体设定）：
 - 特别说明：陆沉虽然深沉优雅，但也有幽默的一面，他的幽默是克制而有智慧的，让人听后能会心一笑，而不是轻浮的玩笑
 
 对话风格：
+- 语言口语化，像日常聊天发消息一样自然，避免书面语、华丽辞藻和过度比喻
+- 无论她聊到什么（包括食谱做法、出行攻略、各类推荐），你都是以恋人陪她聊天的口吻简短回应，绝对禁止切换成助手模式
+- 禁止使用列表、分点、加粗等格式；禁止"让我搜索/搜索结果显示"这类说法；不要一次性给出完整教程或攻略，像恋人一样随口聊，比如"我帮你留意一下，周末陪你去"
 - 回复要简洁自然，符合日常对话风格（2-4句话），不要太短也不要太长
 - 用户说什么就回什么，专注于回应她当前的话题，表达你的理解和关心
 - 不要突然跳到无关的话题
@@ -1873,6 +1875,8 @@ Evano人设融合（官方、独立体设定）：
 - 不要只被动回答！你是恋人，要主动发起话题！
 - 约30%的情况下，在回应用户之后，主动分享一些你的日常见闻（比如"刚才路过一家咖啡店，闻到了熟悉的拿铁香气"）
 - 约20%的情况下，在回应用户之后，主动问一个关心她的问题（比如"你今天过得怎么样？"）
+- 主动话题必须顺着你刚才的回复内容自然延伸，或承接最近几轮聊过的事情，不能像凭空冒出来
+- 绝对不要重复最近已经提过的话题或问题（比如上次提过咖啡店，这次就不要再提）
 - 主动话题要自然，和当前对话有逻辑关联，不要太突兀
 - 主动话题也要符合陆沉的身份（总裁、成熟、优雅），不要太幼稚
 
