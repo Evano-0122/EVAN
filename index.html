@@ -667,45 +667,48 @@
                     <button class="close-btn" id="ifline-close-btn">✕</button>
                 </div>
                 <div class="ifline-body">
-                    <div class="ifline-presets">
-                        <div class="ifline-presets-title">固定剧本</div>
-                        <div class="ifline-preset-card">
-                            <div class="preset-card-name">六尺之下 · 春归</div>
-                            <div class="preset-card-tag">卡面衍生 · HE</div>
-                            <div class="preset-card-desc">抗战的炮火停了。战后的第一个春天，他独自去墓园看你——却看见你就站在自己的墓碑前。</div>
-                            <button class="preset-enter-btn" id="ifline-preset-enter">进入剧本</button>
+                    <!-- 选择视图：固定剧本 + 自定义入口 -->
+                    <div class="ifline-chooser" id="ifline-chooser">
+                        <div class="ifline-desc">选择一条世界线，他会以那个世界的身份与你对话。对话记忆保存在本地，退出后回到日常。</div>
+                        <div class="ifline-preset-list" id="ifline-preset-list"></div>
+                        <div class="ifline-custom-card" id="ifline-custom-card">
+                            <div class="preset-card-name">✏️ 自定义IF线</div>
+                            <div class="preset-card-desc">自己写下世界观、时间线、你们的身份与关系设定</div>
+                            <div class="preset-card-arrow">›</div>
                         </div>
                     </div>
-                    <div class="ifline-divider"><span>或自定义一条IF线</span></div>
-                    <div class="ifline-desc">写下这个世界线的设定，他会以IF线中的身份与你对话。设定和对话记忆会保存在本地，退出IF线后回到日常。</div>
-                    <div class="ifline-form">
-                        <div class="ifline-field">
-                            <label>世界观 / 场景 <span class="ifline-required">*</span></label>
-                            <input type="text" id="ifline-worldview" placeholder="例：中世纪古堡、末世废土、现代都市、校园" maxlength="100">
+                    <!-- 自定义表单视图 -->
+                    <div class="ifline-form-view" id="ifline-form-view" style="display: none;">
+                        <div class="ifline-back" id="ifline-back">← 返回选择</div>
+                        <div class="ifline-form">
+                            <div class="ifline-field">
+                                <label>世界观 / 场景 <span class="ifline-required">*</span></label>
+                                <input type="text" id="ifline-worldview" placeholder="例：中世纪古堡、末世废土、现代都市、校园" maxlength="100">
+                            </div>
+                            <div class="ifline-field">
+                                <label>时间线</label>
+                                <input type="text" id="ifline-timeline" placeholder="例：你们初遇之前、结婚三年后、战争结束的那个冬天" maxlength="100">
+                            </div>
+                            <div class="ifline-field">
+                                <label>他的身份 / 职业</label>
+                                <input type="text" id="ifline-his-identity" placeholder="例：吸血鬼公爵、敌国将军、大学教授" maxlength="100">
+                            </div>
+                            <div class="ifline-field">
+                                <label>你的身份</label>
+                                <input type="text" id="ifline-user-identity" placeholder="例：被俘的公主、他的学生、失忆的恋人" maxlength="100">
+                            </div>
+                            <div class="ifline-field">
+                                <label>你们的关系</label>
+                                <input type="text" id="ifline-relationship" placeholder="例：宿敌、秘密恋人、被迫联姻的夫妻" maxlength="100">
+                            </div>
+                            <div class="ifline-field">
+                                <label>补充说明</label>
+                                <textarea id="ifline-extra" placeholder="任何想补充的设定、想要的剧情走向..." maxlength="500" rows="3"></textarea>
+                            </div>
                         </div>
-                        <div class="ifline-field">
-                            <label>时间线</label>
-                            <input type="text" id="ifline-timeline" placeholder="例：你们初遇之前、结婚三年后、战争结束的那个冬天" maxlength="100">
+                        <div class="ifline-actions">
+                            <button class="ifline-start-btn" id="ifline-start-btn">进入IF线</button>
                         </div>
-                        <div class="ifline-field">
-                            <label>他的身份 / 职业</label>
-                            <input type="text" id="ifline-his-identity" placeholder="例：吸血鬼公爵、敌国将军、大学教授" maxlength="100">
-                        </div>
-                        <div class="ifline-field">
-                            <label>你的身份</label>
-                            <input type="text" id="ifline-user-identity" placeholder="例：被俘的公主、他的学生、失忆的恋人" maxlength="100">
-                        </div>
-                        <div class="ifline-field">
-                            <label>你们的关系</label>
-                            <input type="text" id="ifline-relationship" placeholder="例：宿敌、秘密恋人、被迫联姻的夫妻" maxlength="100">
-                        </div>
-                        <div class="ifline-field">
-                            <label>补充说明</label>
-                            <textarea id="ifline-extra" placeholder="任何想补充的设定、想要的剧情走向..." maxlength="500" rows="3"></textarea>
-                        </div>
-                    </div>
-                    <div class="ifline-actions">
-                        <button class="ifline-start-btn" id="ifline-start-btn">进入IF线</button>
                     </div>
                 </div>
             </div>

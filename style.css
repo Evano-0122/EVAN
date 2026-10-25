@@ -4145,6 +4145,151 @@ body {
     transform: translateY(0);
 }
 
+/* 固定剧本卡片 */
+.ifline-presets {
+    margin-bottom: 18px;
+}
+
+.ifline-presets-title {
+    font-size: 13px;
+    color: #e0cdda;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+}
+
+.ifline-preset-card {
+    position: relative;
+    padding: 16px 18px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(70, 50, 105, 0.35) 0%, rgba(35, 22, 55, 0.45) 100%);
+    border: 1px solid rgba(155, 125, 220, 0.35);
+    transition: border-color 0.25s, box-shadow 0.25s;
+}
+
+.ifline-preset-card:hover {
+    border-color: rgba(175, 145, 235, 0.6);
+    box-shadow: 0 6px 20px rgba(90, 61, 138, 0.35);
+}
+
+.preset-card-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #ead9f5;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+}
+
+.preset-card-tag {
+    display: inline-block;
+    font-size: 11px;
+    color: #c9aee8;
+    background: rgba(155, 125, 220, 0.18);
+    border: 1px solid rgba(155, 125, 220, 0.35);
+    border-radius: 10px;
+    padding: 2px 10px;
+    margin-bottom: 10px;
+    letter-spacing: 0.5px;
+}
+
+.preset-card-desc {
+    font-size: 13px;
+    color: rgba(235, 220, 240, 0.8);
+    line-height: 1.7;
+    margin-bottom: 14px;
+}
+
+.ifline-preset-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.ifline-preset-card.clickable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.preset-card-enter-hint {
+    font-size: 12px;
+    color: #c9aee8;
+    letter-spacing: 1px;
+    text-align: right;
+    opacity: 0.85;
+}
+
+.ifline-preset-card.clickable:hover .preset-card-enter-hint {
+    opacity: 1;
+    color: #e0c8f8;
+}
+
+/* 自定义入口卡片 */
+.ifline-custom-card {
+    position: relative;
+    padding: 14px 18px;
+    border-radius: 14px;
+    border: 1px dashed rgba(155, 125, 220, 0.45);
+    background: rgba(60, 42, 90, 0.18);
+    cursor: pointer;
+    user-select: none;
+    transition: border-color 0.25s, background 0.25s;
+}
+
+.ifline-custom-card:hover {
+    border-color: rgba(175, 145, 235, 0.7);
+    background: rgba(70, 50, 105, 0.3);
+}
+
+.ifline-custom-card .preset-card-desc {
+    margin-bottom: 0;
+}
+
+.preset-card-arrow {
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 22px;
+    color: #c9aee8;
+}
+
+/* 返回选择链接 */
+.ifline-back {
+    display: inline-block;
+    font-size: 13px;
+    color: #c9aee8;
+    cursor: pointer;
+    margin-bottom: 14px;
+    letter-spacing: 0.5px;
+    user-select: none;
+}
+
+.ifline-back:hover {
+    color: #ead9f5;
+}
+
+.ifline-divider {
+    display: flex;
+    align-items: center;
+    margin: 18px 0 16px;
+    color: rgba(235, 215, 225, 0.45);
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+.ifline-divider::before,
+.ifline-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(155, 125, 220, 0.3), transparent);
+}
+
+.ifline-divider span {
+    padding: 0 12px;
+    white-space: nowrap;
+}
+
 /* IF线手机端适配 */
 @media (max-width: 768px) {
     .ifline-banner {
@@ -4177,5 +4322,17 @@ body {
     .ifline-start-btn {
         padding: 11px 36px;
         font-size: 14px;
+    }
+
+    .ifline-preset-card {
+        padding: 13px 14px;
+    }
+
+    .preset-card-name {
+        font-size: 15px;
+    }
+
+    .preset-card-desc {
+        font-size: 12px;
     }
 }

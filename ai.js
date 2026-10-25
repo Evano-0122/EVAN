@@ -65,6 +65,8 @@ class LuhanAI {
         this.ifLinePresets = {
             liuchizhixia: {
                 name: '六尺之下 · 春归',
+                tag: '卡面衍生 · HE',
+                desc: '抗战的炮火停了。战后的第一个春天，他独自去墓园看你——却看见你就站在自己的墓碑前。',
                 config: {
                     worldview: '抗战时期的战时修道院与战后和平年代（四周年「到明天去」卡面「六尺之下」HE衍生线）',
                     timeline: '「六尺之下」之后——她在战火中牺牲，战争结束后的第一个春天',

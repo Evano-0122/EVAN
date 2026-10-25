@@ -228,7 +228,7 @@ window.refreshIfLineUI = function() {
     if (!banner) return;
     if (window.luhanAI && window.luhanAI.ifLine) {
         const cfg = window.luhanAI.ifLine.config;
-        text.textContent = 'IF线进行中：' + (cfg.worldview || '未知世界');
+        text.textContent = 'IF线进行中：' + (window.luhanAI.ifLine.presetName || cfg.worldview || '未知世界');
         banner.style.display = 'flex';
     } else {
         banner.style.display = 'none';
@@ -241,13 +241,60 @@ function initIfLine() {
     const closeBtn = document.getElementById('ifline-close-btn');
     const startBtn = document.getElementById('ifline-start-btn');
     const exitBtn = document.getElementById('ifline-exit-btn');
+    const chooser = document.getElementById('ifline-chooser');
+    const formView = document.getElementById('ifline-form-view');
+    const presetList = document.getElementById('ifline-preset-list');
+    const customCard = document.getElementById('ifline-custom-card');
+    const backBtn = document.getElementById('ifline-back');
     if (!iflineBtn || !modal) return;
+
+    // 切换视图：选择界面 ⇄ 自定义表单
+    function showChooser() {
+        if (chooser) chooser.style.display = 'block';
+        if (formView) formView.style.display = 'none';
+    }
+    function showForm() {
+        if (chooser) chooser.style.display = 'none';
+        if (formView) formView.style.display = 'block';
+    }
+
+    // 动态渲染固定剧本卡片（卡片整体可点击，直接进入剧本）
+    function renderPresetCards() {
+        if (!presetList || !window.luhanAI) return;
+        presetList.innerHTML = '';
+        const presets = window.luhanAI.ifLinePresets || {};
+        Object.keys(presets).forEach(function(key) {
+            const p = presets[key];
+            const card = document.createElement('div');
+            card.className = 'ifline-preset-card clickable';
+            card.innerHTML =
+                '<div class="preset-card-name">' + p.name + '</div>' +
+                (p.tag ? '<div class="preset-card-tag">' + p.tag + '</div>' : '') +
+                '<div class="preset-card-desc">' + p.desc + '</div>' +
+                '<div class="preset-card-enter-hint">点击进入剧本 →</div>';
+            card.addEventListener('click', function() {
+                const preset = window.luhanAI.startPresetIfLine(key);
+                if (!preset) return;
+                modal.classList.remove('show');
+                window.refreshIfLineUI();
+                addSystemMessage('🌌 已进入固定剧本：' + preset.name + '。输入「退出IF线」或点击上方按钮可回到日常。');
+                // 展示固定开头
+                addMessage('character', preset.opening);
+            });
+            presetList.appendChild(card);
+        });
+    }
+
+    if (customCard) customCard.addEventListener('click', showForm);
+    if (backBtn) backBtn.addEventListener('click', showChooser);
 
     iflineBtn.addEventListener('click', function() {
         if (window.luhanAI && window.luhanAI.ifLine) {
             addSystemMessage('IF线进行中，点击上方「退出IF线」可回到日常');
             return;
         }
+        showChooser();
+        renderPresetCards();
         modal.classList.add('show');
     });
 
