@@ -268,8 +268,8 @@ class LuhanAI {
         const matched = keywords.some(k => cleaned.includes(k));
         if (matched) return true;
 
-        // 兜底：篇幅足够长（>=300字）且有署名，可能是模型换了表达，放宽通过
-        if (cleaned.length >= 300 && cleaned.includes('陆沉')) return true;
+        // 放宽：篇幅足够且有陆沉署名的完整格式回信，视为真实回信（同义改写容易漏关键词，不能误杀）
+        if (cleaned.length >= 200 && cleaned.includes('陆沉')) return true;
 
         return false;
     }

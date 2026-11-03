@@ -436,18 +436,26 @@ function initLetterModal() {
                 sendLetterBtn.classList.remove('sending');
             }
             
-            addLetter(content, response);
-            updateMailboxStats();
-            
-            // 直接显示回信
+            // 先展示回信，再做存档，避免存档异常（如存储空间满）导致回信不显示
             const replyContent = document.getElementById('reply-content');
-            replyContent.textContent = response;
-            
-            addMessage('character', response);
-            
+            if (replyContent) replyContent.textContent = response;
+
+            try {
+                addMessage('character', response);
+            } catch (e) {
+                console.error('回信追加聊天区失败:', e);
+            }
+
             setTimeout(() => {
                 replyModal.classList.add('show');
             }, 500);
+
+            try {
+                addLetter(content, response);
+                updateMailboxStats();
+            } catch (e) {
+                console.error('信件存档失败:', e);
+            }
         }, 1500);
     });
 }
